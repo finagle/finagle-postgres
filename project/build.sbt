@@ -1,0 +1,2 @@
+resolvers += Classpaths.typesafeResolver
+
