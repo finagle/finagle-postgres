@@ -33,5 +33,6 @@ Maven
 	</dependency>
 
 sbt
+	resolvers += "com.github.mairbek" at "https://raw.github.com/mairbek/mvn-repo/master"
   
 	"com.github.mairbek" % "finagle-postgres" % "0.0.1-SNAPSHOT"
