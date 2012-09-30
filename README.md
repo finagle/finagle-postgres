@@ -20,7 +20,7 @@ Maven
 	<repositories>
 		<repository>
 			<id>com.github.maribek</id>
-			<url>https://raw.github.com/mairbek/finagle-postgres/master/</url>
+			<url>https://raw.github.com/mairbek/mvn-repo/master/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
