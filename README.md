@@ -1,7 +1,7 @@
 finagle-postgres
 ================
 
-Postgres database support for finagle
+Postgres database support for finagle.
 
 
 ##### Working with postgres client
