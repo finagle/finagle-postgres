@@ -19,9 +19,8 @@ Maven
 
 	<repositories>
 		<repository>
-			<id>twitterrepo</id>
-			<name>twitter-repo</name>
-			<url>http://maven.twttr.com/</url>
+			<id>com.github.maribek</id>
+			<url>https://raw.github.com/mairbek/finagle-postgres/master/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
