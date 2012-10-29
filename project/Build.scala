@@ -6,6 +6,8 @@ object FinaglePostgres extends Build {
 
   val baseSettings = Defaults.defaultSettings ++ Seq(resolvers += "twitter-repo" at "http://maven.twttr.com",
     libraryDependencies ++= Seq(
+      "org.specs2" %% "specs2" % "1.12.2" % "test",
+      "junit" % "junit" % "4.7"	% "test",
       "com.twitter" % "finagle-core" % "5.3.0",
       "com.twitter" % "util-logging" % "5.3.6"
     ))
