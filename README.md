@@ -40,6 +40,6 @@ sbt
 
 #### Change Log
 0.0.1
-	- Clear text authentication support
-	- Md5 authentication support
-	- Select, update, insert and delete queries
+* Clear text authentication support
+* Md5 authentication support
+* Select, update, insert and delete queries
