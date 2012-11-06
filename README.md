@@ -37,3 +37,9 @@ sbt
 	resolvers += "com.github.mairbek" at "https://raw.github.com/mairbek/mvn-repo/master"
   
 	"com.github.mairbek" % "finagle-postgres" % "0.0.1-SNAPSHOT"
+
+#### Change Log
+0.0.1
+	- Clear text authentication support
+	- Md5 authentication support
+	- Select, update, insert and delete queries
