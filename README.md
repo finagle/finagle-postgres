@@ -19,7 +19,7 @@ Maven
 
 	<repositories>
 		<repository>
-			<id>com.github.maribek</id>
+			<id>com.github.mairbek</id>
 			<url>https://raw.github.com/mairbek/mvn-repo/master/</url>
 			<layout>default</layout>
 		</repository>
