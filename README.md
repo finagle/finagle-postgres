@@ -19,7 +19,7 @@ Maven
 
 	<repositories>
 		<repository>
-			<id>com.github.maribek</id>
+			<id>com.github.mairbek</id>
 			<url>https://raw.github.com/mairbek/mvn-repo/master/</url>
 			<layout>default</layout>
 		</repository>
@@ -40,6 +40,6 @@ sbt
 
 #### Change Log
 0.0.1
-	- Clear text authentication support
-	- Md5 authentication support
-	- Select, update, insert and delete queries
+* Clear text authentication support
+* Md5 authentication support
+* Select, update, insert and delete queries
