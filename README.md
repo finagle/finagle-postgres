@@ -28,7 +28,7 @@ Maven
 	<dependency>
 		<groupId>com.github.mairbek</groupId>
 		<artifactId>finagle-postgres_2.9.2</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 		<scope>compile</scope>
 	</dependency>
 
@@ -36,7 +36,7 @@ sbt
 
 	resolvers += "com.github.mairbek" at "https://raw.github.com/mairbek/mvn-repo/master"
   
-	"com.github.mairbek" % "finagle-postgres" % "0.0.1-SNAPSHOT"
+	"com.github.mairbek" % "finagle-postgres" % "0.0.1"
 
 #### Change Log
 0.0.1
