@@ -10,6 +10,10 @@ import com.twitter.util.Future
 import collection.mutable
 import com.twitter.logging.Level
 import com.twitter.util.StateMachine
+import com.twitter.concurrent.Spool
+import com.twitter.util.Promise
+import com.twitter.util.Return
+import com.twitter.util.Throw
 
 class PgCodec(user: String, password: Option[String], database: String) extends CodecFactory[PgRequest, PgResponse] {
   def server = throw new UnsupportedOperationException("client only")
@@ -53,16 +57,17 @@ class AuthenticationProxy(delegate: ServiceFactory[PgRequest, PgResponse], user:
     logger.ifDebug("Startup response -- " + startupResponse)
     startupResponse match {
 
-      case PasswordRequired(encoding) =>
-        if (password.isEmpty) {
-          Future.exception(new IllegalArgumentException("Password has to be specified for md5 authentication connection"))
-        } else {
+      case PasswordRequired(encoding) => password match {
+        case Some(pass) =>
           val msg = encoding match {
-            case ClearText => PasswordMessage(password.get)
-            case Md5(salt) => PasswordMessage(new String(Md5Encriptor.encript(user.getBytes, password.get.getBytes, salt)))
+            case ClearText => PasswordMessage(pass)
+            case Md5(salt) => PasswordMessage(new String(Md5Encriptor.encript(user.getBytes, pass.getBytes, salt)))
           }
           service(Communication.request(msg))
-        }
+
+        case None => Future.exception(new IllegalArgumentException("Password has to be specified for md5 authentication connection"))
+
+      }
 
       case r => Future.value(r)
     }
@@ -110,7 +115,7 @@ class PgResponseHandler() extends SimpleChannelHandler with StateMachine {
 
   case object WaitingForQuery extends State
 
-  case class SelectQuery(fields: IndexedSeq[FieldDescription], rows: Seq[DataRow]) extends State
+  case class SelectQuery(fieldNames: IndexedSeq[Field], fieldParsers: IndexedSeq[ChannelBuffer => Value], promise: Promise[Spool[Row]]) extends State
 
   case class UpdateQuery(tag: String) extends State
 
@@ -138,50 +143,63 @@ class PgResponseHandler() extends SimpleChannelHandler with StateMachine {
   }
 
   def processMessage(msg: BackendMessage): Option[PgResponse] = {
-    state match {
+    val (response, newState) = state match {
 
       case AuthenticationRequired =>
-        val (response, newState) = handleAuthentication(msg)
-        state = newState
-        response
+        handleAuthentication(msg)
 
       case WaitingForQuery =>
-        val (response, newState) = handleQueryResponse(msg)
-        state = newState
-        response
+        handleQueryResponse(msg)
 
-      case s @ UpdateQuery(_) =>
-        val (response, newState) = handleUpdateQuery(msg, s)
-        state = newState
-        response
+      case s: UpdateQuery =>
+        handleUpdateQuery(msg, s)
 
-      case s @ SelectQuery(_, _) =>
-        val (response, newState) = processSelectQuery(msg, s)
-        state = newState
-        response
+      case s: SelectQuery =>
+        processSelectQuery(msg, s)
 
-      case s @ AggregatingAuthData(_, _, _) =>
-        val (response, newState) = accumulateAuthData(msg, s)
-        state = newState
-        response
+      case s: AggregatingAuthData =>
+        accumulateAuthData(msg, s)
     }
+    state = newState
+    response
   }
 
   private[this] def processSelectQuery(msg: BackendMessage, state: SelectQuery): (Option[PgResponse], State) = {
     logger.ifDebug("handling select data. [msg " + msg + " state " + state + "]")
     msg match {
-      case row @ DataRow(_) => (None, SelectQuery(state.fields, state.rows ++ Seq(row)))
+      case row: DataRow => processRow(row, state)
       case CommandComplete(_) => (None, state)
-      case ReadyForQuery(_) => (Some(converToResultSet(state)), WaitingForQuery)
-      case ErrorResponse(details) => (Some(Error(details)), WaitingForQuery)
+      case ReadyForQuery(_) =>
+        logger.ifDebug("Select query comleted state '" + state + "'")
+        state.promise.update(Return(Spool.empty))
+        (None, WaitingForQuery)
+      case ErrorResponse(details) =>
+        logger.ifDebug("Select query failed state '" + state + "'")
+        state.promise.update(Throw(new IllegalStateException("TODO: Introduce exception")))
+        (Some(Error(details)), WaitingForQuery)
     }
+  }
+
+  private[this] def processRow(dataRow: DataRow, state: SelectQuery): (Option[PgResponse], State) = {
+    logger.ifDebug("Processing row '" + state + "'")
+
+    val SelectQuery(fieldNames, fieldParsers, promise) = state
+    val row = new Row(fieldNames, dataRow.data.zip(fieldParsers).map(pair => pair._2(pair._1)))
+    val tail = new Promise[Spool[Row]]
+    promise.update(Return(row *:: tail))
+    (None, SelectQuery(fieldNames, fieldParsers, tail))
   }
 
   private[this] def handleQueryResponse(msg: BackendMessage): (Option[PgResponse], State) = {
     logger.ifDebug("handling query response. [msg " + msg + " state " + state + "]")
     msg match {
-      case RowDescription(fields) => (None, SelectQuery(fields, Seq()))
+      case RowDescription(fields) =>
+        val fieldNames = fields.map(f => Field(f.name))
+        val fieldParsers = fields.map(f => ValueParser.parserOf(f))
+        val promise: Promise[Spool[Row]] = new Promise()
+        (Some(ResultSet(fieldNames, promise)), SelectQuery(fieldNames, fieldParsers, promise))
       case CommandComplete(tag) => (None, UpdateQuery(tag))
+      case NoticeResponse(details) => (None, state)
       case ErrorResponse(details) => (Some(Error(details)), WaitingForQuery)
     }
   }
@@ -215,26 +233,20 @@ class PgResponseHandler() extends SimpleChannelHandler with StateMachine {
   }
 
   private[this] def parseTag(tag: String): QueryResponse = {
-    val parts = tag.split(" ")
+    if (tag == "CREATE TABLE") {
+      OK(1)
+    } else if (tag == "DROP TABLE") {
+      OK(1)
+    } else {
+      val parts = tag.split(" ")
 
-    parts(0) match {
-      case "INSERT" => Inserted(parts(2).toInt)
-      case "DELETE" => Deleted(parts(1).toInt)
-      case "UPDATE" => Updated(parts(1).toInt)
-      case _ => throw new IllegalStateException("Unknown command complete response tag " + tag)
+      parts(0) match {
+        case "INSERT" => OK(parts(2).toInt)
+        case "DELETE" => OK(parts(1).toInt)
+        case "UPDATE" => OK(parts(1).toInt)
+        case _ => throw new IllegalStateException("Unknown command complete response tag " + tag)
+      }
     }
-  }
-
-  private[this] def converToResultSet(selectQuery: SelectQuery) = {
-    val fieldNames = selectQuery.fields.map(f => Field(f.name))
-    val fieldParsers = selectQuery.fields.map(f => ValueParser.parserOf(f))
-
-    val dataRows = selectQuery.rows.filter(_.isInstanceOf[DataRow]).map(_.asInstanceOf[DataRow])
-    val rows = dataRows.map { r =>
-      new Row(fieldNames, r.data.zip(fieldParsers).map(pair => pair._2(pair._1)))
-    }
-
-    ResultSet(fieldNames, rows)
   }
 
 }
@@ -254,21 +266,16 @@ class BackendMessageDecoder(val parser: BackendMessageParser) extends SimpleChan
       case packet: Packet =>
         logger.ifDebug("Packet passed. Trying to parse...")
 
-        val result = parser.parse(packet)
-
-        if (result.isDefined) {
-          val backendMessage = result.get
-
-          logger.ifDebug("Decoded message  " + backendMessage)
-
-          Channels.fireMessageReceived(ctx, backendMessage)
-
-        } else {
-          logger.warning("Cannot parse the packet. Disconnecting...")
-          Channels.disconnect(ctx.getChannel)
+        parser.parse(packet) match {
+          case Some(backendMessage) =>
+            logger.ifDebug("Decoded message  " + backendMessage)
+            Channels.fireMessageReceived(ctx, backendMessage)
+          case None =>
+            logger.warning("Cannot parse the packet. Disconnecting...")
+            Channels.disconnect(ctx.getChannel)
         }
 
-      case unsupported =>
+      case _ =>
         logger.warning("Only packet is supported...")
         Channels.disconnect(ctx.getChannel)
     }
