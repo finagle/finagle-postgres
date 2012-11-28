@@ -1,5 +1,4 @@
-finagle-postgres
-================
++# finagle-postgres [![Build Status](https://secure.travis-ci.org/mairbek/finagle-postgres.png)](http://travis-ci.org/mairbek/finagle-postgres.png)
 
 Postgres database support for finagle.
 
