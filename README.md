@@ -3,16 +3,9 @@
 Postgres database support for finagle.
 
 
-##### Working with postgres client
+## Using postgres client
 
-	val client = Client(host, username, password, database)
-	val f = client.select("select * from users") {row =>
-		User(row.getString("email"), row.getString("name"))
-	}
-	logger.debug("Responded " + f.get)
-
-
-##### Adding dependencies
+### Adding dependencies
 
 Maven
 
@@ -27,7 +20,7 @@ Maven
 	<dependency>
 		<groupId>com.github.mairbek</groupId>
 		<artifactId>finagle-postgres_2.9.2</artifactId>
-		<version>0.0.1</version>
+		<version>0.0.2</version>
 		<scope>compile</scope>
 	</dependency>
 
@@ -35,10 +28,58 @@ sbt
 
 	resolvers += "com.github.mairbek" at "https://raw.github.com/mairbek/mvn-repo/master"
   
-	"com.github.mairbek" % "finagle-postgres" % "0.0.1"
+	"com.github.mairbek" % "finagle-postgres" % "0.0.2"
 
-#### Change Log
-0.0.1
+### Connecting to the DB
+
+	val client = Client(host, username, password, database)
+
+### Selecting with simple query
+
+	val f = client.select("select * from users") {row =>
+		User(row.getString("email"), row.getString("name"))
+	}
+	logger.debug("Responded " + f.get)
+
+### Selecting with prepared statement
+
+	val f = for {
+		prep <- client.prepare("select * from users where email=$1 and name=$2")
+		users <- prep.select("mickey@mouse.com", "Mickey Mouse") {
+			row => User(row.getString("email"), row.getString("name"))
+		}
+	} yield users
+	logger.debug("Responded " + f.get)
+
+
+### Inserting with prepared statement
+
+	val f = for {
+		prep <- client.prepare("insert into users(email, name) values ($1, $2)")
+		one <- prep.exec("Daisy Duck", "daisy@duck.com")
+		two <- prep.exec("Minnie Mouse", "ms.mouse@mouse.com")
+	} yield one.affectedRows + two.affectedRows
+	
+	logger.debug(f.get + " rows affected")
+
+### Updating with prepared statement
+
+	val f = for {
+		prep <- client.prepare("update users set name=$1, email=$2 where email='mickey@mouse.com'")
+		res <- prep.exec("Mr. Michael Mouse", "mr.mouse@mouse.com")
+	} yield res.affectedRows
+
+	logger.debug(f.get + " rows affected")
+
+## Change Log
+
+### 0.0.2
+* Prepared statements support
+* Async responses logging
+* Exceptions handling
+* Create table/Drop table support
+
+### 0.0.1
 * Clear text authentication support
 * Md5 authentication support
 * Select, update, insert and delete queries
