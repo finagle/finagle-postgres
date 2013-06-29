@@ -8,9 +8,10 @@ object FinaglePostgres extends Build {
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2" % "1.12.2" % "it,test",
       "junit" % "junit" % "4.7" % "test, it",
-      "com.twitter" % "finagle-core" % "5.3.0",
-      "com.twitter" % "util-logging" % "5.3.6"
-    ))
+      "com.twitter" % "finagle-core" % "6.4.1",
+      "com.twitter" % "util-logging" % "6.3.5"
+    ),
+    scalacOptions += "-deprecation")
 
   lazy val buildSettings = Seq(
     organization := "com.github.mairbek",
