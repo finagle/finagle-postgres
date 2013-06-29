@@ -22,7 +22,15 @@ object FinaglePostgres extends Build {
   lazy val publishSettings = Seq(
     publishMavenStyle := true,
     publishArtifact := true,
-    publishTo := Some(Resolver.file("localDirectory", file(Path.userHome.absolutePath + "/Projects/personal/mvn-repo"))),
+    //publishTo := Some(Resolver.file("localDirectory", file(Path.userHome.absolutePath + "/Projects/personal/mvn-repo"))),
+    credentials += Credentials(Path.userHome / ".thefactory" / "credentials"),
+    publishTo <<= version { (v: String) =>
+      val nexus = "http://maven.thefactory.com/nexus/content/repositories/"
+      if (v.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "snapshots")
+      else
+        Some("releases"  at nexus + "releases")
+    },
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("https://github.com/mairbek/finagle-postgres")),
     pomExtra := (
