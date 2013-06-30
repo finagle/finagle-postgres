@@ -8,10 +8,10 @@ trait ConnectionSpec {
 
   args(sequential = true)
 
-  implicit var connection: Connection = new Connection()
+  implicit var connection = new ConnectionStateMachine()
 
   def withConnection(block: => Unit) {
-    connection = new Connection()
+    connection = new ConnectionStateMachine()
     block
   }
 
@@ -24,13 +24,17 @@ trait ConnectionSpec {
 
   private[this] var result: Option[PgResponse] = None
 
-  def send(msg: FrontendMessage)(implicit connection: Connection) = {
-    connection.send(msg)
+  def send(msg: FrontendMessage)(implicit connection: ConnectionStateMachine) = {
+    connection.onEvent(msg)
     result = None
   }
 
-  def receive(msg: BackendMessage)(implicit connection: Connection) = {
-    result = connection.receive(msg)
+  def receive(msg: BackendMessage)(implicit connection: ConnectionStateMachine) = {
+    result = connection.onEvent(msg)
+  }
+
+  def setState(state: State) {
+    connection = new ConnectionStateMachine(state)
   }
 
   def response = result
