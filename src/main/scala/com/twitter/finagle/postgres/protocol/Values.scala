@@ -1,6 +1,7 @@
 package com.twitter.finagle.postgres.protocol
 
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import scala.util.parsing.combinator.RegexParsers
 
 import java.sql.Timestamp
 
@@ -52,7 +53,7 @@ object Type {
   val VOID = 2278
   val UUID = 2950
   val ENUM = 16448
-
+  val HSTORE = 16663
 }
 
 trait ValueParser {
@@ -90,6 +91,8 @@ trait ValueParser {
 
   def parseEnum(b: ChannelBuffer): Value[String]
 
+  def parseHStore(b: ChannelBuffer): Value[Map[String, String]]
+
 }
 
 object StringValueParser extends ValueParser {
@@ -125,6 +128,15 @@ object StringValueParser extends ValueParser {
 
   def parseEnum(b: ChannelBuffer) = parseStr(b)
 
+  def parseHStore(b: ChannelBuffer) = {
+    val data = b.toString(Charsets.Utf8)
+
+    HStoreStringParser(data) match {
+      case Some(map) => Value[Map[String, String]](map)
+      case _ => null
+    }
+  }
+
   private[this] def parseInt(b: ChannelBuffer) = Value[Int](b.toString(Charsets.Utf8).toInt)
 
   private[this] def parseStr(b: ChannelBuffer) = Value[String](b.toString(Charsets.Utf8))
@@ -158,6 +170,7 @@ object ValueParser {
         case TIMESTAMP => valueParser.parseTimestamp
         case TIMESTAMP_TZ => valueParser.parseTimestampTZ
         case ENUM => valueParser.parseEnum
+        case HSTORE => valueParser.parseHStore
         case _ => throw Errors.client("Data type '" + dataType + "' is not supported")
       }
     r
@@ -174,5 +187,17 @@ object StringValueEncoder {
       result.writeBytes(value.toString.getBytes(Charsets.Utf8))
     }
     result
+  }
+}
+
+object HStoreStringParser extends RegexParsers {
+  def term:Parser[String] = "\"" ~ """([^"\\]*(\\.[^"\\]*)*)""".r ~ "\"" ^^ { case o~value~c => value.replace("\\\"", "\"").replace("\\\\", "\\") }
+  def item:Parser[(String, String)] = term ~ "=>" ~ term ^^ { case key~arrow~value => (key, value) }
+
+  def items:Parser[Map[String, String]] = repsep(item, ", ") ^^ { l => l.toMap }
+
+  def apply(input:String):Option[Map[String, String]] = parseAll(items, input) match {
+    case Success(result, _) => Some(result)
+    case failure:NoSuccess => None
   }
 }
