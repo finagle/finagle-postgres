@@ -3,6 +3,8 @@ package com.twitter.finagle.postgres.protocol
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import scala.util.parsing.combinator.RegexParsers
 
+import java.sql.Timestamp
+
 object Type {
   val BOOL = 16
   val BYTE_A = 17
@@ -50,6 +52,7 @@ object Type {
   val RECORD = 2249
   val VOID = 2278
   val UUID = 2950
+  val ENUM = 16448
 
   val HSTORE = 16663
 }
@@ -83,7 +86,11 @@ trait ValueParser {
 
   def parseVarChar(b: ChannelBuffer): Value[String]
 
-  def parseTimestampTZ(b: ChannelBuffer): Value[String]
+  def parseTimestamp(b: ChannelBuffer): Value[Timestamp]
+
+  def parseTimestampTZ(b: ChannelBuffer): Value[Timestamp]
+
+  def parseEnum(b: ChannelBuffer): Value[String]
 
   def parseHStore(b: ChannelBuffer): Value[Map[String, String]]
 
@@ -116,7 +123,11 @@ object StringValueParser extends ValueParser {
 
   def parseVarChar(b: ChannelBuffer) = parseStr(b)
 
-  def parseTimestampTZ(b: ChannelBuffer) = parseStr(b)
+  def parseTimestamp(b: ChannelBuffer) = Value[Timestamp](Timestamp.valueOf(b.toString(Charsets.Utf8)))
+
+  def parseTimestampTZ(b: ChannelBuffer) = parseTimestamp(b)
+
+  def parseEnum(b: ChannelBuffer) = parseStr(b)
 
   def parseHStore(b: ChannelBuffer) = {
     val data = b.toString(Charsets.Utf8)
@@ -157,8 +168,8 @@ object ValueParser {
         case INET => valueParser.parseInet
         case BP_CHAR => valueParser.parseBpChar
         case VAR_CHAR => valueParser.parseVarChar
+        case TIMESTAMP => valueParser.parseTimestamp
         case TIMESTAMP_TZ => valueParser.parseTimestampTZ
-        case HSTORE => valueParser.parseHStore
         case _ => throw Errors.client("Data type '" + dataType + "' is not supported")
       }
     r
@@ -176,6 +187,7 @@ object StringValueEncoder {
     }
     result
   }
+<<<<<<< HEAD
 }
 
 object HStoreStringParser extends RegexParsers {
@@ -190,3 +202,6 @@ object HStoreStringParser extends RegexParsers {
   }
 }
 
+=======
+}
+>>>>>>> origin/timestamp-enum-support
