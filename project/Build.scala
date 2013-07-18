@@ -6,7 +6,7 @@ object FinaglePostgres extends Build {
 
   val baseSettings = Defaults.defaultSettings ++ Seq(resolvers += "twitter-repo" at "http://maven.twttr.com",
     libraryDependencies ++= Seq(
-      "org.specs2" %% "specs2" % "1.12.2" % "it,test",
+      "org.specs2" %% "specs2" % "1.14" % "it,test",
       "junit" % "junit" % "4.7" % "test, it",
       "com.twitter" %% "finagle-core" % "6.5.0",
       "com.twitter" %% "util-logging" % "6.3.6"
@@ -15,7 +15,7 @@ object FinaglePostgres extends Build {
   lazy val buildSettings = Seq(
     organization := "com.github.mairbek",
     version := "0.0.3-SNAPSHOT",
-    scalaVersion := "2.9.2"
+    scalaVersion := "2.10.2"
   )
 
   lazy val publishSettings = Seq(
