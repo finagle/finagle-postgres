@@ -13,7 +13,7 @@ object FinaglePostgres extends Build {
 
   lazy val buildSettings = Seq(
     organization := "com.github.mairbek",
-    version := "6.10.0-SNAPSHOT",
+    version := "6.10.0.1-SNAPSHOT",
     scalaVersion := "2.10.2"
   )
 
