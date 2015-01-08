@@ -1,31 +1,31 @@
-package com.twitter.finagle.postgres.protocol
+package com.twitter.finagle.postgres.values
+
+import java.nio.charset.Charset
+import java.security.MessageDigest
 
 import org.jboss.netty.buffer.ChannelBuffer
-import java.nio.charset.Charset
-import scala.StringBuilder
-import java.security.MessageDigest
+
 import scala.annotation.tailrec
 
 object Charsets {
-
   val Utf8 = Charset.forName("UTF-8")
-
 }
 
 object Buffers {
-
-  /**
-   * Reads a string with C-style '\0' terminator at the end from a buffer
+  /*
+   * Reads a string with C-style '\0' terminator at the end from a buffer.
    */
   @throws(classOf[IndexOutOfBoundsException])
   def readCString(buffer: ChannelBuffer): String = {
     @tailrec
     def countChars(buf: ChannelBuffer, count: Int): Int = {
-      if(!buffer.readable) throw new IndexOutOfBoundsException("buffer ended, but '\0' was not found")
-      else if (buffer.readByte() == 0)
+      if (!buffer.readable) {
+        throw new IndexOutOfBoundsException("buffer ended, but '\0' was not found")
+      } else if (buffer.readByte() == 0) {
         count
-      else
+      } else {
         countChars(buf, count + 1)
+      }
     }
 
     buffer.markReaderIndex()
@@ -39,11 +39,12 @@ object Buffers {
     buffer.readerIndex(buffer.readerIndex() + count + 1)
     result
   }
-
 }
 
 object Md5Encryptor {
-
+  /*
+   * Encrypt a user/password combination using the MD5 algorithm.
+   */
   @throws(classOf[IllegalArgumentException])
   def encrypt(user: Array[Byte], password: Array[Byte], salt: Array[Byte]): Array[Byte] = {
 
@@ -61,7 +62,6 @@ object Md5Encryptor {
 
     ("md5" + Hex.valueOf(outer.digest)).getBytes
   }
-
 }
 
 object Hex {
