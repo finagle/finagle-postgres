@@ -29,7 +29,7 @@ by Mairbek Khadikov, but these are no longer available. We are planning to
 publish releases to Maven Central, but for now you can use the library in your
 own projects by running `sbt +publishLocal` and then adding the following
 dependency to your SBT configuration:
-  
+
 	"com.twitter" %% "finagle-postgres" % "0.1.0-SNAPSHOT"
 
 ### Connecting to the DB
