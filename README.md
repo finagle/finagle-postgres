@@ -1,6 +1,7 @@
 # Finagle Postgres
 
 [![Build status](https://img.shields.io/travis/finagle/finagle-postgres/master.svg)](http://travis-ci.org/finagle/finagle-postgres)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finagle-postgres_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finagle-postgres_2.11)
 
 This library provides [PostgreSQL][postgres] database support for
 [Finagle][finagle]. It was originally developed by [Mairbek Khadikov][mairbek],
@@ -24,29 +25,47 @@ The library is currently cross-built for Scala 2.10 and 2.11 using [SBT][sbt].
 
 ### Installation
 
-Earlier versions of the library were published to a Maven repository maintained
-by Mairbek Khadikov, but these are no longer available. We are planning to
-publish releases to Maven Central, but for now you can use the library in your
-own projects by running `sbt +publishLocal` and then adding the following
-dependency to your SBT configuration:
+Finagle Postgres is published on Maven Central. Use the following _sbt_ snippet to bring it as a
+dependency.
 
-	"com.twitter" %% "finagle-postgres" % "0.1.0-SNAPSHOT"
+* for the _stable_ release:
+
+```scala
+libraryDependencies ++= Seq(
+  "com.github.finagle" %% "finagle-postgres" % "0.1.0"
+)
+```
+
+* for the `SNAPSHOT` version:
+
+```scala
+resolvers += Resolver.sonatypeRepo("snapshots")
+
+libraryDependencies ++= Seq(
+  "com.github.finagle" %% "finagle-postgres" % "0.2.0-SNAPSHOT" changing()
+)
+```
 
 ### Connecting to the DB
 
-	val client = Client(host, username, password, database)
+```scala
+val client = Client(host, username, password, database)
+```
 
 ### Selecting with simple query
 
-	val f = client.select("select * from users") {row =>
-		User(row.getString("email"), row.getString("name"))
-	}
-	logger.debug("Responded " + f.get)
+```scala
+val f = client.select("select * from users") {row =>
+    User(row.getString("email"), row.getString("name"))
+}
+logger.debug("Responded " + f.get)
+```
 
 ## Changelog
 
 ### 0.1.0
 * SSL support
+* Manual transactions support
 
 ### 0.0.2
 * Prepared statements support
