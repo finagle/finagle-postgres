@@ -7,3 +7,4 @@ target
 .classpath
 .project
 .cache
+sbt-launch.jar
