@@ -214,13 +214,14 @@ object Client {
       password: Option[String],
       database: String,
       useSsl: Boolean = false,
+      clientCertAndPass: Option[(String, String)] = None,
       hostConnectionLimit: Int = 1,
       numRetries: Int = 4,
       customTypes: Boolean = false): Client = {
     val id = Random.alphanumeric.take(28).mkString
 
     val factory: ServiceFactory[PgRequest, PgResponse] = ClientBuilder()
-      .codec(new PgCodec(username, password, database, id, useSsl = useSsl, customTypes = customTypes))
+      .codec(new PgCodec(username, password, database, id, useSsl = useSsl, clientCertAndPass = clientCertAndPass, customTypes = customTypes))
       .hosts(host)
       .hostConnectionLimit(hostConnectionLimit)
       .retries(numRetries)

@@ -8,13 +8,16 @@ import com.twitter.finagle.postgres.values.Md5Encryptor
 import com.twitter.logging.Logger
 import com.twitter.util.Future
 
-import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.{KeyManagerFactory, TrustManagerFactory}
 
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.frame.FrameDecoder
 import org.jboss.netty.handler.ssl.util.InsecureTrustManagerFactory
-import org.jboss.netty.handler.ssl.{SslHandler, SslContext}
+import org.jboss.netty.handler.ssl.{SslHandler, SslContext, JdkSslClientContext}
+
+import java.io.FileInputStream
+import java.security.{KeyStore, SecureRandom}
 
 import scala.collection.mutable
 
@@ -30,11 +33,20 @@ class PgCodec(
     id: String,
     useSsl: Boolean,
     trustManagerFactory: TrustManagerFactory = InsecureTrustManagerFactory.INSTANCE,
+    clientCertAndPass: Option[(String, String)] = None,
     customTypes: Boolean = false)
       extends CodecFactory[PgRequest, PgResponse] {
   def server = throw new UnsupportedOperationException("client only")
 
-  val sslContext: SslContext = SslContext.newClientContext(trustManagerFactory)
+  val sslContext: SslContext = clientCertAndPass.map{case (cert, pass) => {
+    val clientStore = KeyStore.getInstance("PKCS12")
+    clientStore.load(new FileInputStream(cert), pass.toCharArray())
+    val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+    kmf.init(clientStore, pass.toCharArray())
+    val ctx = new JdkSslClientContext()
+    ctx.context().init(kmf.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom())
+    ctx
+  }}.getOrElse(SslContext.newClientContext(trustManagerFactory))
 
   def client = Function.const {
     new Codec[PgRequest, PgResponse] {
