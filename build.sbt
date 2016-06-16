@@ -50,3 +50,5 @@ lazy val root = project.in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
+
+parallelExecution in Test := false
