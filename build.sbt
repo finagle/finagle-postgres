@@ -7,7 +7,7 @@ lazy val buildSettings = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "6.29.0",
+    "com.twitter" %% "finagle-core" % "6.35.0",
     "junit" % "junit" % "4.7" % "test,it",
     "org.scalatest" %% "scalatest" % "2.2.5" % "test,it",
     "org.mockito" % "mockito-all" % "1.9.5" % "test,it"
@@ -50,3 +50,5 @@ lazy val root = project.in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
+
+parallelExecution in Test := false

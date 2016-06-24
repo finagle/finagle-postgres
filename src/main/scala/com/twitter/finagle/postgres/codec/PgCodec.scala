@@ -49,7 +49,7 @@ class PgCodec(
         }
       }
 
-      override def prepareConnFactory(underlying: ServiceFactory[PgRequest, PgResponse]) = {
+      override def prepareConnFactory(underlying: ServiceFactory[PgRequest, PgResponse], params: Stack.Params) = {
         val errorHandling = new HandleErrorsProxy(underlying)
         new AuthenticationProxy(errorHandling, user, password, database, useSsl)
       }
@@ -84,8 +84,9 @@ class HandleErrorsProxy(
   object HandleErrors extends SimpleFilter[PgRequest, PgResponse] {
     def apply(request: PgRequest, service: Service[PgRequest, PgResponse]) = {
       service.apply(request).flatMap {
-        case Error(details) =>
-          Future.exception(Errors.server("%s\n%s".format(request.toString(), details.getOrElse(""))))
+        case Error(msg, severity, sqlState, detail, hint, position) =>
+
+          Future.exception(Errors.server(msg.getOrElse("unknown failure"), Some(request), severity, sqlState, detail, hint, position))
         case r => Future.value(r)
       }
     }
