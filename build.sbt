@@ -10,7 +10,8 @@ val baseSettings = Seq(
     "com.twitter" %% "finagle-core" % "6.35.0",
     "junit" % "junit" % "4.7" % "test,it",
     "org.scalatest" %% "scalatest" % "2.2.5" % "test,it",
-    "org.mockito" % "mockito-all" % "1.9.5" % "test,it"
+    "org.mockito" % "mockito-all" % "1.9.5" % "test,it",
+    "org.scalacheck" %% "scalacheck" % "1.12.5" % "test,it"
   )
 )
 
