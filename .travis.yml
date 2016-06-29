@@ -6,9 +6,18 @@ scala:
   - 2.11.7
 
 jdk:
-  - openjdk7
-  - oraclejdk7
   - oraclejdk8
+
+services:
+  - postgresql
+
+env:
+  - PG_HOST_PORT=localhost:5432
+  - PG_USER=postgres
+  - PG_DBNAME=finagle_postgres_test
+
+before_script:
+  - createdb -U postgres finagle_postgres_test
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION coverage test
