@@ -50,6 +50,7 @@ libraryDependencies ++= Seq(
 ### Connecting to the DB
 
 ```scala
+import com.twitter.finagle.postgres.Client
 val client = Client(host, username, password, database)
 ```
 

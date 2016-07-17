@@ -68,9 +68,8 @@ class Client(factory: ServiceFactory[PgRequest, PgResponse], id:String) {
   /*
    * Run a single SELECT query and wrap the results with the provided function.
    */
-  def select[T](sql: String)(f: Row => T): Future[Seq[T]] = fetch(sql) map {
-    rs =>
-      extractRows(rs).map(f)
+  def select[T](sql: String)(f: Row => T): Future[Seq[T]] = fetch(sql) map { rs =>
+    rs.toRowList(customTypes).map(f)
   }
 
   /*
@@ -141,7 +140,7 @@ class Client(factory: ServiceFactory[PgRequest, PgResponse], id:String) {
       optionalService: Option[Service[PgRequest, PgResponse]] = None
     ): Future[(IndexedSeq[String], IndexedSeq[ChannelBuffer => Value[Any]])] = {
     send(PgRequest(Describe(portal = true, name = name), flush = true), optionalService) {
-      case RowDescriptions(fields) => Future.value(processFields(fields))
+      case RowDescriptions(fields) => Future.value(Field.processFields(fields, customTypes))
     }
   }
 
@@ -177,22 +176,6 @@ class Client(factory: ServiceFactory[PgRequest, PgResponse], id:String) {
     fire(r, optionalService) flatMap (handler orElse {
       case some => throw new UnsupportedOperationException("TODO Support exceptions correctly " + some)
     })
-  }
-
-  private[this] def processFields(
-      fields: IndexedSeq[Field]): (IndexedSeq[String], IndexedSeq[ChannelBuffer => Value[Any]]) = {
-    val names = fields.map(f => f.name)
-    val parsers = fields.map(f => ValueParser.parserOf(f.format, f.dataType, customTypes))
-
-    (names, parsers)
-  }
-
-  private[this] def extractRows(rs: SelectResult): List[Row] = {
-    val (fieldNames, fieldParsers) = processFields(rs.fields)
-
-    rs.rows.map(dataRow => new Row(fieldNames, dataRow.data.zip(fieldParsers).map {
-      case (d, p) => if (d == null) null else p(d)
-    }))
   }
 
   private[this] class PreparedStatementImpl(
