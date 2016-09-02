@@ -375,6 +375,13 @@ class IntegrationSpec extends Spec {
           }
         }
 
+        "query in a prepared statement has an error" in {
+          val client = getClient
+          a [ServerError] must be thrownBy {
+            Await.result(client.prepareAndQuery("Garbage query")(identity))
+          }
+        }
+
         "prepared query is missing parameters" in {
 
           val client = getClient
