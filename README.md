@@ -3,16 +3,8 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finagle-postgres_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finagle-postgres_2.11)
 [![Join the chat at https://gitter.im/finagle/finagle-postgres](https://badges.gitter.im/finagle/finagle-postgres.svg)](https://gitter.im/finagle/finagle-postgres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-
 This library provides [PostgreSQL][postgres] database support for
-[Finagle][finagle]. It was originally developed by [Mairbek Khadikov][mairbek],
-with subsequent work by [The Factory][thefactory],
-[Vladimir Kostyukov][vkostyukov], and others. In early 2015 Twitter began using
-the library, and this repository reflects the most recent changes (as of March
-2015) from The Factory's fork together with changes from Twitter's internal fork
-(including new [SSL support][ssl-support]).
-
-The library is currently cross-built for Scala 2.10 and 2.11 using [SBT][sbt].
+[Finagle][finagle].
 
 [postgres]: https://www.postgresql.org/
 [finagle]: https://github.com/twitter/finagle
@@ -33,7 +25,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finagle-postgres" % "0.1.0"
+  "com.github.finagle" %% "finagle-postgres" % "0.2.0"
 )
 ```
 
@@ -43,14 +35,28 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finagle-postgres" % "0.2.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "finagle-postgres" % "0.2.1-SNAPSHOT" changing()
 )
 ```
 
 ### Connecting to the DB
 
 ```scala
-val client = Client(host, username, password, database)
+val client = Client(
+  host = "host:port",
+  username = "user",
+  password = Some("password"),
+  database = "dbname",
+  useSsl = false,             // Optional - defaults to `false`
+  hostConnectionLimit = 1,    // Optional - defaults to `1`
+  numRetries = 4,             // Optional - defaults to `4`
+  customTypes = false,        // Optional - defaults to `false
+  customReceiveFunctions = {  // Optional - defaults to no-op partial function
+    case "mytyperecv" => ValueDecoder.instance(str => ???, (buf, charset) => ???)
+  },
+  binaryResults = false,      // Optional - defaults to `false`
+  binaryParams = false        // Optional - defaults to `false`
+)
 ```
 
 ### Selecting with simple query
@@ -64,20 +70,13 @@ logger.debug("Responded " + f.get)
 
 ## Changelog
 
-### 0.1.0
-* SSL support
-* Manual transactions support
+See [CHANGELOG.md](CHANGELOG.md)
 
-### 0.0.2
-* Prepared statements support
-* Async responses logging
-* Exceptions handling
-* Create and drop table support
-
-### 0.0.1
-* Clear-text authentication support
-* MD5 authentication support
-* Select, update, insert, and delete queries
+## History
+Finagle-postgres was originally developed by [Mairbek Khadikov][mairbek], with subsequent work by
+[The Factory][thefactory], [Vladimir Kostyukov][vkostyukov], and others. In early 2015 Twitter began using the library,
+and this repository reflects the most recent changes (as of March 2015) from The Factory's fork together with changes
+from Twitter's internal fork (including new [SSL support][ssl-support]).
 
 ## License
 
