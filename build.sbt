@@ -46,7 +46,7 @@ lazy val publishSettings = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-lazy val root = project.in(file("."))
+lazy val `finagle-postgres` = project.in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
