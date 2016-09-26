@@ -1,6 +1,6 @@
 # Finagle Postgres
 [![Build status](https://img.shields.io/travis/finagle/finagle-postgres/master.svg)](http://travis-ci.org/finagle/finagle-postgres)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finagle-postgres_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finagle-postgres_2.11)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.finagle/finagle-postgres_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.finagle/finagle-postgres_2.11)
 [![Join the chat at https://gitter.im/finagle/finagle-postgres](https://badges.gitter.im/finagle/finagle-postgres.svg)](https://gitter.im/finagle/finagle-postgres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This library provides [PostgreSQL][postgres] database support for
@@ -25,7 +25,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finagle-postgres" % "0.2.0"
+  "io.github.finagle" %% "finagle-postgres" % "0.2.0"
 )
 ```
 
@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finagle-postgres" % "0.2.1-SNAPSHOT" changing()
+  "io.github.finagle" %% "finagle-postgres" % "0.2.1-SNAPSHOT" changing()
 )
 ```
 
