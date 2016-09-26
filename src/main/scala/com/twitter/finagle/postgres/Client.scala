@@ -7,16 +7,16 @@ import scala.collection.immutable.Queue
 import scala.util.Random
 
 import com.twitter.finagle.{Service, ServiceFactory}
-import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.builder.{ClientBuilder, ClientConfig}
 import com.twitter.finagle.postgres.codec.{ClientError, Errors, PgCodec, ServerError}
 import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values._
 import com.twitter.logging.Logger
-import com.twitter.util.{Future, Return, Throw, Try}
+import com.twitter.util._
 import org.jboss.netty.buffer.ChannelBuffer
 import scala.language.implicitConversions
 
-import com.twitter.finagle.service.{ReqRep, ResponseClass, ResponseClassifier}
+import com.twitter.finagle.service._
 
 
 /*
@@ -432,14 +432,14 @@ object Client {
     database: String,
     useSsl: Boolean = false,
     hostConnectionLimit: Int = 1,
-    numRetries: Int = 4,
+    retryPolicy: RetryPolicy[Try[Nothing]] = RetryPolicy.backoff(
+      Backoff.exponential(Duration.fromMilliseconds(50), 2, Duration.fromSeconds(5)))(
+      RetryPolicy.TimeoutAndWriteExceptionsOnly orElse RetryPolicy.ChannelClosedExceptionsOnly),
     customTypes: Boolean = false,
     customReceiveFunctions: PartialFunction[String, ValueDecoder[T] forSome {type T}] = { case "noop" => ValueDecoder.Unknown },
     binaryResults: Boolean = false,
     binaryParams: Boolean = false
   ): Client = {
-    val id = Random.alphanumeric.take(28).mkString
-
     // Classify responses appropriately - a ServerError with SQLState or ClientError does not mean that the client is
     // down.
     val classifier: ResponseClassifier = {
@@ -448,18 +448,44 @@ object Client {
       case ReqRep(a, Throw(ClientError(_))) => ResponseClass.Success
     }
 
-    val factory: ServiceFactory[PgRequest, PgResponse] = ClientBuilder()
-      .codec(new PgCodec(username, password, database, id, useSsl = useSsl))
-      .hosts(host)
-      .hostConnectionLimit(hostConnectionLimit)
-      .retries(numRetries)
-      .responseClassifier(classifier)
-      .failFast(enabled = true)
-      .keepAlive(true)
-      .buildFactory()
+    withBuilder(
+      host,
+      username,
+      password,
+      database,
+      useSsl,
+      customTypes,
+      customReceiveFunctions,
+      binaryResults,
+      binaryParams) {
+      cb =>
+        cb.hostConnectionLimit(hostConnectionLimit)
+          .responseClassifier(classifier)
+          .retryPolicy(retryPolicy)
+    }
+  }
 
+  def withBuilder(
+    host: String,
+    username: String,
+    password: Option[String],
+    database: String,
+    useSsl: Boolean = false,
+    customTypes: Boolean = false,
+    customReceiveFunctions: PartialFunction[String, ValueDecoder[T] forSome {type T}] = { case "noop" => ValueDecoder.Unknown },
+    binaryResults: Boolean = false,
+    binaryParams: Boolean = false)(
+    builderF: ClientBuilder[PgRequest, PgResponse, ClientConfig.Yes, ClientConfig.Yes, Nothing] =>
+      ClientBuilder[PgRequest, PgResponse, ClientConfig.Yes, ClientConfig.Yes, ClientConfig.Yes]
+  ) = {
+    val id = Random.alphanumeric.take(28).mkString
+    val builder = builderF(
+      ClientBuilder()
+        .codec(new PgCodec(username, password, database, id, useSsl = useSsl))
+        .hosts(host)
+    )
     val types = if(!customTypes) Some(defaultTypes) else None
-    new Client(factory, id, types, customReceiveFunctions, binaryResults, binaryParams)
+    new Client(builder.buildFactory(), id, types, customReceiveFunctions, binaryResults, binaryParams)
   }
 }
 
