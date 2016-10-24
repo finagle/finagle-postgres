@@ -422,9 +422,10 @@ object Client {
     Type.NUMERIC -> TypeSpecifier("numeric_recv", "numeric"),
     Type.RECORD -> TypeSpecifier("record_recv", "record"),
     Type.VOID -> TypeSpecifier("void_recv", "void"),
-    Type.UUID -> TypeSpecifier("uuid_recv", "uuid")
+    Type.UUID -> TypeSpecifier("uuid_recv", "uuid"),
+    Type.CITEXT -> TypeSpecifier("textrecv", "citext")
   )
-
+    
   def apply(
     host: String,
     username: String,

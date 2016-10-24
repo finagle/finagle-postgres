@@ -1,9 +1,10 @@
 package com.twitter.finagle.postgres.values
 
 import java.time._
-import java.time.temporal.{ChronoField, JulianFields}
+import java.time.temporal.ChronoField
 
-import com.twitter.finagle.postgres.{Client, Generators, ResultSet, Spec}, Generators._
+import com.twitter.finagle.postgres.Generators._
+import com.twitter.finagle.postgres.{Client, ResultSet, Spec}
 import com.twitter.util.Await
 import org.jboss.netty.buffer.ChannelBuffers
 import org.scalacheck.Arbitrary
@@ -49,6 +50,7 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
     "ValueDecoders" should {
       "parse varchars" in test(ValueDecoder.String)("varcharsend", "varchar")
       "parse text" in test(ValueDecoder.String)("textsend", "text")
+      "parse citext" in test(ValueDecoder.String)("textsend", "citext")
       "parse booleans" in test(ValueDecoder.Boolean)("boolsend", "boolean", b => if(b) "t" else "f")
       "parse shorts" in test(ValueDecoder.Int2)("int2send", "int2")
       "parse ints" in test(ValueDecoder.Int4)("int4send", "int4")

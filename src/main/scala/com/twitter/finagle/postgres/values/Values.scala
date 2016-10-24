@@ -64,6 +64,7 @@ object Type {
   val RECORD = 2249
   val VOID = 2278
   val UUID = 2950
+  val CITEXT = 16388
 }
 
 trait ValueDecoder[+T] {
