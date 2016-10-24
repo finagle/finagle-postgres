@@ -50,7 +50,6 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
     "ValueDecoders" should {
       "parse varchars" in test(ValueDecoder.String)("varcharsend", "varchar")
       "parse text" in test(ValueDecoder.String)("textsend", "text")
-      "parse citext" in test(ValueDecoder.String)("textsend", "citext")
       "parse booleans" in test(ValueDecoder.Boolean)("boolsend", "boolean", b => if(b) "t" else "f")
       "parse shorts" in test(ValueDecoder.Int2)("int2send", "int2")
       "parse ints" in test(ValueDecoder.Int4)("int4send", "int4")
