@@ -1,9 +1,10 @@
 package com.twitter.finagle.postgres.values
 
 import java.time._
-import java.time.temporal.{ChronoField, JulianFields}
+import java.time.temporal.ChronoField
 
-import com.twitter.finagle.postgres.{Client, Generators, ResultSet, Spec}, Generators._
+import com.twitter.finagle.postgres.Generators._
+import com.twitter.finagle.postgres.{Client, ResultSet, Spec}
 import com.twitter.util.Await
 import org.jboss.netty.buffer.ChannelBuffers
 import org.scalacheck.Arbitrary
