@@ -105,7 +105,6 @@ class CustomTypesSpec extends Spec with GeneratorDrivenPropertyChecks {
       }
     
       try {
-        //not sure why this test doesn't pass in Travis
         Await.result(client.query("CREATE EXTENSION IF NOT EXISTS citext"))
         "parse citext" in test(ValueDecoder.String)("citext")
       } catch {
