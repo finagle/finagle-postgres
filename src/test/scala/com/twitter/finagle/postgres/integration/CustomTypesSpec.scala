@@ -1,15 +1,13 @@
 package com.twitter.finagle.postgres.integration
 
-import java.time.ZoneId
 import java.time.temporal.ChronoField
 
+import com.twitter.finagle.postgres.Generators._
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
-import com.twitter.finagle.postgres.{Client, Generators, ResultSet, Spec}
+import com.twitter.finagle.postgres.{Client, Spec}
 import com.twitter.util.Await
-import org.jboss.netty.buffer.ChannelBuffers
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import Generators._
 
 class CustomTypesSpec extends Spec with GeneratorDrivenPropertyChecks {
 
@@ -102,6 +100,14 @@ class CustomTypesSpec extends Spec with GeneratorDrivenPropertyChecks {
         //not sure why this test doesn't pass in Travis
         Await.result(client.query("CREATE EXTENSION IF NOT EXISTS hstore"))
         "parse hstore maps" ignore test(ValueDecoder.HStore)("hstore")
+      } catch {
+        case err: Throwable => // can't run this one because we're not superuser
+      }
+    
+      try {
+        //not sure why this test doesn't pass in Travis
+        Await.result(client.query("CREATE EXTENSION IF NOT EXISTS citext"))
+        "parse citext" in test(ValueDecoder.String)("citext")
       } catch {
         case err: Throwable => // can't run this one because we're not superuser
       }
