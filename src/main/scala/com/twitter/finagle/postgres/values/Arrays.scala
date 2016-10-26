@@ -24,7 +24,7 @@ object Arrays {
 
     def apply(str: String) = parseAll(root, str) match {
       case Success(strings, _) => Return(strings)
-      case Failure(_, _) => Throw(new Exception("Failed to parse array string"))
+      case Failure(_, _) | Error(_, _) => Throw(new Exception("Failed to parse array string"))
     }
 
   }
