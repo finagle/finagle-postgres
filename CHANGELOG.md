@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+### 0.2.2
+* Update to Finagle 6.39.0
+* Fix issue when an error during extended query flow causes connection hangs
+
 ### 0.2.0
 * Rewrite of encoding and decoding mechanism
 * Uses `Param` to encode params, with an implicit conversion available for many types
