@@ -106,7 +106,7 @@ class CustomTypesSpec extends Spec with GeneratorDrivenPropertyChecks {
     
       try {
         Await.result(client.query("CREATE EXTENSION IF NOT EXISTS citext"))
-        "parse citext" in test(ValueDecoder.String)("citext")
+        "parse citext" in test(ValueDecoder.String)("citext", (a, b) => a.toLowerCase == b.toLowerCase)
       } catch {
         case err: Throwable => // can't run this one because we're not superuser
       }
