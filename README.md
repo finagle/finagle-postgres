@@ -42,21 +42,15 @@ libraryDependencies ++= Seq(
 ### Connecting to the DB
 
 ```scala
-val client = Client(
-  host = "host:port",
-  username = "user",
-  password = Some("password"),
-  database = "dbname",
-  useSsl = false,             // Optional - defaults to `false`
-  hostConnectionLimit = 1,    // Optional - defaults to `1`
-  retryPolicy = RetryPolicy.tries(4) // Optional - defaults to exponential backoff starting at 50ms
-  customTypes = false,        // Optional - defaults to `false
-  customReceiveFunctions = {  // Optional - defaults to no-op partial function
-    case "mytyperecv" => ValueDecoder.instance(str => ???, (buf, charset) => ???)
-  },
-  binaryResults = false,      // Optional - defaults to `false`
-  binaryParams = false        // Optional - defaults to `false`
-)
+val client = Postgres.Client()
+  .withCredentials("user", Some("password"))
+  .database("dbname")
+  .withSessionPool.maxSize(1) //optional; default is unbounded
+  .withRetryPolicy(RetryPolicy.tries(4))
+  .withBinaryResults(true)
+  .withBinaryParams(true)
+  .withTransport.tls("host")
+  .newRichClient("host:port")
 ```
 
 ### Selecting with simple query

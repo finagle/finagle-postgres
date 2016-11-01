@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+### 0.3.0
+* Converted to Stack-based client
+* Service is properly closed on channel disconnect
+
 ### 0.2.2
 * Update to Finagle 6.39.0
 * Fix issue when an error during extended query flow causes connection hangs
