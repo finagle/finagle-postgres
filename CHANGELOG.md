@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
-### 0.3.0
+## 0.3.2
+* Added a default monitor which handles most ServerErrors
+* Updated response classifier and retry policy to look at SQLSTATE
+* Added value encoder/decoder for `Instant`
+
+### 0.3.1
 * Converted to Stack-based client
 * Service is properly closed on channel disconnect
 
