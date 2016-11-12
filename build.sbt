@@ -52,3 +52,7 @@ lazy val `finagle-postgres` = project.in(file("."))
   .configs(IntegrationTest)
 
 parallelExecution in Test := false
+
+scalacOptions ++= Seq(
+  "-deprecation"
+)
