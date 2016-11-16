@@ -79,6 +79,9 @@ a {
     .project-name {
       font-size: 1.75rem; } }
 
+.project-name a { color: white; text-decoration: none }
+.project-name a:hover { text-decoration: underline }
+
 .project-tagline {
   margin-bottom: 2rem;
   font-weight: normal;
