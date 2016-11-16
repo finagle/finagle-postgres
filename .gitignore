@@ -8,3 +8,4 @@ target
 .project
 .cache
 logging.properties
+.DS_Store

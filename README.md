@@ -11,8 +11,9 @@ This library provides [PostgreSQL][postgres] database support for
 [mairbek]: https://github.com/mairbek/finagle-postgres
 [thefactory]: https://github.com/thefactory/finagle-postgres
 [vkostyukov]: https://github.com/vkostyukov/finagle-postgres
-[ssl-support]: https://github.com/finagle/finagle-postgres/commit/88b45475736a3ba59e76ef8db4e0a633a220e34e
-[sbt]: http://www.scala-sbt.org/
+
+## Documentation
+See [the GitHub Pages](https://finagle.github.io/finagle-postgres)
 
 ## Using the Postgres client
 
@@ -25,7 +26,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.2.0"
+  "io.github.finagle" %% "finagle-postgres" % "0.3.2"
 )
 ```
 
@@ -35,7 +36,7 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.2.1-SNAPSHOT" changing()
+  "io.github.finagle" %% "finagle-postgres" % "0.4.0-SNAPSHOT" changing()
 )
 ```
 
@@ -46,7 +47,6 @@ val client = Postgres.Client()
   .withCredentials("user", Some("password"))
   .database("dbname")
   .withSessionPool.maxSize(1) //optional; default is unbounded
-  .withRetryPolicy(RetryPolicy.tries(4))
   .withBinaryResults(true)
   .withBinaryParams(true)
   .withTransport.tls("host")
@@ -59,18 +59,18 @@ val client = Postgres.Client()
 val f = client.select("select * from users") {row =>
     User(row.getString("email"), row.getString("name"))
 }
-logger.debug("Responded " + f.get)
+logger.debug("Responded " + Await.result(f))
 ```
 
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)
 
-## History
-Finagle-postgres was originally developed by [Mairbek Khadikov][mairbek], with subsequent work by
-[The Factory][thefactory], [Vladimir Kostyukov][vkostyukov], and others. In early 2015 Twitter began using the library,
-and this repository reflects the most recent changes (as of March 2015) from The Factory's fork together with changes
-from Twitter's internal fork (including new [SSL support][ssl-support]).
+## Contributors
+* [Mairbek Khadikov][mairbek] (project creator)
+* [The Factory][thefactory]
+* [Vladimir Kostyukov][vkostyukov]
+* [Jeremy Smith](https://github.com/jeremyrsmith) (current maintainer)
 
 ## License
 
