@@ -1,0 +1,257 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>codec - com.twitter.finagle.postgres.codec</title>
+          <meta name="description" content="codec - com.twitter.finagle.postgres.codec" />
+          <meta name="keywords" content="codec com.twitter.finagle.postgres.codec" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.twitter.finagle.postgres.codec.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.twitter">twitter</a>.<a href="../../package.html" class="extype" name="com.twitter.finagle">finagle</a>.<a href="../package.html" class="extype" name="com.twitter.finagle.postgres">postgres</a></p>
+        <h1>codec</h1><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">codec</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.twitter.finagle.postgres.codec.AuthenticationProxy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AuthenticationProxyextendsServiceFactoryProxy[com.twitter.finagle.postgres.messages.PgRequest,com.twitter.finagle.postgres.messages.PgResponse]"></a>
+      <a id="AuthenticationProxy:AuthenticationProxy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AuthenticationProxy.html"><span class="name">AuthenticationProxy</span></a><span class="result"> extends <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.ServiceFactoryProxy" class="extype" target="_top">ServiceFactoryProxy</a>[<a href="../messages/PgRequest.html" class="extype" name="com.twitter.finagle.postgres.messages.PgRequest">PgRequest</a>, <a href="../messages/PgResponse.html" class="extype" name="com.twitter.finagle.postgres.messages.PgResponse">PgResponse</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@AuthenticationProxyextendsServiceFactoryProxy[com.twitter.finagle.postgres.messages.PgRequest,com.twitter.finagle.postgres.messages.PgResponse]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.BackendMessageDecoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BackendMessageDecoderextendsSimpleChannelHandler"></a>
+      <a id="BackendMessageDecoder:BackendMessageDecoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BackendMessageDecoder.html"><span class="name">BackendMessageDecoder</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.channel.SimpleChannelHandler">SimpleChannelHandler</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@BackendMessageDecoderextendsSimpleChannelHandler" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.ClientError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClientErrorextendsExceptionwithProductwithSerializable"></a>
+      <a id="ClientError:ClientError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClientError.html"><span class="name">ClientError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@ClientErrorextendsExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.HandleErrorsProxy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HandleErrorsProxyextendsServiceFactoryProxy[com.twitter.finagle.postgres.messages.PgRequest,com.twitter.finagle.postgres.messages.PgResponse]"></a>
+      <a id="HandleErrorsProxy:HandleErrorsProxy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="HandleErrorsProxy.html"><span class="name">HandleErrorsProxy</span></a><span class="result"> extends <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.ServiceFactoryProxy" class="extype" target="_top">ServiceFactoryProxy</a>[<a href="../messages/PgRequest.html" class="extype" name="com.twitter.finagle.postgres.messages.PgRequest">PgRequest</a>, <a href="../messages/PgResponse.html" class="extype" name="com.twitter.finagle.postgres.messages.PgResponse">PgResponse</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@HandleErrorsProxyextendsServiceFactoryProxy[com.twitter.finagle.postgres.messages.PgRequest,com.twitter.finagle.postgres.messages.PgResponse]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.PacketDecoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PacketDecoderextendsFrameDecoder"></a>
+      <a id="PacketDecoder:PacketDecoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PacketDecoder.html"><span class="name">PacketDecoder</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.handler.codec.frame.FrameDecoder">FrameDecoder</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@PacketDecoderextendsFrameDecoder" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.PgClientChannelHandler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PgClientChannelHandlerextendsSimpleChannelHandler"></a>
+      <a id="PgClientChannelHandler:PgClientChannelHandler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PgClientChannelHandler.html"><span class="name">PgClientChannelHandler</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.channel.SimpleChannelHandler">SimpleChannelHandler</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@PgClientChannelHandlerextendsSimpleChannelHandler" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.ServerError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ServerErrorextendsExceptionwithProductwithSerializable"></a>
+      <a id="ServerError:ServerError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ServerError.html"><span class="name">ServerError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="request">request: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="../messages/PgRequest.html" class="extype" name="com.twitter.finagle.postgres.messages.PgRequest">PgRequest</a>]</span>, <span name="severity">severity: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="sqlState">sqlState: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="detail">detail: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="hint">hint: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="position">position: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@ServerErrorextendsExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.twitter.finagle.postgres.codec.Errors" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Errors"></a>
+      <a id="Errors:Errors"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Errors$.html"><span class="name">Errors</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@Errors" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.codec.NullValue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NullValue"></a>
+      <a id="NullValue:NullValue"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="NullValue$.html"><span class="name">NullValue</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.codec.package@NullValue" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

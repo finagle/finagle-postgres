@@ -1,0 +1,377 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>values - com.twitter.finagle.postgres.values</title>
+          <meta name="description" content="values - com.twitter.finagle.postgres.values" />
+          <meta name="keywords" content="values com.twitter.finagle.postgres.values" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.twitter.finagle.postgres.values.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.twitter">twitter</a>.<a href="../../package.html" class="extype" name="com.twitter.finagle">finagle</a>.<a href="../package.html" class="extype" name="com.twitter.finagle.postgres">postgres</a></p>
+        <h1>values</h1><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">values</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.twitter.finagle.postgres.values.Interval" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IntervalextendsProductwithSerializable"></a>
+      <a id="Interval:Interval"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Interval.html"><span class="name">Interval</span></a><span class="params">(<span name="timeDifference">timeDifference: <span class="extype" name="java.time.Duration">Duration</span></span>, <span name="dateDifference">dateDifference: <span class="extype" name="java.time.Period">Period</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@IntervalextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.LowPriorityEncoder" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LowPriorityEncoderextendsAnyRef"></a>
+      <a id="LowPriorityEncoder:LowPriorityEncoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityEncoder.html"><span class="name">LowPriorityEncoder</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@LowPriorityEncoderextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.ValueDecoder" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ValueDecoder[T]extendsAnyRef"></a>
+      <a id="ValueDecoder[T]:ValueDecoder[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueDecoder.html"><span class="name">ValueDecoder</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@ValueDecoder[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Typeclass supporting type-safe decoding of values from PostgreSQL in text and binary formats
+</p>
+    </li><li name="com.twitter.finagle.postgres.values.ValueEncoder" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ValueEncoder[T]extendsAnyRef"></a>
+      <a id="ValueEncoder[T]:ValueEncoder[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueEncoder.html"><span class="name">ValueEncoder</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@ValueEncoder[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Typeclass responsible for encoding a parameter of type T for sending to postgres</p><div class="fullcomment"><div class="comment cmt"><p>Typeclass responsible for encoding a parameter of type T for sending to postgres</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>The type which it encodes</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.twitter.finagle.postgres.values.Arrays" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Arrays"></a>
+      <a id="Arrays:Arrays"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Arrays$.html"><span class="name">Arrays</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Arrays" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Buffers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Buffers"></a>
+      <a id="Buffers:Buffers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Buffers$.html"><span class="name">Buffers</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Buffers" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Charsets" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Charsets"></a>
+      <a id="Charsets:Charsets"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Charsets$.html"><span class="name">Charsets</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Charsets" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Convert" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Convert"></a>
+      <a id="Convert:Convert"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Convert$.html"><span class="name">Convert</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Convert" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.HStores" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HStores"></a>
+      <a id="HStores:HStores"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HStores$.html"><span class="name">HStores</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@HStores" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Hex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Hex"></a>
+      <a id="Hex:Hex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Hex$.html"><span class="name">Hex</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Hex" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Interval" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Interval"></a>
+      <a id="Interval:Interval"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Interval$.html"><span class="name">Interval</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Interval" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Md5Encryptor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Md5Encryptor"></a>
+      <a id="Md5Encryptor:Md5Encryptor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Md5Encryptor$.html"><span class="name">Md5Encryptor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Md5Encryptor" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Strings" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Strings"></a>
+      <a id="Strings:Strings"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Strings$.html"><span class="name">Strings</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Strings" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.Types" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Types"></a>
+      <a id="Types:Types"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Types$.html"><span class="name">Types</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@Types" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.ValueDecoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValueDecoder"></a>
+      <a id="ValueDecoder:ValueDecoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueDecoder$.html"><span class="name">ValueDecoder</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@ValueDecoder" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.values.ValueEncoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValueEncoder"></a>
+      <a id="ValueEncoder:ValueEncoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueEncoder$.html"><span class="name">ValueEncoder</span></a><span class="result"> extends <a href="LowPriorityEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.LowPriorityEncoder">LowPriorityEncoder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.values.package@ValueEncoder" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
