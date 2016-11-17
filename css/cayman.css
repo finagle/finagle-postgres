@@ -219,7 +219,7 @@ a {
   border-top: solid 1px #eff0f1; }
   @media screen and (min-width: 64em) {
     .site-footer {
-      font-size: 1rem; } }
+      font-size: .8rem; } }
   @media screen and (min-width: 42em) and (max-width: 64em) {
     .site-footer {
       font-size: 1rem; } }
