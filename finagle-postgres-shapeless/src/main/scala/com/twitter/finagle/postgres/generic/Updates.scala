@@ -11,13 +11,19 @@ case class Updates (updates: List[(String, Param[_])]) extends QueryParam {
   def placeholders(start: Int): Seq[String] = updates.zipWithIndex.map {
     case ((col, param), index) => s"$col = $$${index + start}"
   }
+  def ++(that: Updates) = Updates(updates ++ that.updates)
+  def without(columns: String*) = {
+    val cols = columns.toSet
+    copy(updates = updates.filter { case (k, _) => !columns.contains(k) })
+  }
 }
 
 object Updates {
   def apply[O <: HList, MP <: HList](o: O)(implicit
     mapper: Mapper.Aux[updateWithOptions.type, O, MP],
-    toList: ToList[MP, Option[(String, Param[_])]]
-  ): Updates = new Updates(toList(mapper(o)).flatten)
+    toList: ToList[MP, Option[(String, Param[_])]],
+    columnNamer: ColumnNamer
+  ): Updates = new Updates(toList(mapper(o)).flatten.map { case (k, v) => columnNamer(k) -> v})
 
   def apply[P <: Product, L <: HList, MP <: HList](p: P)(implicit
     gen: LabelledGeneric.Aux[P, L],
@@ -29,11 +35,10 @@ object Updates {
   object updateWithOptions extends Poly1 {
     implicit def cases[K <: Symbol, T](implicit
       encoder: ValueEncoder[T],
-      name: Witness.Aux[K],
-      columnNamer: ColumnNamer
+      name: Witness.Aux[K]
     ) = at[FieldType[K, Option[T]]] {
       opt => opt.map {
-        v => columnNamer(name.value.name) -> Param(v)
+        v => name.value.name -> Param(v)
       }
     }
   }

@@ -63,7 +63,7 @@ class EnumCConsEncoder[K <: Symbol, H, T <: Coproduct](
     case Inr(tail) => encodeTail.encodeBinary(tail, charset)
   }
 
-  val typeName: String = "text" // enums are sent over the wire as text
+  val typeName: String = "" // enums are sent over the wire as text
   val elemTypeName: Option[String] = None
 }
 
@@ -73,7 +73,7 @@ class EnumCoproductEncoder[T, C <: Coproduct](
 ) extends ValueEncoder[T] {
   @inline final def encodeText(t: T) = encodeC.encodeText(gen.to(t))
   @inline final def encodeBinary(t: T, charset: Charset) = encodeC.encodeBinary(gen.to(t), charset)
-  val typeName = "text"
+  val typeName = ""
   val elemTypeName = None
 }
 
@@ -103,7 +103,7 @@ trait Enums {
   implicit object EnumCNilEncoder extends ValueEncoder[CNil] {
     @inline final def encodeText(c: CNil) = None
     @inline final def encodeBinary(c: CNil, char: Charset) = None
-    val typeName = "text"
+    val typeName = ""
     val elemTypeName = None
   }
 

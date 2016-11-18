@@ -45,7 +45,7 @@ object Query {
   implicit class RowQueryOps(val self: Query[Row]) extends AnyVal {
     def ++(that: Query[Row]): Query[Row] = Query[Row](
       parts = if(self.parts.length > self.queryParams.length)
-        (self.parts.dropRight(1) :+ (self.parts.last + that.parts.head)) ++ that.parts.tail
+        (self.parts.dropRight(1) :+ (self.parts.lastOption.getOrElse("") + that.parts.headOption.getOrElse(""))) ++ that.parts.drop(1)
       else
         self.parts ++ that.parts,
       queryParams = self.queryParams ++ that.queryParams,
