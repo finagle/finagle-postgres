@@ -14,8 +14,8 @@ env:
 
 before_script:
   - createdb -U postgres finagle_postgres_test
-  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS hstore"
-  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext"
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS hstore" finagle_postgres_test
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext" finagle_postgres_test
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION coverage test
