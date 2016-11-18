@@ -1,16 +1,29 @@
 package com.twitter.finagle.postgres.generic
 
-trait ColumnNamer extends (String => String)
+import scala.util.matching.Regex.Match
+
+trait ColumnNamer extends (String => String) {
+  def andThen(g: (String) => String): ColumnNamer = new ColumnNamer {
+    def apply(s: String) = g(ColumnNamer.this.apply(s))
+  }
+}
 
 object ColumnNamer {
   implicit val default: ColumnNamer = snake.snake
 
   object snake {
     implicit object snake extends ColumnNamer {
-      private val regex = """([a-z])([A-Z])""".r
 
-      def apply(scalaName: String): String = regex.replaceAllIn(
-        scalaName, m => m.group(1) + "_" + m.group(2).toLowerCase)
+      private val camelRegexes = List(
+        """([a-z])([A-Z]+)""".r -> ((m: Match) => s"${m.group(1)}_${m.group(2)}"),
+        """([A-Z]+)([A-Z])([a-z])""".r -> ((m: Match) => s"${m.group(1)}_${m.group(2)}${m.group(3)}"),
+        """([^0-9_])([0-9])""".r -> ((m: Match) => s"${m.group(1)}_${m.group(2)}"),
+        """([0-9])([^0-9_])""".r -> ((m: Match) => s"${m.group(1)}_${m.group(2)}")
+      )
+
+      def apply(scalaName: String): String = camelRegexes.foldLeft(scalaName) {
+        case (str, (regex, replacer)) => regex.replaceAllIn(str, replacer)
+      }.toLowerCase()
     }
   }
 

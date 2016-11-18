@@ -31,4 +31,16 @@ class RowDecoderSpec extends FlatSpec with Matchers with MockFactory {
     decoder(row) shouldEqual FooWithNulls(10, None, 10.0)
   }
 
+  it should "decode join results" in {
+    case class A(int: Int, string: String)
+    case class B(int: Int, bool: Boolean)
+    val decoder = RowDecoder[(A, B)]
+
+    (row.get(_: String)(_: ValueDecoder[Int])) expects ("_1.int", ValueDecoder.int4) returning 10
+    (row.get(_: String)(_: ValueDecoder[String])) expects ("_1.string", ValueDecoder.string) returning "ten"
+    (row.get(_: String)(_: ValueDecoder[Int])) expects ("_2.int", ValueDecoder.int4) returning 20
+    (row.get(_: String)(_: ValueDecoder[Boolean])) expects ("_2.bool", ValueDecoder.boolean) returning true
+
+    decoder(row) shouldEqual (A(10, "ten"), B(20, true))
+  }
 }

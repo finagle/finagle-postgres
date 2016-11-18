@@ -8,6 +8,8 @@ import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.util.{Await, Future}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FreeSpec, Matchers}
+import shapeless.record.Record
+import shapeless.{HList, LabelledGeneric}
 
 class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
@@ -95,6 +97,38 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
           sql"SELECT * FROM foo WHERE a IN ($p1)"
         }
       }
+
+      "Columns and Values" in {
+        case class Foo(foo: String, bar: Int)
+        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2)", "fooValue", 22) {
+          sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(Foo("fooValue", 22))})"
+        }
+      }
+
+      "Columns and Values, Columns twice (for RETURNING)" in {
+        case class Foo(foo: String, bar: Int)
+        val foo = Foo("fooValue", 22)
+        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2) RETURNING foo, bar", "fooValue", 22) {
+          sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(foo)}) RETURNING ${Columns[Foo]}"
+        }
+      }
+
+      "Updates" in {
+        val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
+        val bar = 2
+        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2", "newFoo", 2) {
+          sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar"
+        }
+      }
+
+      "Updates with Columns (for RETURNING)" in {
+        case class Foo(foo: String, bar: Int)
+        val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
+        val bar = 2
+        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2 RETURNING foo, bar", "newFoo", 2) {
+          sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar RETURNING ${Columns[Foo]}"
+        }
+      }
     }
 
     "map" in {
@@ -144,6 +178,72 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
         expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
           sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1".as[Foo]
         } shouldEqual Foo(2, None)
+      }
+    }
+
+    "Compose" - {
+      "with other query" in {
+        case class Foo(i: Int, s: String)
+        val p1 = "foo"
+        val p2 = 22
+        val first = sql"SELECT * FROM foo WHERE p1 = $p1"
+        val second = sql" AND p2 = $p2"
+        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
+        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2", p1, p2) {
+          (first ++ second).as[Foo]
+        } shouldEqual Foo(2, "two")
+      }
+
+      "with a string" in {
+        case class Foo(i: Int, s: String)
+        val p1 = "foo"
+        val first = sql"SELECT * FROM foo WHERE p1 = $p1"
+        val second = " ORDER BY p1"
+        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
+        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        expectQuery("SELECT * FROM foo WHERE p1 = $1 ORDER BY p1", p1) {
+          (first ++ second).as[Foo]
+        } shouldEqual Foo(2, "two")
+      }
+
+      "with a query and then a string" in {
+        case class Foo(i: Int, s: String)
+        val p1 = "foo"
+        val p2 = 22
+        val first = sql"SELECT * FROM foo WHERE p1 = $p1"
+        val second = sql" AND p2 = $p2"
+        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
+        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+          (first ++ second ++ " ORDER BY p1").as[Foo]
+        } shouldEqual Foo(2, "two")
+      }
+
+      "with a string and then a query and then a string" in {
+        case class Foo(i: Int, s: String)
+        val p1 = "foo"
+        val p2 = 22
+        val first = sql"SELECT * FROM foo WHERE p1 = $p1"
+        val second = sql"p2 = $p2"
+        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
+        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+          (first ++ " AND " ++ second ++ " ORDER BY p1").as[Foo]
+        } shouldEqual Foo(2, "two")
+      }
+
+      "with a string and then an parameterless query and then a string" in {
+        case class Foo(i: Int, s: String)
+        val p1 = "foo"
+        val p2 = 22
+        val first = sql"SELECT * FROM foo WHERE p1 = $p1"
+        val second = sql"p2 = 'foo'"
+        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
+        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = 'foo' ORDER BY p1", p1) {
+          (first ++ " AND " ++ second ++ " ORDER BY p1").as[Foo]
+        } shouldEqual Foo(2, "two")
       }
     }
   }

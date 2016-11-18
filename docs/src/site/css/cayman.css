@@ -49,6 +49,8 @@ a {
         margin-top: 1rem;
         margin-left: 0; } }
 
+.btn img { vertical-align: middle }
+
 .page-header {
   color: #fff;
   text-align: center;
@@ -56,13 +58,13 @@ a {
   background-image: linear-gradient(120deg, #155799, #159957); }
   @media screen and (min-width: 64em) {
     .page-header {
-      padding: 5rem 6rem; } }
+      padding: 1rem 6rem; } }
   @media screen and (min-width: 42em) and (max-width: 64em) {
     .page-header {
-      padding: 3rem 4rem; } }
+      padding: 1rem 4rem; } }
   @media screen and (max-width: 42em) {
     .page-header {
-      padding: 2rem 1rem; } }
+      padding: 1rem 1rem; } }
 
 .project-name {
   margin-top: 0;
@@ -76,6 +78,9 @@ a {
   @media screen and (max-width: 42em) {
     .project-name {
       font-size: 1.75rem; } }
+
+.project-name a { color: white; text-decoration: none }
+.project-name a:hover { text-decoration: underline }
 
 .project-tagline {
   margin-bottom: 2rem;
@@ -214,7 +219,7 @@ a {
   border-top: solid 1px #eff0f1; }
   @media screen and (min-width: 64em) {
     .site-footer {
-      font-size: 1rem; } }
+      font-size: .8rem; } }
   @media screen and (min-width: 42em) and (max-width: 64em) {
     .site-footer {
       font-size: 1rem; } }

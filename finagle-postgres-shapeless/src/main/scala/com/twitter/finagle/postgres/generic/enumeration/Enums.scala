@@ -2,9 +2,9 @@ package com.twitter.finagle.postgres.generic.enumeration
 
 import java.nio.charset.Charset
 
-import com.twitter.finagle.postgres.values.ValueDecoder
+import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw, Try}
-import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import shapeless.labelled._
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, LabelledGeneric, Witness}
 
@@ -13,7 +13,7 @@ case class InvalidValue(repr: String) extends IllegalArgumentException(
 )
 
 
-class EnumCCons[K <: Symbol, H, T <: Coproduct](
+class EnumCConsDecoder[K <: Symbol, H, T <: Coproduct](
   name: Witness.Aux[K],
   leaf: Witness.Aux[H],
   decodeTail: ValueDecoder[T]
@@ -33,7 +33,7 @@ class EnumCCons[K <: Symbol, H, T <: Coproduct](
 }
 
 
-class EnumCoproduct[T, C <: Coproduct](
+class EnumCoproductDecoder[T, C <: Coproduct](
   gen: LabelledGeneric.Aux[T, C],
   decodeC: ValueDecoder[C]
 ) extends ValueDecoder[T] {
@@ -42,9 +42,44 @@ class EnumCoproduct[T, C <: Coproduct](
     decodeC.decodeBinary(recv, bytes, charset).map(gen.from)
 }
 
+class EnumCConsEncoder[K <: Symbol, H, T <: Coproduct](
+  name: Witness.Aux[K],
+  leaf: Witness.Aux[H],
+  encodeTail: ValueEncoder[T]
+) extends ValueEncoder[FieldType[K, H] :+: T] {
+  private val str = name.value.name
+
+  @inline final def encodeText(
+    t: FieldType[K, H] :+: T
+  ): Option[String] = t match {
+    case Inl(_)    => Some(str)
+    case Inr(tail) => encodeTail.encodeText(tail)
+  }
+
+  @inline final def encodeBinary(
+    t: FieldType[K, H] :+: T, charset: Charset
+  ): Option[ChannelBuffer] = t match {
+    case Inl(_)    => Some(ChannelBuffers.copiedBuffer(str, charset))
+    case Inr(tail) => encodeTail.encodeBinary(tail, charset)
+  }
+
+  val typeName: String = "text" // enums are sent over the wire as text
+  val elemTypeName: Option[String] = None
+}
+
+class EnumCoproductEncoder[T, C <: Coproduct](
+  gen: LabelledGeneric.Aux[T, C],
+  encodeC: ValueEncoder[C]
+) extends ValueEncoder[T] {
+  @inline final def encodeText(t: T) = encodeC.encodeText(gen.to(t))
+  @inline final def encodeBinary(t: T, charset: Charset) = encodeC.encodeBinary(gen.to(t), charset)
+  val typeName = "text"
+  val elemTypeName = None
+}
+
 trait Enums {
 
-  implicit object EnumCNil extends ValueDecoder[CNil] {
+  implicit object EnumCNilDecoder extends ValueDecoder[CNil] {
     @inline final def decodeText(recv: String, text: String): Try[CNil] = Throw(InvalidValue(text))
 
     @inline final def decodeBinary(
@@ -53,15 +88,33 @@ trait Enums {
     ): Try[CNil] = Throw(InvalidValue(bytes.toString(charset)))
   }
 
-  implicit def enumCCons[K <: Symbol, H, T <: Coproduct](implicit
+  implicit def enumCConsDecoder[K <: Symbol, H, T <: Coproduct](implicit
     name: Witness.Aux[K],
     leaf: Witness.Aux[H],
     decodeTail: ValueDecoder[T]
-  ): ValueDecoder[FieldType[K, H] :+: T] = new EnumCCons[K, H, T](name, leaf, decodeTail)
+  ): ValueDecoder[FieldType[K, H] :+: T] = new EnumCConsDecoder[K, H, T](name, leaf, decodeTail)
 
 
-  implicit def enumCoproduct[T, C <: Coproduct](implicit
+  implicit def enumCoproductDecoder[T, C <: Coproduct](implicit
     gen: LabelledGeneric.Aux[T, C],
     decodeC: ValueDecoder[C]
-  ): ValueDecoder[T] = new EnumCoproduct[T, C](gen, decodeC)
+  ): ValueDecoder[T] = new EnumCoproductDecoder[T, C](gen, decodeC)
+
+  implicit object EnumCNilEncoder extends ValueEncoder[CNil] {
+    @inline final def encodeText(c: CNil) = None
+    @inline final def encodeBinary(c: CNil, char: Charset) = None
+    val typeName = "text"
+    val elemTypeName = None
+  }
+
+  implicit def enumCConsEncoder[K <: Symbol, H, T <: Coproduct](implicit
+    name: Witness.Aux[K],
+    leaf: Witness.Aux[H],
+    encodeTail: ValueEncoder[T]
+  ): ValueEncoder[FieldType[K, H] :+: T] = new EnumCConsEncoder[K, H, T](name, leaf, encodeTail)
+
+  implicit def enumCoproductEncoder[T, C <: Coproduct](implicit
+    gen: LabelledGeneric.Aux[T, C],
+    encodeC: ValueEncoder[C]
+  ): ValueEncoder[T] = new EnumCoproductEncoder[T, C](gen, encodeC)
 }

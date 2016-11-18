@@ -5,9 +5,10 @@ import scala.collection.GenTraversable
 
 import com.twitter.finagle.postgres.Param
 import com.twitter.finagle.postgres.values.ValueEncoder
-import shapeless.ops.hlist.{Length, LiftAll, Mapper, ToTraversable, Tupler, Unifier, Zip}
+import shapeless.ops.hlist.{Length, LiftAll, Mapper, ToList, ToTraversable, Tupler, Unifier, Zip}
 import shapeless.ops.nat.ToInt
-import shapeless.{Generic, HList, HNil, LUBConstraint, Nat, Poly1}
+import shapeless.ops.record.Keys
+import shapeless.{Generic, HList, HNil, LUBConstraint, LabelledGeneric, Nat, Poly1}
 
 /**
   * Typeclass allowing conversion of a type T into a sequence of postgres parameters
@@ -22,12 +23,13 @@ trait QueryParams[T] {
 }
 
 object QueryParams extends QueryParams0 {
-
-
   implicit def seq[F[A] <: Seq[A], T](implicit encoder: ValueEncoder[T]): QueryParams[F[T]] = new QueryParams[F[T]] {
-    @inline final def apply(ts: F[T]): Seq[Param[T]] = ts.map(t => Param(t))
+    @inline final def apply(ts: F[T]): Seq[Param[_]] = ts.map(t => Param(t))
     @inline final def placeholders(ts: F[T], start: Int) = (start until (start + ts.length)).map(i => s"$$$i")
   }
+}
+
+trait QueryParams0 extends QueryParams1 { self: QueryParams.type =>
 
   implicit def tuple[A <: Product, L <: HList, P <: HList, N <: Nat](implicit
     gen: Generic.Aux[A, L],
@@ -41,12 +43,9 @@ object QueryParams extends QueryParams0 {
     @inline final def placeholders(a: A, start: Int) = (start until (start + toInt())).map(i => s"$$$i")
   }
 
-  object toParam extends Poly1 {
-    implicit def cases[T](implicit encoder: ValueEncoder[T]) = at[T](t => Param(t))
-  }
 }
 
-trait QueryParams0 {
+trait QueryParams1 { self: QueryParams.type =>
 
   implicit def single[T](implicit encoder: ValueEncoder[T]): QueryParams[T] = new QueryParams[T] {
     def apply(t: T): Seq[Param[T]] = Seq(Param(t))

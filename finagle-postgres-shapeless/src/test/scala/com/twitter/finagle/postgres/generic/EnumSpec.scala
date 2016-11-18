@@ -3,7 +3,7 @@ package com.twitter.finagle.postgres.generic
 import java.nio.charset.StandardCharsets
 
 import com.twitter.finagle.postgres.generic.enumeration.InvalidValue
-import com.twitter.finagle.postgres.values.ValueDecoder
+import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw}
 import org.jboss.netty.buffer.ChannelBuffers
 import org.scalatest.{FlatSpec, Matchers}
@@ -60,6 +60,16 @@ class EnumSpec extends FlatSpec with Matchers {
       UTF8
     ) shouldEqual Throw(InvalidValue("CasePurple"))
 
+  }
+
+  "Enum encoding" should "encode enumeration ADTs to Strings" in {
+    val encoder = ValueEncoder[TestEnum]
+    encoder.encodeText(CaseOne) shouldEqual Some("CaseOne")
+    encoder.encodeText(CaseTwo) shouldEqual Some("CaseTwo")
+    encoder.encodeText(CaseThree) shouldEqual Some("CaseThree")
+    encoder.encodeBinary(CaseOne, UTF8).get.toString(UTF8) shouldEqual "CaseOne"
+    encoder.encodeBinary(CaseTwo, UTF8).get.toString(UTF8) shouldEqual "CaseTwo"
+    encoder.encodeBinary(CaseThree, UTF8).get.toString(UTF8) shouldEqual "CaseThree"
   }
 
 }
