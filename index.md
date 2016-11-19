@@ -24,6 +24,7 @@ To get started with finagle-postgres, check out the [Guide](doc/).
 
 Detailed API documentation is available:
 
+* For the [latest release build](api/latest)
 * For the [latest snapshot build](api/latest-snapshot)
 
 ## License

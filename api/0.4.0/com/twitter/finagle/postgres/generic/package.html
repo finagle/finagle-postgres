@@ -49,7 +49,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -105,6 +105,40 @@
       </a>
     </span>
       
+    </li><li name="com.twitter.finagle.postgres.generic.Columns" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ColumnsextendsQueryParamwithProductwithSerializable"></a>
+      <a id="Columns:Columns"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Columns.html"><span class="name">Columns</span></a><span class="result"> extends <a href="package$$QueryParam.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParam">QueryParam</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ColumnsextendsQueryParamwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.ColumnsOf" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ColumnsOf[T&lt;:Product]extendsProductwithSerializable"></a>
+      <a id="ColumnsOf[T&lt;:Product]:ColumnsOf[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ColumnsOf.html"><span class="name">ColumnsOf</span></a><span class="tparams">[<span name="T">T &lt;: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ColumnsOf[T&lt;:Product]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="com.twitter.finagle.postgres.generic.Query" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Query[T]extendsProductwithSerializable"></a>
       <a id="Query[T]:Query[T]"></a>
@@ -114,7 +148,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Query.html"><span class="name">Query</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="params">params: <span class="extype" name="scala.Seq">Seq</span>[<a href="../Param.html" class="extype" name="com.twitter.finagle.postgres.Param">Param</a>[_]]</span>, <span name="cont">cont: (<a href="../Row.html" class="extype" name="com.twitter.finagle.postgres.Row">Row</a>) ⇒ <span class="extype" name="com.twitter.finagle.postgres.generic.Query.T">T</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="Query.html"><span class="name">Query</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="parts">parts: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="queryParams">queryParams: <span class="extype" name="scala.Seq">Seq</span>[<a href="package$$QueryParam.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParam">QueryParam</a>]</span>, <span name="cont">cont: (<a href="../Row.html" class="extype" name="com.twitter.finagle.postgres.Row">Row</a>) ⇒ <span class="extype" name="com.twitter.finagle.postgres.generic.Query.T">T</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@Query[T]extendsProductwithSerializable" title="Permalink" target="_top">
@@ -131,10 +165,27 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$QueryContext.html"><span class="name">QueryContext</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+        <a href="package$$QueryContext.html"><span class="name">QueryContext</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryContextextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.QueryParam" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="QueryParamextendsAnyRef"></a>
+      <a id="QueryParam:QueryParam"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$QueryParam.html"><span class="name">QueryParam</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryParamextendsAnyRef" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -148,7 +199,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="QueryParams.html"><span class="name">QueryParams</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="QueryParams.html"><span class="name">QueryParams</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryParams[T]extendsAnyRef" title="Permalink" target="_top">
@@ -166,7 +217,7 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
               
         </dd></dl></div>
     </li><li name="com.twitter.finagle.postgres.generic.QueryParams0" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="QueryParams0extendsAnyRef"></a>
+      <a id="QueryParams0extendsQueryParams1"></a>
       <a id="QueryParams0:QueryParams0"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -174,10 +225,27 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="QueryParams0.html"><span class="name">QueryParams0</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="QueryParams0.html"><span class="name">QueryParams0</span></a><span class="result"> extends <a href="QueryParams1.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParams1">QueryParams1</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryParams0extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryParams0extendsQueryParams1" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.QueryParams1" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="QueryParams1extendsAnyRef"></a>
+      <a id="QueryParams1:QueryParams1"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="QueryParams1.html"><span class="name">QueryParams1</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@QueryParams1extendsAnyRef" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -191,7 +259,7 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="RowDecoder.html"><span class="name">RowDecoder</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="RowDecoder.html"><span class="name">RowDecoder</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@RowDecoder[T]extendsAnyRef" title="Permalink" target="_top">
@@ -208,7 +276,7 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="RowDecoder0.html"><span class="name">RowDecoder0</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="RowDecoder0.html"><span class="name">RowDecoder0</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@RowDecoder0extendsAnyRef" title="Permalink" target="_top">
@@ -217,7 +285,7 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
     </span>
       
     </li><li name="com.twitter.finagle.postgres.generic.ToQueryParam" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ToQueryParam[T]extendsAnyRef"></a>
+      <a id="ToQueryParam[T]extendspackage.QueryParam"></a>
       <a id="ToQueryParam[T]:ToQueryParam[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -225,10 +293,10 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$ToQueryParam.html"><span class="name">ToQueryParam</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <a href="package$$ToQueryParam.html"><span class="name">ToQueryParam</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="package$$QueryParam.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParam">QueryParam</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ToQueryParam[T]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ToQueryParam[T]extendspackage.QueryParam" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -242,10 +310,44 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$ToShapelessClientOps.html"><span class="name">ToShapelessClientOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+        <a href="package$$ToShapelessClientOps.html"><span class="name">ToShapelessClientOps</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ToShapelessClientOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.Updates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UpdatesextendsQueryParamwithProductwithSerializable"></a>
+      <a id="Updates:Updates"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Updates.html"><span class="name">Updates</span></a><span class="params">(<span name="updates">updates: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="scala.Predef.String">String</span>, <a href="../Param.html" class="extype" name="com.twitter.finagle.postgres.Param">Param</a>[_])]</span>)</span><span class="result"> extends <a href="package$$QueryParam.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParam">QueryParam</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@UpdatesextendsQueryParamwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.Values" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValuesextendsQueryParamwithProductwithSerializable"></a>
+      <a id="Values:Values"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Values.html"><span class="name">Values</span></a><span class="result"> extends <a href="package$$QueryParam.html" class="extype" name="com.twitter.finagle.postgres.generic.QueryParam">QueryParam</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ValuesextendsQueryParamwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -274,23 +376,91 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
       </a>
     </span>
       
-    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums.EnumCNil" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="EnumCNil"></a>
-      <a id="EnumCNil:EnumCNil"></a>
+    </li><li name="com.twitter.finagle.postgres.generic.Columns" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Columns"></a>
+      <a id="Columns:Columns"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Columns$.html"><span class="name">Columns</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@Columns" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.ColumnsOf" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ColumnsOf"></a>
+      <a id="ColumnsOf:ColumnsOf"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ColumnsOf$.html"><span class="name">ColumnsOf</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@ColumnsOf" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums.EnumCNilDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="EnumCNilDecoder"></a>
+      <a id="EnumCNilDecoder:EnumCNilDecoder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="enumeration/Enums$EnumCNil$.html"><span class="name">EnumCNil</span></a><span class="result"> extends <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="shapeless.CNil">CNil</span>]</span>
+        <a href="enumeration/Enums$EnumCNilDecoder$.html"><span class="name">EnumCNilDecoder</span></a><span class="result"> extends <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="shapeless.CNil">CNil</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../../index.html#com.twitter.finagle.postgres.generic.enumeration.Enums@EnumCNil" title="Permalink" target="_top">
+      <a href="../../../../../../index.html#com.twitter.finagle.postgres.generic.enumeration.Enums@EnumCNilDecoder" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></dd></dl></div>
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums.EnumCNilEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="EnumCNilEncoder"></a>
+      <a id="EnumCNilEncoder:EnumCNilEncoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="enumeration/Enums$EnumCNilEncoder$.html"><span class="name">EnumCNilEncoder</span></a><span class="result"> extends <a href="../values/ValueEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueEncoder">ValueEncoder</a>[<span class="extype" name="shapeless.CNil">CNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../../index.html#com.twitter.finagle.postgres.generic.enumeration.Enums@EnumCNilEncoder" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></dd></dl></div>
+    </li><li name="com.twitter.finagle.postgres.generic.Query" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Query"></a>
+      <a id="Query:Query"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Query$.html"><span class="name">Query</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@Query" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="com.twitter.finagle.postgres.generic.QueryParams" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="QueryParams"></a>
       <a id="QueryParams:QueryParams"></a>
@@ -325,36 +495,104 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
       </a>
     </span>
       
-    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCCons" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="enumCCons[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitdecodeTail:com.twitter.finagle.postgres.values.ValueDecoder[T]):com.twitter.finagle.postgres.values.ValueDecoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]"></a>
-      <a id="enumCCons[K&lt;:Symbol,H,T&lt;:Coproduct](Aux[K],Aux[H],ValueDecoder[T]):ValueDecoder[:+:[FieldType[K,H],T]]"></a>
+    </li><li name="com.twitter.finagle.postgres.generic.Updates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Updates"></a>
+      <a id="Updates:Updates"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Updates$.html"><span class="name">Updates</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@Updates" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.Values" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Values"></a>
+      <a id="Values:Values"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Values$.html"><span class="name">Values</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@Values" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCConsDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="enumCConsDecoder[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitdecodeTail:com.twitter.finagle.postgres.values.ValueDecoder[T]):com.twitter.finagle.postgres.values.ValueDecoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]"></a>
+      <a id="enumCConsDecoder[K&lt;:Symbol,H,T&lt;:Coproduct](Aux[K],Aux[H],ValueDecoder[T]):ValueDecoder[:+:[FieldType[K,H],T]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumCCons</span><span class="tparams">[<span name="K">K &lt;: <span class="extype" name="scala.Symbol">Symbol</span></span>, <span name="H">H</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="name">name: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.K">K</span>]</span>, <span name="leaf">leaf: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.H">H</span>]</span>, <span name="decodeTail">decodeTail: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.T">T</span>]</span>)</span><span class="result">: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="shapeless.:+:">:+:</span>[<span class="extype" name="shapeless.labelled.FieldType">FieldType</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.K">K</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.H">H</span>], <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCCons.T">T</span>]]</span>
+        <span class="name">enumCConsDecoder</span><span class="tparams">[<span name="K">K &lt;: <span class="extype" name="scala.Symbol">Symbol</span></span>, <span name="H">H</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="name">name: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.K">K</span>]</span>, <span name="leaf">leaf: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.H">H</span>]</span>, <span name="decodeTail">decodeTail: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.T">T</span>]</span>)</span><span class="result">: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="shapeless.:+:">:+:</span>[<span class="extype" name="shapeless.labelled.FieldType">FieldType</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.K">K</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.H">H</span>], <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsDecoder.T">T</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCCons[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitdecodeTail:com.twitter.finagle.postgres.values.ValueDecoder[T]):com.twitter.finagle.postgres.values.ValueDecoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]" title="Permalink" target="_top">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCConsDecoder[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitdecodeTail:com.twitter.finagle.postgres.values.ValueDecoder[T]):com.twitter.finagle.postgres.values.ValueDecoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></dd></dl></div>
-    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCoproduct" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="enumCoproduct[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitdecodeC:com.twitter.finagle.postgres.values.ValueDecoder[C]):com.twitter.finagle.postgres.values.ValueDecoder[T]"></a>
-      <a id="enumCoproduct[T,C&lt;:Coproduct](Aux[T,C],ValueDecoder[C]):ValueDecoder[T]"></a>
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCConsEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="enumCConsEncoder[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitencodeTail:com.twitter.finagle.postgres.values.ValueEncoder[T]):com.twitter.finagle.postgres.values.ValueEncoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]"></a>
+      <a id="enumCConsEncoder[K&lt;:Symbol,H,T&lt;:Coproduct](Aux[K],Aux[H],ValueEncoder[T]):ValueEncoder[:+:[FieldType[K,H],T]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumCoproduct</span><span class="tparams">[<span name="T">T</span>, <span name="C">C &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.LabelledGeneric.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproduct.T">T</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproduct.C">C</span>]</span>, <span name="decodeC">decodeC: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproduct.C">C</span>]</span>)</span><span class="result">: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproduct.T">T</span>]</span>
+        <span class="name">enumCConsEncoder</span><span class="tparams">[<span name="K">K &lt;: <span class="extype" name="scala.Symbol">Symbol</span></span>, <span name="H">H</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="name">name: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.K">K</span>]</span>, <span name="leaf">leaf: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.H">H</span>]</span>, <span name="encodeTail">encodeTail: <a href="../values/ValueEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueEncoder">ValueEncoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.T">T</span>]</span>)</span><span class="result">: <a href="../values/ValueEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueEncoder">ValueEncoder</a>[<span class="extype" name="shapeless.:+:">:+:</span>[<span class="extype" name="shapeless.labelled.FieldType">FieldType</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.K">K</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.H">H</span>], <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCConsEncoder.T">T</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCoproduct[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitdecodeC:com.twitter.finagle.postgres.values.ValueDecoder[C]):com.twitter.finagle.postgres.values.ValueDecoder[T]" title="Permalink" target="_top">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCConsEncoder[K&lt;:Symbol,H,T&lt;:shapeless.Coproduct](implicitname:shapeless.Witness.Aux[K],implicitleaf:shapeless.Witness.Aux[H],implicitencodeTail:com.twitter.finagle.postgres.values.ValueEncoder[T]):com.twitter.finagle.postgres.values.ValueEncoder[shapeless.:+:[shapeless.labelled.FieldType[K,H],T]]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></dd></dl></div>
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCoproductDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="enumCoproductDecoder[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitdecodeC:com.twitter.finagle.postgres.values.ValueDecoder[C]):com.twitter.finagle.postgres.values.ValueDecoder[T]"></a>
+      <a id="enumCoproductDecoder[T,C&lt;:Coproduct](Aux[T,C],ValueDecoder[C]):ValueDecoder[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">enumCoproductDecoder</span><span class="tparams">[<span name="T">T</span>, <span name="C">C &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.LabelledGeneric.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductDecoder.T">T</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductDecoder.C">C</span>]</span>, <span name="decodeC">decodeC: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductDecoder.C">C</span>]</span>)</span><span class="result">: <a href="../values/ValueDecoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueDecoder">ValueDecoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductDecoder.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCoproductDecoder[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitdecodeC:com.twitter.finagle.postgres.values.ValueDecoder[C]):com.twitter.finagle.postgres.values.ValueDecoder[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></dd></dl></div>
+    </li><li name="com.twitter.finagle.postgres.generic.enumeration.Enums#enumCoproductEncoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="enumCoproductEncoder[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitencodeC:com.twitter.finagle.postgres.values.ValueEncoder[C]):com.twitter.finagle.postgres.values.ValueEncoder[T]"></a>
+      <a id="enumCoproductEncoder[T,C&lt;:Coproduct](Aux[T,C],ValueEncoder[C]):ValueEncoder[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">enumCoproductEncoder</span><span class="tparams">[<span name="T">T</span>, <span name="C">C &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.LabelledGeneric.Aux">Aux</span>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductEncoder.T">T</span>, <span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductEncoder.C">C</span>]</span>, <span name="encodeC">encodeC: <a href="../values/ValueEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueEncoder">ValueEncoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductEncoder.C">C</span>]</span>)</span><span class="result">: <a href="../values/ValueEncoder.html" class="extype" name="com.twitter.finagle.postgres.values.ValueEncoder">ValueEncoder</a>[<span class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums.enumCoproductEncoder.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@enumCoproductEncoder[T,C&lt;:shapeless.Coproduct](implicitgen:shapeless.LabelledGeneric.Aux[T,C],implicitencodeC:com.twitter.finagle.postgres.values.ValueEncoder[C]):com.twitter.finagle.postgres.values.ValueEncoder[T]" title="Permalink" target="_top">
         <img src="../../../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -376,6 +614,40 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
       </a>
     </span>
       
+    </li><li name="com.twitter.finagle.postgres.generic.toLabelledParam" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toLabelledParam"></a>
+      <a id="toLabelledParam:toLabelledParam"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$toLabelledParam$.html"><span class="name">toLabelledParam</span></a><span class="result"> extends <span class="extype" name="shapeless.Poly1">Poly1</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@toLabelledParam" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="com.twitter.finagle.postgres.generic.toParam" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toParam"></a>
+      <a id="toParam:toParam"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$toParam$.html"><span class="name">toParam</span></a><span class="result"> extends <span class="extype" name="shapeless.Poly1">Poly1</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.twitter.finagle.postgres.generic.package@toParam" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 
@@ -388,9 +660,9 @@ Used for quoting lists, tuples, etc in a query (i.e. &quot;WHERE foo IN ${(&quot
         <div class="parent" name="com.twitter.finagle.postgres.generic.enumeration.Enums">
               <h3>Inherited from <a href="enumeration/Enums.html" class="extype" name="com.twitter.finagle.postgres.generic.enumeration.Enums">Enums</a></h3>
             </div><div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>
         
         </div>
