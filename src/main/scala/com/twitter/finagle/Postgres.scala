@@ -11,10 +11,13 @@ import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.finagle.service.FailFastFactory.FailFast
 import com.twitter.finagle.service._
+import com.twitter.finagle.stats.StatsReceiver
 import com.twitter.finagle.transport.Transport
-import com.twitter.util.{Duration, Return, Throw, Try}
+import com.twitter.util.{Monitor => _, _}
 import com.twitter.logging.Logger
 import org.jboss.netty.channel.{ChannelPipelineFactory, Channels}
+
+import scala.language.existentials
 
 object Postgres {
 
@@ -43,7 +46,7 @@ object Postgres {
   case class Database(database: String) extends AnyVal
   object Database { implicit object param extends RequiredParam[Database]("Database") }
 
-  case class CustomTypes(types: Option[Map[Int, postgres.Client.TypeSpecifier]]) extends AnyVal
+  case class CustomTypes(types: Option[Map[Int, postgres.PostgresClient.TypeSpecifier]]) extends AnyVal
   object CustomTypes { implicit val param = Param(CustomTypes(None)) }
 
   case class CustomReceiveFunctions(functions: PartialFunction[String, ValueDecoder[T] forSome {type T}]) extends AnyVal
@@ -97,7 +100,7 @@ object Postgres {
     type In = PgRequest
     type Out = PgResponse
 
-    def newRichClient(): postgres.Client = {
+    def newRichClient(): postgres.PostgresClientImpl = {
 
       val Dest(name) = params[Dest]
       val CustomTypes(customTypes) = params[CustomTypes]
@@ -108,11 +111,11 @@ object Postgres {
 
       val client = newClient(name, id)
 
-      new postgres.Client(client, id, customTypes, customReceiveFunctions, binaryResults, binaryParams)
+      new postgres.PostgresClientImpl(client, id, customTypes, customReceiveFunctions, binaryResults, binaryParams)
     }
 
-    def newRichClient(addr: String): postgres.Client = dest(addr).newRichClient()
-    def newRichClient(addr: Name): postgres.Client = dest(addr).newRichClient()
+    def newRichClient(addr: String): postgres.PostgresClientImpl = dest(addr).newRichClient()
+    def newRichClient(addr: Name): postgres.PostgresClientImpl = dest(addr).newRichClient()
 
     def dest(
       addr: String
@@ -131,9 +134,9 @@ object Postgres {
     def withBinaryParams(enable: Boolean = true) = configured(BinaryParams(enable))
     def withBinaryResults(enable: Boolean = true) = configured(BinaryResults(enable))
     def database(database: String) = configured(Database(database))
-    def withCustomTypes(customTypes: Map[Int, postgres.Client.TypeSpecifier]) =
+    def withCustomTypes(customTypes: Map[Int, postgres.PostgresClient.TypeSpecifier]) =
       configured(CustomTypes(Some(customTypes)))
-    def withDefaultTypes() = configured(CustomTypes(Some(postgres.Client.defaultTypes)))
+    def withDefaultTypes() = configured(CustomTypes(Some(postgres.PostgresClient.defaultTypes)))
     def withCustomReceiveFunctions(receiveFunctions: PartialFunction[String, ValueDecoder[T] forSome { type T }]) =
       configured(CustomReceiveFunctions(receiveFunctions))
 
@@ -150,7 +153,7 @@ object Postgres {
     protected def newTransporter(): Transporter[In, Out] = mkTransport(params)
 
     protected def newDispatcher(transport: Transport[In, Out]): Service[PgRequest, PgResponse] = {
-      new SerialClientDispatcher(
+      new Dispatcher(
         transport,
         params[Stats].statsReceiver
       )
@@ -160,6 +163,18 @@ object Postgres {
       stack: Stack[ServiceFactory[PgRequest, PgResponse]],
       params: Params
     ): Client {type In = Client.this.In; type Out = Client.this.Out} = copy(stack, params)
+  }
+
+  private class Dispatcher(transport: Transport[PgRequest, PgResponse], statsReceiver: StatsReceiver)
+    extends SerialClientDispatcher[PgRequest, PgResponse](transport, statsReceiver) {
+
+    override def apply(
+      req: PgRequest
+    ): Future[PgResponse] = req match {
+      // allow Terminate requests to go through no matter what
+      case PgRequest(Terminate, true) => transport.write(req).flatMap(_ => transport.close().map(_ => Terminated))
+      case _ => super.apply(req)
+    }
   }
 
   private object PrepConnection extends Stack.ModuleParams[ServiceFactory[PgRequest, PgResponse]] {

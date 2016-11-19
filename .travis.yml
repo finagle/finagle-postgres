@@ -1,4 +1,3 @@
-sudo: false
 language: scala
 
 scala:
@@ -15,19 +14,12 @@ env:
 
 before_script:
   - createdb -U postgres finagle_postgres_test
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS hstore" finagle_postgres_test
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext" finagle_postgres_test
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION coverage test
 
 after_success:
   - sbt coveralls
-
-cache:
-  directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
-
-before_cache:
-  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
-  - find $HOME/.sbt -name "*.lock" -delete
 

@@ -18,6 +18,7 @@ import org.jboss.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.jboss.netty.handler.ssl.{SslContext, SslHandler}
 import scala.collection.mutable
 
+import com.sun.corba.se.impl.protocol.RequestCanceledException
 import com.twitter.finagle.ssl.Ssl
 import com.twitter.finagle.transport.{TlsConfig, Transport}
 
@@ -34,13 +35,22 @@ class HandleErrorsProxy(
   }
 
   object HandleErrors extends SimpleFilter[PgRequest, PgResponse] {
+
+    object ShouldClose {
+      def unapply(err: Throwable): Option[Throwable] = err match {
+        case err: ChannelClosedException => Some(err)
+        case err: RequestCanceledException => Some(err)
+        case Failure(Some(ShouldClose(e))) => Some(e)
+      }
+    }
+
     def apply(request: PgRequest, service: Service[PgRequest, PgResponse]) = {
       service.apply(request).flatMap {
         case Error(msg, severity, sqlState, detail, hint, position) =>
           Future.exception(Errors.server(msg.getOrElse("unknown failure"), Some(request), severity, sqlState, detail, hint, position))
         case r => Future.value(r)
       }.onFailure {
-        case err: ChannelClosedException => service.close()
+        case ShouldClose(err) => service(PgRequest(Terminate, true)) ensure { service.close() }
         case _ =>
       }
     }
@@ -62,7 +72,7 @@ class AuthenticationProxy(
       service <- delegate.apply(conn)
       optionalSslResponse <- sendSslRequest(service)
       _ <- handleSslResponse(optionalSslResponse)
-      startupResponse <- service(PgRequest(new StartupMessage(user, database)))
+      startupResponse <- service(PgRequest(StartupMessage(user, database)))
       passwordResponse <- sendPassword(startupResponse, service)
       _ <- verifyResponse(passwordResponse)
     } yield service
@@ -79,7 +89,7 @@ class AuthenticationProxy(
   private[this] def handleSslResponse(optionalSslResponse: Option[PgResponse]): Future[Unit] = {
     logger.ifDebug("SSL response: %s".format(optionalSslResponse))
 
-    if (useSsl && optionalSslResponse == Some(SslNotSupportedResponse)) {
+    if (useSsl && (optionalSslResponse contains SslNotSupportedResponse)) {
       throw Errors.server("SSL requested by server doesn't support it")
     } else {
       Future(Unit)
@@ -222,12 +232,16 @@ class PgClientChannelHandler(
 
         pipeline.addFirst("ssl", new SslHandler(engine))
 
-        connection.receive(SwitchToSsl).map {
+        connection.receive(SwitchToSsl).foreach {
           Channels.fireMessageReceived(ctx, _)
         }
       case msg: BackendMessage =>
-        connection.receive(msg).map {
-          Channels.fireMessageReceived(ctx, _)
+        try {
+          connection.receive(msg).foreach {
+            Channels.fireMessageReceived(ctx, _)
+          }
+        } catch {
+          case err: Throwable => Channels.disconnect(ctx.getChannel)
         }
       case unsupported =>
         logger.warning("Only backend messages are supported...")
@@ -236,25 +250,36 @@ class PgClientChannelHandler(
   }
 
   override def writeRequested(ctx: ChannelHandlerContext, event: MessageEvent) = {
-    val buf = event.getMessage match {
+    val (buf, out) = event.getMessage match {
       case PgRequest(msg, flush) =>
         val packet = msg.asPacket()
         val c = ChannelBuffers.dynamicBuffer()
 
-        c.writeBytes(packet.encode)
+        c.writeBytes(packet.encode())
 
         if (flush) {
-          c.writeBytes(Flush.asPacket.encode)
+          c.writeBytes(Flush.asPacket().encode())
         }
 
-        connection.send(msg)
-        c
+        try {
+          (c, connection.send(msg))
+        } catch {
+          case err: Throwable =>
+            Channels.fireExceptionCaught(ctx, err)
+            (Terminate.asPacket().encode(), Some(com.twitter.finagle.postgres.messages.Terminated))
+        }
+
       case _ =>
         logger.warning("Cannot convert message... Skipping")
-        event.getMessage
+        (event.getMessage, None)
     }
 
     Channels.write(ctx, event.getFuture, buf, event.getRemoteAddress)
+    out collect {
+      case term @ com.twitter.finagle.postgres.messages.Terminated =>
+        Channels.disconnect(ctx.getChannel)
+        Channels.fireMessageReceived(ctx, term)
+    }
   }
 }
 
