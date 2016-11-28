@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+## 0.4.1-SNAPSHOT
+* Added dependency of finagle-postgres-shapeless on patchless
+* Support `Updates` quoting from patchless `Patch` values
+
 ## 0.4.0
 * Breaking API changes:
   * There is no more `Value` wrapper
