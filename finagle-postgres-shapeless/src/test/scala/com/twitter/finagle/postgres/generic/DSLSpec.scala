@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres.generic
 
 import com.twitter.finagle.postgres.Param
 import org.scalatest.{FreeSpec, Matchers}
+import patchless.Patch
 import shapeless.record.Record
 
 class DSLSpec extends FreeSpec with Matchers {
@@ -26,6 +27,14 @@ class DSLSpec extends FreeSpec with Matchers {
       case class Foo(foo: String, bar: Int)
       val foo = Foo("hello", 22)
       Updates(foo) shouldEqual Updates(List("foo" -> Param("hello"), "bar" -> Param(22)))
+    }
+
+    "should recover updates from a patchless Patch" in {
+      case class Foo(foo: String, bar: Int)
+      val a = Foo("hello", 22)
+      val b = Foo("updated", 22)
+      val patch = Patch.diff(a, b)
+      Updates(patch) shouldEqual Updates(List("foo" -> Param("updated")))
     }
 
     "uses snake case namer by default" in {

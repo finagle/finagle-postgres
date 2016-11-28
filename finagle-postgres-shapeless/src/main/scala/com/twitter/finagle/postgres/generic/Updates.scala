@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres.generic
 
 import com.twitter.finagle.postgres.Param
 import com.twitter.finagle.postgres.values.ValueEncoder
+import patchless._
 import shapeless.{HList, LabelledGeneric, Poly1, Witness}
 import shapeless.labelled._
 import shapeless.ops.hlist.{Mapper, _}
@@ -31,6 +32,13 @@ object Updates {
     toList: ToList[MP, (String, Param[_])],
     columnNamer: ColumnNamer
   ): Updates = new Updates(toList(mapper(gen.to(p))).map { case (k, v) => columnNamer(k) -> v})
+
+  def apply[T, U <: HList, MP <: HList](patch: Patch[T])(implicit
+    patchable: Patchable.Aux[T, U],
+    mapper: Mapper.Aux[updateWithOptions.type, U, MP],
+    toList: ToList[MP, Option[(String, Param[_])]],
+    columnNamer: ColumnNamer
+  ): Updates = apply[U, MP](patch.updates.asInstanceOf[U])
 
   object updateWithOptions extends Poly1 {
     implicit def cases[K <: Symbol, T](implicit
