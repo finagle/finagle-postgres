@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres.generic
 
 import java.nio.charset.Charset
 
+import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres._
 import com.twitter.finagle.postgres.values.ValueDecoder
@@ -46,6 +47,10 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
     def inTransaction[T](fn: (PostgresClient) => Future[T]): Future[T] = ???
 
     def query(sql: String): Future[QueryResponse] = ???
+
+    def status: Status = Status.Open
+
+    def isAvailable: Boolean = status == Status.Open
 
   }
 
