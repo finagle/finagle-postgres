@@ -10,7 +10,7 @@ import shapeless.labelled.FieldType
 
 package object generic extends Enums {
 
-  implicit class ToShapelessClientOps(val client: PostgresClientImpl) extends AnyVal {
+  implicit class ToShapelessClientOps(val client: PostgresClient) extends AnyVal {
 
     def queryAs[T <: Product](query: String, params: Param[_]*)(implicit
       rowDecoder: RowDecoder[T],
