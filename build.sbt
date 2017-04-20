@@ -60,7 +60,7 @@ lazy val `finagle-postgres-shapeless` = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.3.2",
-    "io.github.jeremyrsmith" %% "patchless" % "1.0.3"
+    "io.github.jeremyrsmith" %% "patchless" % "1.0.4"
   ))
   .configs(IntegrationTest)
   .dependsOn(`finagle-postgres`)
