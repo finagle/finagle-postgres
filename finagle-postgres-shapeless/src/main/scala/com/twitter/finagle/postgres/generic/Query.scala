@@ -27,7 +27,7 @@ case class Query[T](parts: Seq[String], queryParams: Seq[QueryParam], cont: Row 
     val (last, placeholders, params) = queryParams.foldLeft((1, Queue.empty[Seq[String]], Queue.empty[Param[_]])) {
       case ((start, placeholders, params), next) =>
         val nextPlaceholders = next.placeholders(start)
-        val nextParams = next.params
+        val nextParams = Queue(next.params: _*)
         (start + nextParams.length, placeholders enqueue nextPlaceholders, params ++ nextParams)
     }
 
