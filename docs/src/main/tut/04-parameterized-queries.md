@@ -37,11 +37,11 @@ val insert = Await.result {
 }
 
 // execute a query that has results - a function is given to treat the rows
-val result = Await.result {
-  client.prepareAndQuery("SELECT * FROM demo WHERE foo = $1", "foo") {
-    row => row.get[String]("foo")
-  }
+val select = client.prepareAndQuery("SELECT * FROM demo WHERE foo = $1", "foo") {
+  row => row.get[String]("foo")
 }
+
+Await.result(select)
 ```
 
 Here, we used `prepareAndExecute` and `prepareAndQuery` rather than just `execute` and `query`. These methods take any

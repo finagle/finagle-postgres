@@ -33,14 +33,14 @@ Await.result(client.prepareAndExecute("INSERT INTO demo (foo) VALUES ($1)", "foo
 ```tut:book
 case class Demo(id: Int, foo: String)
 
-val result = Await.result {
-  client.prepareAndQuery("SELECT * FROM demo") {
-    row => Demo(
-      id = row.get[Int]("id"),
-      foo = row.get[String]("foo")
-    )
-  }
+val select = client.prepareAndQuery("SELECT * FROM demo") {
+  row => Demo(
+    id = row.get[Int]("id"),
+    foo = row.get[String]("foo")
+  )
 }
+
+Await.result(select)
 ```
 
 As you can see, this probably gets verbose and repetitive for rows which have a larger number of columns. It looks like

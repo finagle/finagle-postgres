@@ -4,7 +4,7 @@ import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
   version := "0.4.2",
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.2",
   crossScalaVersions := Seq("2.11.11","2.12.2")
 )
 
@@ -60,7 +60,7 @@ lazy val `finagle-postgres-shapeless` = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.3.2",
-    "io.github.jeremyrsmith" %% "patchless" % "1.0.3"
+    "io.github.jeremyrsmith" %% "patchless" % "1.0.4"
   ))
   .configs(IntegrationTest)
   .dependsOn(`finagle-postgres`)
