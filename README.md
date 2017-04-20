@@ -22,21 +22,9 @@ See [the GitHub Pages](https://finagle.github.io/finagle-postgres)
 Finagle Postgres is published on Maven Central. Use the following _sbt_ snippet to bring it as a
 dependency.
 
-* for the _stable_ release:
-
 ```scala
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.3.2"
-)
-```
-
-* for the `SNAPSHOT` version:
-
-```scala
-resolvers += Resolver.sonatypeRepo("snapshots")
-
-libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.4.0-SNAPSHOT" changing()
+  "io.github.finagle" %% "finagle-postgres" % "0.4.2"
 )
 ```
 
