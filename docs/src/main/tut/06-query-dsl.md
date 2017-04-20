@@ -62,9 +62,8 @@ def count(input: String) = sql"SELECT count(*) FROM demo WHERE foo = $input".map
   row => row.get[Long]("count")
 }
 
-Await.result {
-  count("foo demo").run(client).map(_.head)
-}
+val result = count("foo demo").run(client).map(_.head)
+Await.result(result)
 ```
 
 This example uses `map` to extract the column `count` from each row (this could also have been done by creating a `case

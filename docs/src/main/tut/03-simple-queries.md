@@ -42,11 +42,11 @@ val insert = Await.result {
 }
 
 // execute a query that has results - a function is given to treat the rows
-val result = Await.result {
-  client.select("SELECT * FROM demo") {
-    row => row.get[String]("foo")
-  }
+val select = client.select("SELECT * FROM demo") {
+  row => row.get[String]("foo")
 }
+
+Await.result(select)
 ```
 
 Since the results of any operation in finagle are typically a `Future`, we use `Await.result` to block and wait for
