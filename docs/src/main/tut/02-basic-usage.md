@@ -10,6 +10,7 @@ the client builder accessed by `com.twitter.finagle.Postgres.Client()`:
 
 
 ```tut:invisible
+import com.twitter.util.Await
 object dontrun {
 ```
 
@@ -27,6 +28,8 @@ val client = Postgres.Client()
 ```
 
 ```tut:invisible
+
+    Await.result(client.close())
 }
 ```
 
@@ -61,3 +64,4 @@ requests and responses, use `.newRichClient(destination: String)` to create a `c
 which provides the main API for using the PostgreSQL database.
 
 Next, read about [Simple Queries](03-simple-queries.html)
+

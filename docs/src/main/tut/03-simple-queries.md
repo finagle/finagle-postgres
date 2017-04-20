@@ -92,3 +92,6 @@ are happy to accept instances for built-in Scala or Java types into finagle-post
 
 Next, read about [Parameterized Queries](04-parameterized-queries.html)
 
+```tut:invisible
+Await.result(client.close())
+```
