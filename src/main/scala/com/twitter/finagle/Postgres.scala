@@ -3,7 +3,7 @@ package com.twitter.finagle
 import com.twitter.finagle.Stack.{Param, Params, Role}
 import com.twitter.finagle.client.{StackClient, StdStackClient, Transporter}
 import com.twitter.finagle.dispatch.SerialClientDispatcher
-import com.twitter.finagle.factory.BindingFactory.Dest
+import com.twitter.finagle.naming.BindingFactory.Dest
 import com.twitter.finagle.netty3.Netty3Transporter
 import com.twitter.finagle.param._
 import com.twitter.finagle.postgres.codec._
