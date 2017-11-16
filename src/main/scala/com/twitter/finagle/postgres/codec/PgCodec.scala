@@ -1,29 +1,22 @@
 package com.twitter.finagle.postgres.codec
 
-import java.net.{InetSocketAddress, SocketAddress}
-import java.nio.channels.ClosedChannelException
+import java.net.InetSocketAddress
 
 import com.twitter.finagle._
-import com.twitter.finagle.postgres.ResultSet
 import com.twitter.finagle.postgres.connection.{AuthenticationRequired, Connection, RequestingSsl, WrongStateForEvent}
 import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values.Md5Encryptor
-import com.twitter.finagle.ssl.SessionVerifier
-import com.twitter.finagle.ssl.client.{ SslClientConfiguration, SslClientEngineFactory }
+import com.twitter.finagle.ssl.client.{SslClientConfiguration, SslClientEngineFactory, SslClientSessionVerifier}
 import com.twitter.logging.Logger
-import com.twitter.util.Future
-import javax.net.ssl.{SSLContext, SSLEngine, TrustManagerFactory}
+import com.twitter.util.{Try, Future}
+import javax.net.ssl.SSLSession
 
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.frame.FrameDecoder
-import org.jboss.netty.handler.ssl.util.InsecureTrustManagerFactory
-import org.jboss.netty.handler.ssl.{SslContext, SslHandler}
-import scala.collection.mutable
+import org.jboss.netty.handler.ssl.SslHandler
 
-import com.sun.corba.se.impl.protocol.RequestCanceledException
 import com.twitter.finagle.ssl.Ssl
-import com.twitter.finagle.transport.Transport
 
 /*
  * Filter that converts exceptions into ServerErrors.
@@ -185,6 +178,7 @@ class PacketDecoder(@volatile var inSslNegotation: Boolean) extends FrameDecoder
  */
 class PgClientChannelHandler(
   sslEngineFactory: SslClientEngineFactory,
+  sessionVerifier: SslClientSessionVerifier,
   sslConfig: Option[SslClientConfiguration],
   val useSsl: Boolean
 ) extends SimpleChannelHandler {
@@ -212,28 +206,23 @@ class PgClientChannelHandler(
 
         val pipeline = ctx.getPipeline
 
-        val addr = ctx.getChannel.getRemoteAddress
-        val inetAddr = addr match {
-          case i: InetSocketAddress => Some(i)
-          case _ => None
+        val (engine, verifier) = ctx.getChannel.getRemoteAddress match {
+          case i: InetSocketAddress =>
+            val address = Address(i)
+            val config = sslConfig.getOrElse(SslClientConfiguration(hostname = Some(i.getHostString)))
+            (sslEngineFactory(address, config).self, (s: SSLSession) => sessionVerifier(address, config, s))
+          case _ =>
+            (Ssl.client().self, (_: SSLSession) => true)
         }
-
-        val engine = inetAddr.map(inet =>
-          sslConfig.map(sslEngineFactory(Address(inet), _)).getOrElse(Ssl.client(inet.getHostString, inet.getPort))
-        )
-          .getOrElse(Ssl.client())
-          .self
 
         engine.setUseClientMode(true)
 
         val sslHandler = new SslHandler(engine)
         pipeline.addFirst("ssl", sslHandler)
 
-        val verifier = inetAddr.fold(SessionVerifier.AlwaysValid)(inet => SessionVerifier.hostname(inet.getHostString))
-
         sslHandler.handshake().addListener(new ChannelFutureListener {
           override def operationComplete(f: ChannelFuture) = {
-            verifier(engine.getSession).foreach { err =>
+            Try(verifier(engine.getSession)).handle { case err =>
               logger.error(err, "SSL host verification failed")
               Channels.close(ctx.getChannel)
             }

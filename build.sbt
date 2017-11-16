@@ -4,17 +4,18 @@ import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
   version := "0.4.3",
-  scalaVersion := "2.12.2",
-  crossScalaVersions := Seq("2.11.11","2.12.2")
+  scalaVersion := "2.12.4",
+  crossScalaVersions := Seq("2.11.11","2.12.4")
 )
 
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "6.44.0",
-    "org.scalatest" %% "scalatest" % "3.0.2" % "test,it",
+    "com.twitter" %% "finagle-core" % "7.1.0",
+    "com.twitter" %% "finagle-netty3" % "7.1.0",
+    "org.scalatest" %% "scalatest" % "3.0.4" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.13.5" % "test,it",
-    "org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % "test,it"
+    "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % "test,it"
   )
 )
 
