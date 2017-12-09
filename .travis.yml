@@ -1,14 +1,16 @@
 language: scala
 
 scala:
-  - 2.11.11
-  - 2.12.2
+  - 2.11.12
+  - 2.12.4
 
 jdk:
   - oraclejdk8
 
 services:
   - postgresql
+
+sbt_args: -J-Xmx4096M
 
 env:
   - PG_HOST_PORT=127.0.0.1:5432 PG_USER=postgres PG_DBNAME=finagle_postgres_test
