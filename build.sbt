@@ -1,5 +1,3 @@
-import sbtunidoc.Plugin.UnidocKeys._
-import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
@@ -71,26 +69,27 @@ val tutPath = settingKey[String]("Path to tutorials")
 
 lazy val docs = project
   .settings(moduleName := "finagle-postgres-docs", buildSettings)
+  .enablePlugins(GhpagesPlugin, TutPlugin, ScalaUnidocPlugin)
   .settings(
-    tutSettings ++ unidocSettings ++ ghpages.settings ++ Seq(
-      scaladocVersionPath := ("api/" + version.value),
-      scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot" else "api/latest"),
-      tutPath := "doc",
-      includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
-      addMappingsToSiteDir(tut in Compile, tutPath),
-      addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), scaladocLatestPath),
-      addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), scaladocVersionPath),
-      ghpagesNoJekyll := false,
-      git.remoteRepo := "git@github.com:finagle/finagle-postgres"
-    )
+    scaladocVersionPath := ("api/" + version.value),
+    scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot" else "api/latest"),
+    tutPath := "doc",
+    includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
+    addMappingsToSiteDir(tut in Compile, tutPath),
+    addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), scaladocLatestPath),
+    addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), scaladocVersionPath),
+    ghpagesNoJekyll := false,
+    git.remoteRepo := "git@github.com:finagle/finagle-postgres"
+
   ).dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
+
+
 
 parallelExecution in Test := false
 
 test in Test in `finagle-postgres` := {
   (test in Test in `finagle-postgres`).value
   (test in Test in `finagle-postgres-shapeless`).value
-  (tut in Compile in docs).value
 }
 
 scalacOptions ++= Seq(
