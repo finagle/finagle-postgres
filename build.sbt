@@ -1,7 +1,7 @@
 
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
-  version := "0.5.0",
+  version := "0.6.0",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.12","2.12.4"),
   fork in Test := true
@@ -10,8 +10,8 @@ lazy val buildSettings = Seq(
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "17.11.0",
-    "com.twitter" %% "finagle-netty3" % "17.11.0",
+    "com.twitter" %% "finagle-core" % "18.1.0",
+    "com.twitter" %% "finagle-netty3" % "18.1.0",
     "org.scalatest" %% "scalatest" % "3.0.4" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.13.5" % "test,it",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % "test,it"
