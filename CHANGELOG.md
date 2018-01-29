@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+## 0.5.0
+* Update to Finagle 17.11.0
+* Update to SBT 1.1.0
+* Updated dependencies
+
 ## 0.4.2
 * Added support for Scala 2.12
 * Updated dependencies
