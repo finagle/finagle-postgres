@@ -83,6 +83,10 @@ case object RollBack extends CommandCompleteStatus
 
 case object Commit extends CommandCompleteStatus
 
+case object Listen extends CommandCompleteStatus
+
+case object UnListen extends CommandCompleteStatus
+
 case class CommandComplete(status: CommandCompleteStatus) extends BackendMessage
 
 case class ReadyForQuery(status: Char) extends BackendMessage

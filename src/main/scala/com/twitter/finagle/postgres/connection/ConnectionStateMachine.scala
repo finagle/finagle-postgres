@@ -95,7 +95,7 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
     case (CommandComplete(Update(count)), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(count)))
     case (CommandComplete(Delete(count)), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(count)))
     case (CommandComplete(DiscardAll), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
-    case (CommandComplete(Begin | Savepoint | Release | RollBack | Commit), SimpleQuery) =>
+    case (CommandComplete(Begin | Savepoint | Release | RollBack | Commit | Listen | UnListen), SimpleQuery) =>
       (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
     case (CommandComplete(Do), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
 
@@ -121,6 +121,7 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
     case (CommandComplete(Savepoint), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
     case (CommandComplete(RollBack), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
     case (CommandComplete(Commit), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
+    case (CommandComplete(Listen), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
     case (CommandComplete(Do), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
     case (row:DataRow, ExecutePreparedStatement) => (None, AggregateRowsWithoutFields(ListBuffer(row)))
     case (row:DataRow, state:AggregateRowsWithoutFields) =>
@@ -160,11 +161,16 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
   }
 
   transition {
-    case (NoticeResponse(details), s) =>
-      logger.ifDebug("Notice from server: %s".format(details))
-      (None, s)
     case (notification: NotificationResponse, s) =>
       logger.ifDebug("Notification from server: %s".format(notification))
+      (Some(SingleMessageResponse(notification)), s)
+  }
+
+  // ignored async messages
+
+  transition {
+    case (NoticeResponse(details), s) =>
+      logger.ifDebug("Notice from server: %s".format(details))
       (None, s)
     case (ParameterStatus(name, value), s) =>
       logger.ifDebug("Params changed: %s %s".format(name, value))

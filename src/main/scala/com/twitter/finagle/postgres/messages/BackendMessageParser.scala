@@ -242,6 +242,8 @@ class BackendMessageParser {
           case "RELEASE" => Release
           case "ROLLBACK"  => RollBack
           case "COMMIT" => Commit
+          case "LISTEN" => Listen
+          case "UNLISTEN" => UnListen
           case _ => throw new IllegalStateException("Unknown command complete response tag " + tag)
         }
     }

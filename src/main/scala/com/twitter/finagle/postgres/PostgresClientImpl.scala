@@ -1,22 +1,21 @@
 package com.twitter.finagle.postgres
 
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicInteger
 
-import scala.collection.immutable.Queue
-import scala.language.implicitConversions
-import scala.util.Random
-
 import com.twitter.finagle.Status
-import com.twitter.finagle.postgres.codec.Errors
 import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values._
-import com.twitter.finagle.{Service, ServiceFactory}
+import com.twitter.finagle.Service
+import com.twitter.finagle.ServiceFactory
 import com.twitter.logging.Logger
 import com.twitter.util._
 import org.jboss.netty.buffer.ChannelBuffer
 
 import scala.language.existentials
+import scala.language.implicitConversions
+import scala.util.Random
 
 /*
  * A Finagle client for communicating with Postgres.
@@ -187,6 +186,18 @@ class PostgresClientImpl(
    * with a reasonable likelihood of success).
    */
   override def isAvailable: Boolean = status == Status.Open
+
+  override def listen(channel: String, block: NotificationResponse => Unit): Future[Runnable] = {
+    if(Listeners.alreadyListening(channel)) {
+      return Future(Listeners.addConsumer(channel, block))
+    }
+    query(s"LISTEN $channel").map(_ => Listeners.addConsumer(channel, block))
+  }
+
+  override def unlisten(channel: String): Future[QueryResponse] = {
+    query(s"UNLISTEN $channel").onSuccess(_ => Listeners.removeAllConsumers(channel))
+  }
+
 
   private[this] def sendQuery[T](sql: String)(handler: PartialFunction[PgResponse, Future[T]]) = {
     send(PgRequest(Query(sql)))(handler)

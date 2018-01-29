@@ -1,12 +1,16 @@
 package com.twitter.finagle.postgres.integration
 
 import java.sql.Timestamp
-import java.time.{Instant, ZoneId, ZonedDateTime}
+import java.time.Instant
 
-import com.twitter.finagle.postgres.codec.ServerError
+import com.twitter.finagle.Postgres
+import com.twitter.finagle.Status
 import com.twitter.finagle.postgres._
-import com.twitter.finagle.{Postgres, Status}
-import com.twitter.util.{Await, Duration, Future, Promise}
+import com.twitter.finagle.postgres.codec.ServerError
+import com.twitter.util.Await
+import com.twitter.util.Duration
+import com.twitter.util.Future
+import com.twitter.util.Try
 
 object IntegrationSpec {
   val pgTestTable = "finagle_test"
@@ -78,6 +82,8 @@ class IntegrationSpec extends Spec {
       """.stripMargin.format(IntegrationSpec.pgTestTable))
       val response2 = Await.result(createTableQuery, queryTimeout)
       response2 must equal(OK(1))
+
+      Try(Await.result(client.execute("create extension hstore"))) // enable hstore type
     }
 
     def insertSampleData(client: PostgresClient): Unit = {
@@ -433,7 +439,41 @@ class IntegrationSpec extends Spec {
           client.status must equal(Status.Closed)
         }
       }
-    }
 
+      "support notifications" when {
+        "listening to notified channel receive message" in {
+          val client = getClient
+          val channel = "foo"
+          val payload = "my payload"
+          var received = false
+
+          client.listen(channel, not => {
+            not.channel must equal(channel)
+            not.payload must equal(payload)
+            received = true
+          })
+
+          val notifyQuery = client.select(
+            s"SELECT pg_notify('$channel', '$payload');"
+          )(identity)
+
+          Await.result(notifyQuery, queryTimeout)
+          Thread.sleep(200)
+          if (!received) fail("notification not received")
+        }
+
+        "listening to another channel do not receive the message" in {
+          val client = getClient
+          client.listen("foo", _ => fail("should not receive notifications"))
+
+          val notifyQuery = client.select(
+            s"SELECT pg_notify('crazy channel', 'payload');"
+          )(identity)
+
+          Await.result(notifyQuery, queryTimeout)
+          Thread.sleep(200)
+        }
+      }
+    }
   }
 }

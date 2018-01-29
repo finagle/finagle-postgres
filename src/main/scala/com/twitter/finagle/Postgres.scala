@@ -14,9 +14,14 @@ import com.twitter.finagle.service._
 import com.twitter.finagle.ssl.client.SslClientEngineFactory
 import com.twitter.finagle.stats.StatsReceiver
 import com.twitter.finagle.transport.{Transport, TransportContext}
-import com.twitter.util.{Monitor => _, _}
 import com.twitter.logging.Logger
 import java.net.SocketAddress
+
+import com.twitter.util.Duration
+import com.twitter.util.Future
+import com.twitter.util.Return
+import com.twitter.util.Throw
+import com.twitter.util.Try
 import org.jboss.netty.channel.{ChannelPipelineFactory, Channels}
 
 import scala.language.existentials
@@ -83,6 +88,7 @@ object Postgres {
         pipeline.addLast("binary_to_packet", new PacketDecoder(ssl.nonEmpty))
         pipeline.addLast("packet_to_backend_messages", new BackendMessageDecoder(new BackendMessageParser))
         pipeline.addLast("backend_messages_to_postgres_response", new PgClientChannelHandler(sslFactory, ssl, ssl.nonEmpty))
+        pipeline.addLast("notifications", new NotificationHandler)
         pipeline
       }
     }

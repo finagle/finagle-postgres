@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres._
+import com.twitter.finagle.postgres.messages.NotificationResponse
 import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.util.{Await, Future}
 import org.scalamock.scalatest.MockFactory
@@ -52,6 +53,9 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
     def isAvailable: Boolean = status == Status.Open
 
+    def listen(channel: String, block: NotificationResponse => Unit): Future[Runnable] = ???
+
+    def unlisten(channel: String): Future[QueryResponse] = ???
   }
 
   def expectQuery[U](expectedQuery: String, expectedParams: Param[_]*)(query: Query[U]) = {

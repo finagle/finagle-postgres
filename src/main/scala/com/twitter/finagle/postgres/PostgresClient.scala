@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres
 import java.nio.charset.Charset
 
 import com.twitter.finagle.Status
+import com.twitter.finagle.postgres.messages.NotificationResponse
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres.values.Types
 import com.twitter.util.Future
@@ -74,6 +75,21 @@ trait PostgresClient {
    * with a reasonable likelihood of success).
    */
   def isAvailable: Boolean
+
+  /**
+    * Starts listening to the given channel and registers the consumer
+    * @param channel the name of the channel
+    * @param block the consumer that accepts a [[NotificationResponse]]
+    * @return a function to stop consuming notifications
+    */
+  def listen(channel: String, block: NotificationResponse => Unit): Future[Runnable]
+
+  /**
+    * Stops listening for notifications
+    * @param channel the name of the channel
+    * @return the query (UNLISTEN) result
+    */
+  def unlisten(channel: String): Future[QueryResponse]
 }
 
 
