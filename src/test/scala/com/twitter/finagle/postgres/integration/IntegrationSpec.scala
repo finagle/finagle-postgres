@@ -7,6 +7,7 @@ import com.twitter.finagle.Postgres
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres._
 import com.twitter.finagle.postgres.codec.ServerError
+import com.twitter.finagle.postgres.messages.Listener
 import com.twitter.util.Await
 import com.twitter.util.Duration
 import com.twitter.util.Future
@@ -72,14 +73,14 @@ class IntegrationSpec extends Spec {
 
       val createTableQuery = client.executeUpdate(
         """
-        |CREATE TABLE %s (
-        | str_field VARCHAR(40),
-        | int_field INT,
-        | double_field DOUBLE PRECISION,
-        | timestamp_field TIMESTAMP WITH TIME ZONE,
-        | bool_field BOOLEAN
-        |)
-      """.stripMargin.format(IntegrationSpec.pgTestTable))
+          |CREATE TABLE %s (
+          | str_field VARCHAR(40),
+          | int_field INT,
+          | double_field DOUBLE PRECISION,
+          | timestamp_field TIMESTAMP WITH TIME ZONE,
+          | bool_field BOOLEAN
+          |)
+        """.stripMargin.format(IntegrationSpec.pgTestTable))
       val response2 = Await.result(createTableQuery, queryTimeout)
       response2 must equal(OK(1))
 
@@ -89,12 +90,12 @@ class IntegrationSpec extends Spec {
     def insertSampleData(client: PostgresClient): Unit = {
       val insertDataQuery = client.executeUpdate(
         """
-        |INSERT INTO %s VALUES
-        | ('hello', 1234, 10.5, '2015-01-08 11:55:12-0800', TRUE),
-        | ('hello', 5557, -4.51, '2015-01-08 12:55:12-0800', TRUE),
-        | ('hello', 7787, -42.51, '2013-12-24 07:01:00-0800', FALSE),
-        | ('goodbye', 4567, 15.8, '2015-01-09 16:55:12+0500', FALSE)
-      """.stripMargin.format(IntegrationSpec.pgTestTable))
+          |INSERT INTO %s VALUES
+          | ('hello', 1234, 10.5, '2015-01-08 11:55:12-0800', TRUE),
+          | ('hello', 5557, -4.51, '2015-01-08 12:55:12-0800', TRUE),
+          | ('hello', 7787, -42.51, '2013-12-24 07:01:00-0800', FALSE),
+          | ('goodbye', 4567, 15.8, '2015-01-09 16:55:12+0500', FALSE)
+        """.stripMargin.format(IntegrationSpec.pgTestTable))
 
       val response = Await.result(insertDataQuery, queryTimeout)
 
@@ -204,7 +205,7 @@ class IntegrationSpec extends Spec {
 
         val resultRows = Await.result(selectQuery, queryTimeout)
 
-        resultRows.size must equal (1)
+        resultRows.size must equal(1)
         resultRows.head.getOption[String]("str_field") must equal(Some("goodbye"))
       }
 
@@ -241,9 +242,9 @@ class IntegrationSpec extends Spec {
           "UPDATE %s SET str_field = $1 where int_field = 4567".format(IntegrationSpec.pgTestTable),
           "hello_updated"
         )
-    
+
         val numRows = Await.result(preparedQuery)
-    
+
         val resultRows = Await.result(client.select(
           "SELECT * from %s WHERE str_field = 'hello_updated' AND int_field = 4567".format(IntegrationSpec.pgTestTable)
         )(identity))
@@ -301,7 +302,7 @@ class IntegrationSpec extends Spec {
           "UPDATE %s SET str_field = $1 where int_field = 4567 RETURNING *".format(IntegrationSpec.pgTestTable),
           "hello_updated"
         )(identity)
-    
+
         val resultRows = Await.result(preparedQuery)
 
         resultRows.size must equal(1)
@@ -318,10 +319,10 @@ class IntegrationSpec extends Spec {
               VALUES ('delete', 9012, 15.8, '2015-01-09 16:55:12+0500', FALSE)"""
         ))
 
-        val preparedQuery = client.prepareAndQuery (
+        val preparedQuery = client.prepareAndQuery(
           "DELETE FROM %s where int_field = 9012 RETURNING *".format(IntegrationSpec.pgTestTable)
         )(identity)
-    
+
         val resultRows = Await.result(preparedQuery)
 
         resultRows.size must equal(1)
@@ -338,7 +339,7 @@ class IntegrationSpec extends Spec {
           "hello_updated",
           "xxxx"
         )(identity)
-    
+
         val resultRows = Await.result(preparedQuery)
 
         resultRows.size must equal(0)
@@ -354,14 +355,14 @@ class IntegrationSpec extends Spec {
           "DELETE FROM %s WHERE str_field=$1".format(IntegrationSpec.pgTestTable),
           "xxxx"
         )(identity)
-    
+
         val resultRows = Await.result(preparedQuery)
         resultRows.size must equal(0)
       }
 
       // this test will fail if the test DB user doesn't have permission
       "create an extension using CREATE EXTENSION" in {
-        if(user == "postgres") {
+        if (user == "postgres") {
           val client = getClient
           val result = client.prepareAndExecute("CREATE EXTENSION IF NOT EXISTS hstore")
           Await.result(result)
@@ -370,11 +371,12 @@ class IntegrationSpec extends Spec {
 
       "support multi-statement DDL" in {
         val client = getClient
-        val result = client.query("""
-          |CREATE TABLE multi_one(id integer);
-          |CREATE TABLE multi_two(id integer);
-          |DROP TABLE multi_one;
-          |DROP TABLE multi_two;
+        val result = client.query(
+          """
+            |CREATE TABLE multi_one(id integer);
+            |CREATE TABLE multi_two(id integer);
+            |DROP TABLE multi_one;
+            |DROP TABLE multi_two;
           """.stripMargin)
         Await.result(result)
       }
@@ -396,7 +398,7 @@ class IntegrationSpec extends Spec {
 
         "query in a prepared statement has an error" in {
           val client = getClient
-          a [ServerError] must be thrownBy {
+          a[ServerError] must be thrownBy {
             Await.result(client.prepareAndQuery("Garbage query")(identity))
           }
         }
@@ -411,7 +413,7 @@ class IntegrationSpec extends Spec {
             "hello"
           )(identity)
 
-          a [ServerError] must be thrownBy {
+          a[ServerError] must be thrownBy {
             Await.result(
               preparedQuery,
               queryTimeout
@@ -430,7 +432,7 @@ class IntegrationSpec extends Spec {
         "client is bad" in {
           val badClient: PostgresClient = getBadClient
           badClient.isAvailable must equal(false)
-          Set(Status.Busy, Status.Closed) must contain (badClient.status)
+          Set(Status.Busy, Status.Closed) must contain(badClient.status)
         }
         "client is closed" in {
           val client: PostgresClient = getClient
@@ -441,37 +443,45 @@ class IntegrationSpec extends Spec {
       }
 
       "support notifications" when {
-        "listening to notified channel receive message" in {
-          val client = getClient
-          val channel = "foo"
-          val payload = "my payload"
-          var received = false
+        val client = getClient
+        val channel = "foo"
+        val payload = "my payload"
+        val notify = () => {
+          val q = client.select(
+            s"SELECT pg_notify('$channel', '$payload');"
+          )(identity)
+          Await.result(q, queryTimeout)
+          Thread.sleep(200)
+        }
 
-          client.listen(channel, not => {
+        "listening to notified channel receive message before stopping" in {
+          var received = false
+          val Listener(stream, _) = Await.result(client.listen(channel))
+          stream.take(1).toSeq().map(_.foreach(not => {
             not.channel must equal(channel)
             not.payload must equal(payload)
             received = true
-          })
+          }))
 
-          val notifyQuery = client.select(
-            s"SELECT pg_notify('$channel', '$payload');"
-          )(identity)
-
-          Await.result(notifyQuery, queryTimeout)
-          Thread.sleep(200)
+          notify()
           if (!received) fail("notification not received")
         }
 
         "listening to another channel do not receive the message" in {
-          val client = getClient
-          client.listen("foo", _ => fail("should not receive notifications"))
+          var received = false
+          val Listener(stream, _) = Await.result(client.listen("notvalid"))
+          stream.foreach(_ => received = true)
+          notify()
+          received must equal(false)
+        }
 
-          val notifyQuery = client.select(
-            s"SELECT pg_notify('crazy channel', 'payload');"
-          )(identity)
-
-          Await.result(notifyQuery, queryTimeout)
-          Thread.sleep(200)
+        "the client stops listening no messages are received" in {
+          val Listener(stream, stop) = Await.result(client.listen(channel))
+          var stopped = true
+          stream.foreach(_ => stopped = false)
+          stop()
+          notify()
+          stopped must equal(true)
         }
       }
     }

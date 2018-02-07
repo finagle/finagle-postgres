@@ -2,9 +2,11 @@ package com.twitter.finagle.postgres.generic
 
 import java.nio.charset.Charset
 
+import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres._
+import com.twitter.finagle.postgres.messages.Listener
 import com.twitter.finagle.postgres.messages.NotificationResponse
 import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.util.{Await, Future}
@@ -53,7 +55,7 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
     def isAvailable: Boolean = status == Status.Open
 
-    def listen(channel: String, block: NotificationResponse => Unit): Future[Runnable] = ???
+    def listen(channel: String): Future[Listener] = ???
 
     def unlisten(channel: String): Future[QueryResponse] = ???
   }

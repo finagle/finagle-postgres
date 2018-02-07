@@ -4,11 +4,11 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicInteger
 
+import com.twitter.finagle.Service
+import com.twitter.finagle.ServiceFactory
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values._
-import com.twitter.finagle.Service
-import com.twitter.finagle.ServiceFactory
 import com.twitter.logging.Logger
 import com.twitter.util._
 import org.jboss.netty.buffer.ChannelBuffer
@@ -187,11 +187,11 @@ class PostgresClientImpl(
    */
   override def isAvailable: Boolean = status == Status.Open
 
-  override def listen(channel: String, block: NotificationResponse => Unit): Future[Runnable] = {
+  override def listen(channel: String): Future[Listener] = {
     if(Listeners.alreadyListening(channel)) {
-      return Future(Listeners.addConsumer(channel, block))
+      return Future(Listeners.addConsumer(channel))
     }
-    query(s"LISTEN $channel").map(_ => Listeners.addConsumer(channel, block))
+    query(s"LISTEN $channel").map(_ => Listeners.addConsumer(channel))
   }
 
   override def unlisten(channel: String): Future[QueryResponse] = {
