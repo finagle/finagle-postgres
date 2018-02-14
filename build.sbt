@@ -89,6 +89,8 @@ lazy val docs = project
 
 parallelExecution in Test := false
 
+javaOptions in Test += "-Duser.timezone=UTC"
+
 test in Test in `finagle-postgres` := {
   (test in Test in `finagle-postgres`).value
   (test in Test in `finagle-postgres-shapeless`).value

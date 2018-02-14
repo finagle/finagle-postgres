@@ -1,14 +1,14 @@
 package com.twitter.finagle.postgres.values
 
-import java.net.InetAddress
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
 import java.time._
 import java.time.temporal.JulianFields
 import java.util.UUID
 
-import com.twitter.util.{Return, Throw, Try}
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.buffer.ChannelBuffers
 
 import scala.language.existentials
 
@@ -188,6 +188,17 @@ object ValueEncoder extends LowPriorityEncoder {
   implicit val hstoreNoNulls: ValueEncoder[Map[String, String]] = hstore.contraMap {
     m: Map[String, String] => m.mapValues(Option(_))
   }
+
+  implicit val jsonb: ValueEncoder[JSONB] = instance[JSONB](
+    "jsonb",
+    j => JSONB.stringify(j),
+    (j, c) => {
+      val cb = ChannelBuffers.buffer(1 + j.bytes.length)
+      cb.writeByte(1)
+      cb.writeBytes(j.bytes)
+      Some(cb)
+    }
+  )
 
   @inline final implicit def option[T](implicit encodeT: ValueEncoder[T]): ValueEncoder[Option[T]] =
     new ValueEncoder[Option[T]] {
