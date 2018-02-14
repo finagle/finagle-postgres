@@ -52,7 +52,7 @@ object Postgres {
   object CustomTypes { implicit val param = Param(CustomTypes(None)) }
 
   case class CustomReceiveFunctions(functions: PartialFunction[String, ValueDecoder[T] forSome {type T}]) extends AnyVal
-  object CustomReceiveFunctions { implicit val param = Param(CustomReceiveFunctions(PartialFunction.empty)) }
+  object CustomReceiveFunctions { implicit val param = Param(CustomReceiveFunctions(ValueDecoder.decoders)) }
 
   case class BinaryResults(binaryResults: Boolean) extends AnyVal
   object BinaryResults { implicit val param = Param(BinaryResults(false)) }
