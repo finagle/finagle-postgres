@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+## 0.7.0
+* Added value encoder/decoder for `JSONB`
+* Update to Finagle 18.2.0
+
 ## 0.6.0
 * Updated to Finagle 18.1.0
 

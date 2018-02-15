@@ -24,7 +24,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.6.0"
+  "io.github.finagle" %% "finagle-postgres" % "0.7.0"
 )
 ```
 
@@ -59,6 +59,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 * [The Factory][thefactory]
 * [Vladimir Kostyukov][vkostyukov]
 * [Jeremy Smith](https://github.com/jeremyrsmith) (current maintainer)
+* [Leon Maia](https://github.com/leonmaia)
 
 ## License
 
