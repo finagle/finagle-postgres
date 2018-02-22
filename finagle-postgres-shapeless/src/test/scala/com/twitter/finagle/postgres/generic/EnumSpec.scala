@@ -5,7 +5,8 @@ import java.nio.charset.StandardCharsets
 import com.twitter.finagle.postgres.generic.enumeration.InvalidValue
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw}
-import org.jboss.netty.buffer.ChannelBuffers
+import io.netty.buffer.{Unpooled, UnpooledByteBufAllocator}
+
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -21,6 +22,7 @@ class EnumSpec extends FlatSpec with Matchers {
 
   val UTF8 = StandardCharsets.UTF_8
 
+  private val allocator = UnpooledByteBufAllocator.DEFAULT
 
   "Enum decoding" should "decode enumeration ADTs from strings" in  {
 
@@ -32,19 +34,19 @@ class EnumSpec extends FlatSpec with Matchers {
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseOne", UTF8),
+      Unpooled.copiedBuffer("CaseOne", UTF8),
       UTF8
     ) shouldEqual Return(CaseOne)
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseTwo", UTF8),
+      Unpooled.copiedBuffer("CaseTwo", UTF8),
       UTF8
     ) shouldEqual Return(CaseTwo)
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseThree", UTF8),
+      Unpooled.copiedBuffer("CaseThree", UTF8),
       UTF8
     ) shouldEqual Return(CaseThree)
 
@@ -56,7 +58,7 @@ class EnumSpec extends FlatSpec with Matchers {
     decoder.decodeText("enum_recv", "CasePurple") shouldEqual Throw(InvalidValue("CasePurple"))
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CasePurple", UTF8),
+      Unpooled.copiedBuffer("CasePurple", UTF8),
       UTF8
     ) shouldEqual Throw(InvalidValue("CasePurple"))
 
@@ -64,12 +66,12 @@ class EnumSpec extends FlatSpec with Matchers {
 
   "Enum encoding" should "encode enumeration ADTs to Strings" in {
     val encoder = ValueEncoder[TestEnum]
-    encoder.encodeText(CaseOne, ) shouldEqual Some("CaseOne")
-    encoder.encodeText(CaseTwo, ) shouldEqual Some("CaseTwo")
-    encoder.encodeText(CaseThree, ) shouldEqual Some("CaseThree")
-    encoder.encodeBinary(CaseOne, UTF8, ).get.toString(UTF8) shouldEqual "CaseOne"
-    encoder.encodeBinary(CaseTwo, UTF8, ).get.toString(UTF8) shouldEqual "CaseTwo"
-    encoder.encodeBinary(CaseThree, UTF8, ).get.toString(UTF8) shouldEqual "CaseThree"
+    encoder.encodeText(CaseOne) shouldEqual Some("CaseOne")
+    encoder.encodeText(CaseTwo) shouldEqual Some("CaseTwo")
+    encoder.encodeText(CaseThree) shouldEqual Some("CaseThree")
+    encoder.encodeBinary(CaseOne, UTF8, allocator).get.toString(UTF8) shouldEqual "CaseOne"
+    encoder.encodeBinary(CaseTwo, UTF8, allocator).get.toString(UTF8) shouldEqual "CaseTwo"
+    encoder.encodeBinary(CaseThree, UTF8, allocator).get.toString(UTF8) shouldEqual "CaseThree"
   }
 
 }
