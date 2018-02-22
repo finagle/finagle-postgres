@@ -18,6 +18,7 @@ import com.twitter.util.{Monitor => _, _}
 import com.twitter.logging.Logger
 import java.net.SocketAddress
 
+import com.twitter.finagle.netty4.param.Allocator
 import io.netty.channel.ChannelPipeline
 
 import scala.language.existentials
@@ -76,13 +77,13 @@ object Postgres {
   private def pipelineFactory(params: Stack.Params)(pipeline: ChannelPipeline) = {
     val SslClientEngineFactory.Param(sslFactory) = params[SslClientEngineFactory.Param]
     val Transport.ClientSsl(ssl) = params[Transport.ClientSsl]
+    val Allocator(allocator) = params[Allocator]
 
-        pipeline.addLast("binary_to_packet", new PacketDecoder(ssl.nonEmpty))
-        pipeline.addLast("packet_to_backend_messages", new BackendMessageDecoder(new BackendMessageParser))
-        pipeline.addLast("backend_messages_to_postgres_response", new PgClientChannelHandler(sslFactory, ssl, ssl.nonEmpty))
-
-
-
+    pipeline.addLast("binary_to_packet", new PacketDecoder(ssl.nonEmpty))
+    pipeline.addLast("packet_to_backend_messages", new BackendMessageDecoder(new BackendMessageParser))
+    pipeline.addLast(
+      "backend_messages_to_postgres_response",
+      new PgClientChannelHandler(sslFactory, ssl, ssl.nonEmpty, allocator))
   }
 
   private def mkTransport(params: Stack.Params, addr: SocketAddress) =
@@ -110,10 +111,11 @@ object Postgres {
       val Label(id) = params[Label]
       val BinaryResults(binaryResults) = params[BinaryResults]
       val BinaryParams(binaryParams) = params[BinaryParams]
+      val Allocator(allocator) = params[Allocator]
 
       val client = newClient(name, id)
 
-      new postgres.PostgresClientImpl(client, id, customTypes, customReceiveFunctions, binaryResults, binaryParams)
+      new postgres.PostgresClientImpl(client, id, customTypes, customReceiveFunctions, binaryResults, binaryParams, allocator)
     }
 
     def newRichClient(addr: String): postgres.PostgresClientImpl = dest(addr).newRichClient()

@@ -12,10 +12,9 @@ import com.twitter.logging.Logger
 import com.twitter.util.Future
 import javax.net.ssl.SSLSession
 
-import io.netty.buffer.{ByteBuf, PooledByteBufAllocator}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 import io.netty.channel.{ChannelHandlerContext, ChannelPromise}
 import io.netty.handler.codec.{ByteToMessageDecoder, MessageToMessageCodec, MessageToMessageDecoder}
-
 import com.twitter.finagle.ssl.Ssl
 import io.netty.handler.ssl.SslHandler
 
@@ -163,10 +162,9 @@ class PacketDecoder(@volatile var inSslNegotation: Boolean) extends ByteToMessag
 class PgClientChannelHandler(
   sslEngineFactory: SslClientEngineFactory,
   sslConfig: Option[SslClientConfiguration],
-  val useSsl: Boolean
+  val useSsl: Boolean,
+  allocator: ByteBufAllocator
 ) extends MessageToMessageCodec[BackendMessage, Object] {
-
-  private val allocator = new PooledByteBufAllocator()
 
   private[this] val logger = Logger(getClass.getName)
   private[this] val connection = {

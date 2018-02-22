@@ -13,7 +13,7 @@ import com.twitter.finagle.postgres.values._
 import com.twitter.finagle.{Service, ServiceFactory}
 import com.twitter.logging.Logger
 import com.twitter.util._
-import io.netty.buffer.{ByteBuf, ByteBufAllocator, PooledByteBufAllocator}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 
 import scala.language.existentials
 
@@ -28,14 +28,13 @@ class PostgresClientImpl(
   types: Option[Map[Int, PostgresClient.TypeSpecifier]] = None,
   receiveFunctions: PartialFunction[String, ValueDecoder[T] forSome {type T}],
   binaryResults: Boolean = false,
-  binaryParams: Boolean = false
+  binaryParams: Boolean = false,
+  allocator: ByteBufAllocator
 ) extends PostgresClient {
   private[this] val counter = new AtomicInteger(0)
   private[this] val logger = Logger(getClass.getName)
   private val resultFormats = if(binaryResults) Seq(1) else Seq(0)
   private val paramFormats = if(binaryParams) Seq(1) else Seq(0)
-
-  private val allocator = new PooledByteBufAllocator()
 
   val charset = StandardCharsets.UTF_8
 
@@ -98,7 +97,7 @@ class PostgresClientImpl(
     service             <- factory()
     constFactory        =  ServiceFactory.const(service)
     id                  =  Random.alphanumeric.take(28).mkString
-    transactionalClient = new PostgresClientImpl(constFactory, id, Some(types), receiveFunctions, binaryResults, binaryParams)
+    transactionalClient = new PostgresClientImpl(constFactory, id, Some(types), receiveFunctions, binaryResults, binaryParams, allocator)
     _                   <- transactionalClient.query("BEGIN")
     result              <- fn(transactionalClient).rescue {
       case err => for {
