@@ -1,8 +1,7 @@
 package com.twitter.finagle.postgres.messages
 
 import com.twitter.finagle.postgres.values.Charsets
-
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator, UnpooledByteBufAllocator}
 
 object Packet {
   val INT_SIZE = 4
@@ -13,10 +12,11 @@ object Packet {
  *
  * Converts content into byte format expected by Postgres.
  */
-case class Packet(code: Option[Char], length: Int, content: ChannelBuffer, inSslNegotation: Boolean = false) {
-  def encode(): ChannelBuffer = {
-    val result = ChannelBuffers.dynamicBuffer()
-    code.map { c =>
+case class Packet(code: Option[Char], length: Int, content: ByteBuf, inSslNegotation: Boolean = false) {
+  def encode(allocator: ByteBufAllocator): ByteBuf = {
+    val result = allocator.buffer(length + 5)
+
+    code.foreach { c =>
       result.writeByte(c)
     }
 
@@ -30,8 +30,8 @@ case class Packet(code: Option[Char], length: Int, content: ChannelBuffer, inSsl
 /*
  * Helper class for creating packets from scala types.
  */
-class PacketBuilder(val code: Option[Char]) {
-  private val underlying = ChannelBuffers.dynamicBuffer()
+class PacketBuilder(val code: Option[Char], allocator: ByteBufAllocator) {
+  private val underlying = allocator.buffer()
 
   def writeByte(byte: Byte) = {
     underlying.writeByte(byte)
@@ -43,7 +43,7 @@ class PacketBuilder(val code: Option[Char]) {
 	  this
   }
 
-  def writeBuf(bytes: ChannelBuffer) = {
+  def writeBuf(bytes: ByteBuf) = {
 	  underlying.writeBytes(bytes)
 	  this
   }
@@ -72,7 +72,7 @@ class PacketBuilder(val code: Option[Char]) {
 }
 
 object PacketBuilder {
-  def apply(): PacketBuilder = new PacketBuilder(None)
+  def apply(allocator: ByteBufAllocator): PacketBuilder = new PacketBuilder(None, allocator)
 
-  def apply(code: Char): PacketBuilder = new PacketBuilder(Some(code))
+  def apply(code: Char, allocator: ByteBufAllocator): PacketBuilder = new PacketBuilder(Some(code), allocator)
 }

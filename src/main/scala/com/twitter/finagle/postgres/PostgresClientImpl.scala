@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.immutable.Queue
 import scala.language.implicitConversions
 import scala.util.Random
-
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.codec.Errors
 import com.twitter.finagle.postgres.messages._
@@ -14,7 +13,7 @@ import com.twitter.finagle.postgres.values._
 import com.twitter.finagle.{Service, ServiceFactory}
 import com.twitter.logging.Logger
 import com.twitter.util._
-import org.jboss.netty.buffer.ChannelBuffer
+import io.netty.buffer.{ByteBuf, ByteBufAllocator, PooledByteBufAllocator}
 
 import scala.language.existentials
 
@@ -35,6 +34,8 @@ class PostgresClientImpl(
   private[this] val logger = Logger(getClass.getName)
   private val resultFormats = if(binaryResults) Seq(1) else Seq(0)
   private val paramFormats = if(binaryParams) Seq(1) else Seq(0)
+
+  private val allocator = new PooledByteBufAllocator()
 
   val charset = StandardCharsets.UTF_8
 
@@ -228,7 +229,7 @@ class PostgresClientImpl(
       }
     }
 
-    private[this] def bind(params: Seq[ChannelBuffer]): Future[Unit] = {
+    private[this] def bind(params: Seq[ByteBuf]): Future[Unit] = {
       val req =  Bind(
         portal = name,
         name = name,
@@ -270,11 +271,11 @@ class PostgresClientImpl(
     override def fire(params: Param[_]*): Future[QueryResponse] = {
       val paramBuffers = if(binaryParams) {
         params.map {
-          p => p.encodeBinary(StandardCharsets.UTF_8)
+          p => p.encodeBinary(charset, allocator)
         }
       } else {
         params.map {
-          p => p.encodeText(StandardCharsets.UTF_8)
+          p => p.encodeText(charset, allocator)
         }
       }
 
@@ -304,8 +305,10 @@ class PostgresClientImpl(
 
 
 case class Param[T](value: T)(implicit val encoder: ValueEncoder[T]) {
-  def encodeText(charset: Charset = StandardCharsets.UTF_8) = ValueEncoder.encodeText(value, encoder, charset)
-  def encodeBinary(charset: Charset = StandardCharsets.UTF_8) = ValueEncoder.encodeBinary(value, encoder, charset)
+  def encodeText(charset: Charset = StandardCharsets.UTF_8, allocator: ByteBufAllocator) =
+    ValueEncoder.encodeText(value, encoder, charset, allocator)
+  def encodeBinary(charset: Charset = StandardCharsets.UTF_8, allocator: ByteBufAllocator) =
+    ValueEncoder.encodeBinary(value, encoder, charset, allocator)
 }
 
 object Param {

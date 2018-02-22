@@ -2,9 +2,9 @@ package com.twitter.finagle.postgres.values
 
 import java.nio.charset.Charset
 
-import scala.util.parsing.combinator.RegexParsers
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import scala.util.parsing.combinator.RegexParsers
 
 object HStores {
   object HStoreStringParser extends RegexParsers {
@@ -36,7 +36,7 @@ object HStores {
       s"""$key => $value"""
   }.mkString(",")
 
-  def decodeHStoreBinary(buf: ChannelBuffer, charset: Charset) = {
+  def decodeHStoreBinary(buf: ByteBuf, charset: Charset) = {
     val count = buf.readInt()
     val pairs = Array.fill(count) {
       val keyLength = buf.readInt()
@@ -53,8 +53,8 @@ object HStores {
     pairs.toMap
   }
 
-  def encodeHStoreBinary(hstore: Map[String, Option[String]], charset: Charset) = {
-    val buf = ChannelBuffers.dynamicBuffer()
+  def encodeHStoreBinary(hstore: Map[String, Option[String]], charset: Charset, allocator: ByteBufAllocator) = {
+    val buf = allocator.buffer()
     buf.writeInt(hstore.size)
     hstore foreach {
       case (key, value) =>

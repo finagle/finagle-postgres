@@ -4,6 +4,7 @@ import java.nio.charset.Charset
 
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw, Try}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import shapeless.labelled._
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, LabelledGeneric, Witness}
@@ -49,18 +50,14 @@ class EnumCConsEncoder[K <: Symbol, H, T <: Coproduct](
 ) extends ValueEncoder[FieldType[K, H] :+: T] {
   private val str = name.value.name
 
-  @inline final def encodeText(
-    t: FieldType[K, H] :+: T
-  ): Option[String] = t match {
+  @inline final def encodeText(t: :+:[FieldType[K, H], T], allocator: ByteBufAllocator): Option[String] = t match {
     case Inl(_)    => Some(str)
-    case Inr(tail) => encodeTail.encodeText(tail)
+    case Inr(tail) => encodeTail.encodeText(tail, )
   }
 
-  @inline final def encodeBinary(
-    t: FieldType[K, H] :+: T, charset: Charset
-  ): Option[ChannelBuffer] = t match {
+  @inline final def encodeBinary(t: :+:[FieldType[K, H], T], charset: Charset, allocator: ByteBufAllocator): Option[ChannelBuffer] = t match {
     case Inl(_)    => Some(ChannelBuffers.copiedBuffer(str, charset))
-    case Inr(tail) => encodeTail.encodeBinary(tail, charset)
+    case Inr(tail) => encodeTail.encodeBinary(tail, charset, )
   }
 
   val typeName: String = "" // enums are sent over the wire as text
@@ -71,8 +68,8 @@ class EnumCoproductEncoder[T, C <: Coproduct](
   gen: LabelledGeneric.Aux[T, C],
   encodeC: ValueEncoder[C]
 ) extends ValueEncoder[T] {
-  @inline final def encodeText(t: T) = encodeC.encodeText(gen.to(t))
-  @inline final def encodeBinary(t: T, charset: Charset) = encodeC.encodeBinary(gen.to(t), charset)
+  @inline final def encodeText(t: T, allocator: ByteBufAllocator): Option[String] = encodeC.encodeText(gen.to(t), )
+  @inline final def encodeBinary(t: T, charset: Charset, allocator: ByteBufAllocator): Option[ByteBuf] = encodeC.encodeBinary(gen.to(t), charset, )
   val typeName = ""
   val elemTypeName = None
 }
@@ -101,8 +98,8 @@ trait Enums {
   ): ValueDecoder[T] = new EnumCoproductDecoder[T, C](gen, decodeC)
 
   implicit object EnumCNilEncoder extends ValueEncoder[CNil] {
-    @inline final def encodeText(c: CNil) = None
-    @inline final def encodeBinary(c: CNil, char: Charset) = None
+    @inline final def encodeText(c: CNil, allocator: ByteBufAllocator): Option[String] = None
+    @inline final def encodeBinary(c: CNil, char: Charset, allocator: ByteBufAllocator): Option[ByteBuf] = None
     val typeName = ""
     val elemTypeName = None
   }

@@ -14,11 +14,13 @@ import com.twitter.finagle.postgres.Spec
 import com.twitter.finagle.postgres.messages.DataRow
 import com.twitter.finagle.postgres.messages.Field
 import com.twitter.util.Await
-import org.jboss.netty.buffer.ChannelBuffers
+import io.netty.buffer.{Unpooled, UnpooledByteBufAllocator}
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
+
+  private val allocator = UnpooledByteBufAllocator.DEFAULT
 
   def test[T : Arbitrary](
     decoder: ValueDecoder[T],
@@ -40,7 +42,7 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
         val ResultSet(List(textRow)) = Await.result(client.query(s"SELECT CAST('$escaped'::$typ AS text) AS out"))
         val bytes = binaryRow.get[Array[Byte]]("out")
         val textString = textRow.get[String]("out")
-        val binaryOut = decoder.decodeBinary(recv, ChannelBuffers.wrappedBuffer(bytes), client.charset).get
+        val binaryOut = decoder.decodeBinary(recv, Unpooled.wrappedBuffer(bytes), client.charset).get
         val textOut = decoder.decodeText(recv, textString).get
 
         if(!tester(t, binaryOut))
@@ -49,7 +51,7 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
         if(!tester(t, textOut))
           fail(s"text: $t does not match $textOut")
 
-        val encodedBinary = encoder.encodeBinary(t, client.charset).getOrElse(fail("Binary encoding produced null"))
+        val encodedBinary = encoder.encodeBinary(t, client.charset, allocator).getOrElse(fail("Binary encoding produced null"))
         val encodedText = encoder.encodeText(t).getOrElse(fail("Text encoding produced null"))
 
         val binaryInOut = decoder.decodeBinary(recv, encodedBinary.duplicate(), client.charset).get
@@ -79,7 +81,7 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
 
           val List(rowText) = ResultSet(
             Array(Field("column", 0, 0)), StandardCharsets.UTF_8,
-            List(DataRow(Array(Some(ChannelBuffers.copiedBuffer(encodedText, StandardCharsets.UTF_8))))),
+            List(DataRow(Array(Some(Unpooled.copiedBuffer(encodedText, StandardCharsets.UTF_8))))),
             Map(0 -> TypeSpecifier(recv, typ, 0)), ValueDecoder.decoders
           ).rows
 
@@ -145,7 +147,7 @@ class ValuesSpec extends Spec with GeneratorDrivenPropertyChecks {
       "parse jsonb" in {
         val json = "{\"a\":\"b\"}"
         val createBuffer = () => {
-          ValueEncoder[JSONB].encodeBinary(JSONB(json.getBytes), Charset.defaultCharset()).get
+          ValueEncoder[JSONB].encodeBinary(JSONB(json.getBytes), Charset.defaultCharset(), allocator).get
         }
         val buffer = createBuffer()
         val version = buffer.readByte()

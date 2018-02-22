@@ -4,14 +4,13 @@ import java.nio.charset.Charset
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-
 import com.twitter.finagle.postgres.messages.{DataRow, Field}
 import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.util.Try
 import Try._
 import com.twitter.finagle.postgres.PostgresClient.TypeSpecifier
 import com.twitter.finagle.postgres.codec.NullValue
-import org.jboss.netty.buffer.ChannelBuffer
+import io.netty.buffer.ByteBuf
 
 import scala.language.existentials
 
@@ -42,14 +41,14 @@ trait Row {
 }
 
 object Row {
-  def apply(values: Array[Option[ChannelBuffer]], rowFormat: RowFormat): Row = RowImpl(values, rowFormat)
+  def apply(values: Array[Option[ByteBuf]], rowFormat: RowFormat): Row = RowImpl(values, rowFormat)
 }
 
 /*
  * Convenience wrapper around a set of row values. Supports lookup by name.
  */
 case class RowImpl(
-  values: Array[Option[ChannelBuffer]],
+  values: Array[Option[ByteBuf]],
   rowFormat: RowFormat
 ) extends Row {
 

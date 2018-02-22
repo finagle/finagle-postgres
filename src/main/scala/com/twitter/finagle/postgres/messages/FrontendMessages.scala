@@ -1,18 +1,18 @@
 package com.twitter.finagle.postgres.messages
 
-import com.twitter.finagle.postgres.values.{Strings, Convert}
+import com.twitter.finagle.postgres.values.{Convert, Strings}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 
-import org.jboss.netty.buffer.ChannelBuffer
 
 /**
  * Messages sent to Postgres from the client.
  */
 trait FrontendMessage extends Message {
-  def asPacket(): Packet
+  def asPacket(allocator: ByteBufAllocator): Packet
 }
 
 case class StartupMessage(user: String, database: String) extends FrontendMessage {
-  def asPacket() = PacketBuilder()
+  def asPacket(allocator: ByteBufAllocator): Packet = PacketBuilder(allocator)
     .writeShort(3)
     .writeShort(0)
     .writeCString("user")
@@ -24,28 +24,28 @@ case class StartupMessage(user: String, database: String) extends FrontendMessag
 }
 
 case class SslRequestMessage() extends FrontendMessage {
-  def asPacket() = PacketBuilder()
+  def asPacket(allocator: ByteBufAllocator): Packet = PacketBuilder(allocator)
     .writeShort(1234)
     .writeShort(5679)
     .toPacket
 }
 
 case class PasswordMessage(password: String) extends FrontendMessage {
-  def asPacket() = PacketBuilder('p')
+  def asPacket(allocator: ByteBufAllocator): Packet = PacketBuilder('p', allocator)
     .writeCString(password)
     .toPacket
 }
 
 case class Query(str: String) extends FrontendMessage {
-  def asPacket() = PacketBuilder('Q')
+  def asPacket(allocator: ByteBufAllocator): Packet = PacketBuilder('Q', allocator)
     .writeCString(str)
     .toPacket
 }
 
 case class Parse(
       name: String = Strings.empty, query: String = "", paramTypes: Seq[Int] = Seq()) extends FrontendMessage {
-  def asPacket() = {
-    val builder = PacketBuilder('P')
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    val builder = PacketBuilder('P', allocator)
       .writeCString(name)
       .writeCString(query)
       .writeShort(Convert.asShort(paramTypes.length))
@@ -58,9 +58,9 @@ case class Parse(
 }
 
 case class Bind(portal: String = Strings.empty, name: String = Strings.empty, formats: Seq[Int] = Seq(),
-                params: Seq[ChannelBuffer] = Seq(), resultFormats: Seq[Int] = Seq()) extends FrontendMessage {
-  def asPacket() = {
-    val builder = PacketBuilder('B')
+                params: Seq[ByteBuf] = Seq(), resultFormats: Seq[Int] = Seq()) extends FrontendMessage {
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    val builder = PacketBuilder('B', allocator)
       .writeCString(portal)
       .writeCString(name)
 
@@ -94,8 +94,8 @@ case class Bind(portal: String = Strings.empty, name: String = Strings.empty, fo
 }
 
 case class Execute(name: String = Strings.empty, maxRows: Int = 0) extends FrontendMessage {
-  def asPacket() = {
-    PacketBuilder('E')
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    PacketBuilder('E', allocator)
       .writeCString(name)
       .writeInt(maxRows)
       .toPacket
@@ -103,8 +103,8 @@ case class Execute(name: String = Strings.empty, maxRows: Int = 0) extends Front
 }
 
 case class Describe(portal: Boolean = true, name: String = new String) extends FrontendMessage {
-  def asPacket() = {
-    PacketBuilder('D')
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    PacketBuilder('D', allocator)
       .writeChar(if (portal) 'P' else 'S')
       .writeCString(name)
       .toPacket
@@ -112,19 +112,19 @@ case class Describe(portal: Boolean = true, name: String = new String) extends F
 }
 
 object Flush extends FrontendMessage {
-  def asPacket() = {
-    PacketBuilder('H')
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    PacketBuilder('H', allocator)
       .toPacket
   }
 }
 
 object Sync extends FrontendMessage {
-  def asPacket() = {
-    PacketBuilder('S')
+  def asPacket(allocator: ByteBufAllocator): Packet = {
+    PacketBuilder('S', allocator)
       .toPacket
   }
 }
 
 object Terminate extends FrontendMessage {
-  def asPacket() = PacketBuilder('X').toPacket
+  def asPacket(allocator: ByteBufAllocator): Packet = PacketBuilder('X', allocator).toPacket
 }

@@ -1,28 +1,23 @@
 package com.twitter.finagle.postgres.codec
 
-import java.net.{InetSocketAddress, SocketAddress}
-import java.nio.channels.ClosedChannelException
+import java.net.InetSocketAddress
+import java.util
 
 import com.twitter.finagle._
-import com.twitter.finagle.postgres.ResultSet
 import com.twitter.finagle.postgres.connection.{AuthenticationRequired, Connection, RequestingSsl, WrongStateForEvent}
 import com.twitter.finagle.postgres.messages._
 import com.twitter.finagle.postgres.values.Md5Encryptor
-import com.twitter.finagle.ssl.client.{ HostnameVerifier, SslClientConfiguration, SslClientEngineFactory, SslClientSessionVerifier }
+import com.twitter.finagle.ssl.client.{HostnameVerifier, SslClientConfiguration, SslClientEngineFactory, SslClientSessionVerifier}
 import com.twitter.logging.Logger
 import com.twitter.util.Future
-import javax.net.ssl.{SSLContext, SSLEngine, SSLSession, TrustManagerFactory}
+import javax.net.ssl.SSLSession
 
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
-import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.frame.FrameDecoder
-import org.jboss.netty.handler.ssl.util.InsecureTrustManagerFactory
-import org.jboss.netty.handler.ssl.{SslContext, SslHandler}
-import scala.collection.mutable
+import io.netty.buffer.{ByteBuf, PooledByteBufAllocator}
+import io.netty.channel.{ChannelHandlerContext, ChannelPromise}
+import io.netty.handler.codec.{ByteToMessageDecoder, MessageToMessageCodec, MessageToMessageDecoder}
 
-import com.sun.corba.se.impl.protocol.RequestCanceledException
 import com.twitter.finagle.ssl.Ssl
-import com.twitter.finagle.transport.Transport
+import io.netty.handler.ssl.SslHandler
 
 /*
  * Filter that converts exceptions into ServerErrors.
@@ -120,63 +115,46 @@ class AuthenticationProxy(
 /*
  * Decodes a Packet into a BackendMessage.
  */
-class BackendMessageDecoder(val parser: BackendMessageParser) extends SimpleChannelHandler {
+class BackendMessageDecoder(val parser: BackendMessageParser) extends MessageToMessageDecoder[Packet] {
   private val logger = Logger(getClass.getName)
 
-  override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
-    val message = e.getMessage
-
-    message match {
-      case packet: Packet =>
-        parser.parse(packet) match {
-          case Some(backendMessage) =>
-            Channels.fireMessageReceived(ctx, backendMessage)
-          case None =>
-            logger.warning("Cannot parse the packet. Disconnecting...")
-            Channels.disconnect(ctx.getChannel)
-        }
-
-      case _ =>
-        logger.warning("Only packet is supported...")
-        Channels.disconnect(ctx.getChannel)
-    }
+  override def decode(ctx: ChannelHandlerContext, msg: Packet, out: util.List[AnyRef]): Unit = parser.parse(msg) match {
+    case Some(backendMessage) =>
+      out.add(backendMessage)
+    case None => logger.warning("Cannot parse the packet. Disconnecting...")
   }
 }
 
 /*
  * Decodes a byte stream into a Packet.
  */
-class PacketDecoder(@volatile var inSslNegotation: Boolean) extends FrameDecoder {
+class PacketDecoder(@volatile var inSslNegotation: Boolean) extends ByteToMessageDecoder {
   private val logger = Logger(getClass.getName)
 
-  def decode(ctx: ChannelHandlerContext, channel: Channel, buffer: ChannelBuffer): AnyRef = {
-    if (inSslNegotation && buffer.readableBytes() >= 1) {
-      val SslCode: Char = buffer.readByte().asInstanceOf[Char]
+  // TODO: SSL negoatiation should be moved upstream; then this could be a LengthFieldBasedFrameDecoder.
+  override def decode(ctx: ChannelHandlerContext, buffer: ByteBuf, out: util.List[AnyRef]): Unit = if (inSslNegotation && buffer.readableBytes() >= 1) {
 
-      logger.ifDebug("Got ssl negotiation char packet: %s".format(SslCode))
+    val SslCode: Char = buffer.readByte().asInstanceOf[Char]
+    logger.ifDebug("Got ssl negotiation char packet: %s".format(SslCode))
+    inSslNegotation = false
 
-      inSslNegotation = false
+    out.add(new Packet(Some(SslCode), 1, null, true))
 
-      new Packet(Some(SslCode), 1, null, true)
-    } else if (buffer.readableBytes() < 5) {
-      null
+  } else if (buffer.readableBytes() >= 5) {
+    buffer.markReaderIndex()
+    val code: Char = buffer.readByte().asInstanceOf[Char]
+
+    val totalLength = buffer.readInt()
+    val length = totalLength - 4
+
+    if (buffer.readableBytes() < length) {
+      buffer.resetReaderIndex()
     } else {
-      buffer.markReaderIndex()
-      val code: Char = buffer.readByte().asInstanceOf[Char]
-
-      val totalLength = buffer.readInt()
-      val length = totalLength - 4
-
-      if (buffer.readableBytes() < length) {
-        buffer.resetReaderIndex()
-        return null
-      }
-
-      val packet = new Packet(Some(code), totalLength, buffer.readSlice(length))
-
-      packet
+      out.add(new Packet(Some(code), totalLength, buffer.readBytes(length)))
+      // TODO (jeremyrsmith): can we slice here? I tried using readSlice (illegal ref counts everywhere) and readRetainedSlice (severe leak warning).
     }
   }
+
 }
 
 /*
@@ -186,7 +164,10 @@ class PgClientChannelHandler(
   sslEngineFactory: SslClientEngineFactory,
   sslConfig: Option[SslClientConfiguration],
   val useSsl: Boolean
-) extends SimpleChannelHandler {
+) extends MessageToMessageCodec[BackendMessage, Object] {
+
+  private val allocator = new PooledByteBufAllocator()
+
   private[this] val logger = Logger(getClass.getName)
   private[this] val connection = {
     if (useSsl) {
@@ -196,103 +177,89 @@ class PgClientChannelHandler(
     }
   }
 
-  override def channelDisconnected(ctx: ChannelHandlerContext, e: ChannelStateEvent) {
-    logger.ifDebug("Detected channel disconnected!")
+  override def decode(ctx: ChannelHandlerContext, message: BackendMessage, out: util.List[AnyRef]): Unit = message match {
+    case SwitchToSsl =>
+      logger.ifDebug("Got switchToSSL message; adding ssl handler into pipeline")
 
-    super.channelDisconnected(ctx, e)
-  }
+      val pipeline = ctx.pipeline()
 
-  override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
-    val message = e.getMessage
+      val addr = ctx.channel().remoteAddress()
+      val inetAddr = addr match {
+        case i: InetSocketAddress => Some(i)
+        case _ => None
+      }
 
-    message match {
-      case SwitchToSsl =>
-        logger.ifDebug("Got switchToSSL message; adding ssl handler into pipeline")
-
-        val pipeline = ctx.getPipeline
-
-        val addr = ctx.getChannel.getRemoteAddress
-        val inetAddr = addr match {
-          case i: InetSocketAddress => Some(i)
-          case _ => None
-        }
-
-        val engine = inetAddr.map(inet =>
+      val engine = inetAddr.map {
+        inet =>
           sslConfig.map(sslEngineFactory(Address(inet), _)).getOrElse(Ssl.client(inet.getHostString, inet.getPort))
-        )
-          .getOrElse(Ssl.client())
-          .self
+      }.getOrElse(Ssl.client()).self
 
-        engine.setUseClientMode(true)
+      engine.setUseClientMode(true)
 
-        val sslHandler = new SslHandler(engine)
-        pipeline.addFirst("ssl", sslHandler)
+      val sslHandler = new SslHandler(engine)
+      pipeline.addFirst("ssl", sslHandler)
 
-        val verifier: SSLSession => Boolean = inetAddr match {
-          case Some(inet) =>
-            session => HostnameVerifier(Address(inet), SslClientConfiguration(hostname = Some(inet.getHostName)),session)
-          case None =>
-            _ => true
-        }
+      val verifier: SSLSession => Boolean = inetAddr match {
+        case Some(inet) =>
+          session => HostnameVerifier(Address(inet), SslClientConfiguration(hostname = Some(inet.getHostName)),session)
+        case None =>
+          _ => true
+      }
 
-        connection.receive(SwitchToSsl).foreach {
-          Channels.fireMessageReceived(ctx, _)
-        }
-      case msg: BackendMessage =>
-        try {
-          connection.receive(msg).foreach {
-            Channels.fireMessageReceived(ctx, _)
-          }
-        } catch {
-          case err @ WrongStateForEvent(evt, state) =>
-            logger.error(s"Could not handle event $evt while in state $state; connection will be terminated", err)
-            Channels.write(ctx.getChannel, Terminate.asPacket().encode())
-            Channels.fireExceptionCaught(ctx, err)
-        }
-      case unsupported =>
-        logger.warning("Only backend messages are supported...")
-        Channels.close(ctx.getChannel)
-    }
+      connection.receive(SwitchToSsl).foreach(out.add)
+
+    case msg =>
+      try {
+        connection.receive(msg).foreach(out.add)
+      } catch {
+        case err @ WrongStateForEvent(evt, state) =>
+          logger.error(s"Could not handle event $evt while in state $state; connection will be terminated", err)
+          ctx.channel().writeAndFlush(Terminate.asPacket(allocator).encode(allocator))
+          ctx.fireExceptionCaught(err)
+      }
   }
 
-  override def writeRequested(ctx: ChannelHandlerContext, event: MessageEvent) = {
-    val (buf, out) = event.getMessage match {
+  override def encode(ctx: ChannelHandlerContext, message: Object, out: util.List[AnyRef]): Unit = {
+    val outMsg = message match {
       case PgRequest(msg, flush) =>
-        val packet = msg.asPacket()
-        val c = ChannelBuffers.dynamicBuffer()
-
-        c.writeBytes(packet.encode())
+        val packet = msg.asPacket(allocator)
+        out.add(packet.encode(allocator))
 
         if (flush) {
-          c.writeBytes(Flush.asPacket().encode())
+          out.add(Flush.asPacket(allocator).encode(allocator))
         }
 
         try {
-          (Some(c), connection.send(msg))
+          connection.send(msg)
         } catch {
           case err @ WrongStateForEvent(evt, state) =>
             logger.error(s"Could not handle event $evt while in state $state; connection will be terminated", err)
-            Channels.fireExceptionCaught(ctx, err)
-            (None, Some(com.twitter.finagle.postgres.messages.Terminated))
+            ctx.fireExceptionCaught(err)
+            Some(com.twitter.finagle.postgres.messages.Terminated)
         }
 
-      case buffer: ChannelBuffer =>
-        (Some(buffer), None)
+      case buffer: ByteBuf =>
+        out.add(buffer)
+        None
 
       case other =>
         logger.warning(s"Cannot convert message of type ${other.getClass.getName}... Skipping")
-        (Some(event.getMessage), None)
+        out.add(other)
+        None
     }
 
-    buf.filter(_ => ctx.getChannel.isOpen) foreach {
-      bytes => Channels.write(ctx, event.getFuture, bytes, event.getRemoteAddress)
-    }
-    out collect {
+    outMsg collect {
       case term @ com.twitter.finagle.postgres.messages.Terminated =>
-        Channels.close(ctx.getChannel)
-        Channels.fireMessageReceived(ctx, term)
+        ctx.channel().close()
+        ctx.fireChannelRead(term)
     }
   }
+
+  override def disconnect(ctx: ChannelHandlerContext, promise: ChannelPromise): Unit = {
+    logger.ifDebug("Detected channel disconnected!")
+    super.disconnect(ctx, promise)
+  }
+
 }
 
 

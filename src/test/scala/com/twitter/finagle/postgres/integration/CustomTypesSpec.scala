@@ -7,7 +7,6 @@ import com.twitter.finagle.Postgres
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.finagle.postgres.{Generators, PostgresClient, ResultSet, Spec}
 import com.twitter.util.Await
-import org.jboss.netty.buffer.ChannelBuffers
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import Generators._

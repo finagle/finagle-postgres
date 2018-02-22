@@ -2,7 +2,7 @@ package com.twitter.finagle.postgres.values
 
 import java.math.BigInteger
 
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 
 private object Numerics {
   private val NUMERIC_POS = 0x0000
@@ -12,13 +12,13 @@ private object Numerics {
   private val NumericDigitBaseExponent = 4
   val biBase = BigInteger.valueOf(10000)
 
-  private def getUnsignedShort(buf: ChannelBuffer) = {
+  private def getUnsignedShort(buf: ByteBuf) = {
     val high = buf.readByte().toInt
     val low = buf.readByte()
     (high << 8) | low
   }
 
-  def readNumeric(buf: ChannelBuffer) = {
+  def readNumeric(buf: ByteBuf) = {
     val len = getUnsignedShort(buf)
     val weight = buf.readShort()
     val sign = getUnsignedShort(buf)
@@ -53,7 +53,7 @@ private object Numerics {
     }
   }
 
-  def writeNumeric(in: BigDecimal) = {
+  def writeNumeric(in: BigDecimal, allocator: ByteBufAllocator) = {
     val minimized = BigDecimal(in.bigDecimal.stripTrailingZeros())
     val unscaled = minimized.bigDecimal.unscaledValue()
     val sign = minimized.signum
@@ -91,7 +91,7 @@ private object Numerics {
       2 + //scale
       digits.length * 2 //a short for each digit
 
-    val buf = ChannelBuffers.wrappedBuffer(new Array[Byte](bufSize))
+    val buf = allocator.buffer(bufSize)
 
     buf.resetWriterIndex()
     buf.writeShort(digits.length)

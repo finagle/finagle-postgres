@@ -64,12 +64,12 @@ class EnumSpec extends FlatSpec with Matchers {
 
   "Enum encoding" should "encode enumeration ADTs to Strings" in {
     val encoder = ValueEncoder[TestEnum]
-    encoder.encodeText(CaseOne) shouldEqual Some("CaseOne")
-    encoder.encodeText(CaseTwo) shouldEqual Some("CaseTwo")
-    encoder.encodeText(CaseThree) shouldEqual Some("CaseThree")
-    encoder.encodeBinary(CaseOne, UTF8).get.toString(UTF8) shouldEqual "CaseOne"
-    encoder.encodeBinary(CaseTwo, UTF8).get.toString(UTF8) shouldEqual "CaseTwo"
-    encoder.encodeBinary(CaseThree, UTF8).get.toString(UTF8) shouldEqual "CaseThree"
+    encoder.encodeText(CaseOne, ) shouldEqual Some("CaseOne")
+    encoder.encodeText(CaseTwo, ) shouldEqual Some("CaseTwo")
+    encoder.encodeText(CaseThree, ) shouldEqual Some("CaseThree")
+    encoder.encodeBinary(CaseOne, UTF8, ).get.toString(UTF8) shouldEqual "CaseOne"
+    encoder.encodeBinary(CaseTwo, UTF8, ).get.toString(UTF8) shouldEqual "CaseTwo"
+    encoder.encodeBinary(CaseThree, UTF8, ).get.toString(UTF8) shouldEqual "CaseThree"
   }
 
 }
