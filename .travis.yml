@@ -1,3 +1,4 @@
+dist: trusty
 language: scala
 
 scala:
@@ -6,6 +7,9 @@ scala:
 
 jdk:
   - oraclejdk8
+
+addons:
+  postgresql: "9.5"
 
 services:
   - postgresql
