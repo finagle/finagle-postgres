@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+## 0.8.2
+* Fix SSL session verification.
+* Fix #75 - Name resolution failed
+
 ## 0.8.0
 * Don't include password in stack registry.
 * Add JSON in default types.
