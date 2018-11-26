@@ -15,7 +15,7 @@ val baseSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.13.5" % "test,it",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % "test,it",
-    "io.circe" %% "circe-testing" % "0.8.0" % "test,it"
+    "io.circe" %% "circe-testing" % "0.10.1" % "test,it"
   )
 )
 
