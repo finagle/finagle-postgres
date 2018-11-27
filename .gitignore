@@ -9,3 +9,4 @@ target
 .cache
 logging.properties
 .DS_Store
+local.*
