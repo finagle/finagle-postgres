@@ -1,7 +1,7 @@
 import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
-  organization := "io.github.finagle",
+  organization := "com.github.finagle",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.12","2.12.4"),
   fork in Test := true
