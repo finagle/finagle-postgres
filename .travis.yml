@@ -18,5 +18,3 @@ before_script:
 - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext" finagle_postgres_test
 script:
 - "./build/build.sh"
-after_success:
-- sbt coveralls
