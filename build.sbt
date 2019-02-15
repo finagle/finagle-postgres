@@ -72,10 +72,13 @@ lazy val publishSettings = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
+lazy val shapelessRef = LocalProject("finagle-postgres-shapeless")
+
 lazy val `finagle-postgres` = project.in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
+  .aggregate(shapelessRef)
 
 lazy val `finagle-postgres-shapeless` = project
   .settings(moduleName := "finagle-postgres-shapeless")
@@ -112,11 +115,6 @@ lazy val docs = project
 parallelExecution in Test := false
 
 javaOptions in Test += "-Duser.timezone=UTC"
-
-test in Test in `finagle-postgres` := {
-  (test in Test in `finagle-postgres`).value
-  (test in Test in `finagle-postgres-shapeless`).value
-}
 
 scalacOptions ++= Seq(
   "-deprecation"
