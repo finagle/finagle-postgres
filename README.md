@@ -24,7 +24,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.8.2"
+  "io.github.finagle" %% "finagle-postgres" % "0.10.0"
 )
 ```
 
