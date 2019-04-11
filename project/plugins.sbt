@@ -3,7 +3,7 @@ resolvers ++= Seq(
   Classpaths.sbtPluginReleases
 )
 
-addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.10")
+addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.11")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.11")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.1")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
