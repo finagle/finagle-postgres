@@ -11,7 +11,7 @@ val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-core" % "19.2.0",
-    "com.twitter" %% "finagle-netty3" % "19.2.0",
+    "com.twitter" %% "finagle-netty3" % "19.3.0",
     "org.scalatest" %% "scalatest" % "3.0.6" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.0" % "test,it",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % "test,it",
