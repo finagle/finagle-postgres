@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import com.twitter.finagle.postgres.generic.enumeration.InvalidValue
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw}
-import org.jboss.netty.buffer.ChannelBuffers
+import io.netty.buffer.Unpooled
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -32,19 +32,19 @@ class EnumSpec extends FlatSpec with Matchers {
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseOne", UTF8),
+      Unpooled.copiedBuffer("CaseOne", UTF8),
       UTF8
     ) shouldEqual Return(CaseOne)
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseTwo", UTF8),
+      Unpooled.copiedBuffer("CaseTwo", UTF8),
       UTF8
     ) shouldEqual Return(CaseTwo)
 
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CaseThree", UTF8),
+      Unpooled.copiedBuffer("CaseThree", UTF8),
       UTF8
     ) shouldEqual Return(CaseThree)
 
@@ -56,7 +56,7 @@ class EnumSpec extends FlatSpec with Matchers {
     decoder.decodeText("enum_recv", "CasePurple") shouldEqual Throw(InvalidValue("CasePurple"))
     decoder.decodeBinary(
       "enum_recv",
-      ChannelBuffers.copiedBuffer("CasePurple", UTF8),
+      Unpooled.copiedBuffer("CasePurple", UTF8),
       UTF8
     ) shouldEqual Throw(InvalidValue("CasePurple"))
 

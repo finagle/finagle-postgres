@@ -4,7 +4,7 @@ import java.nio.charset.Charset
 
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw, Try}
-import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
+import io.netty.buffer.{ByteBuf, Unpooled}
 import shapeless.labelled._
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, LabelledGeneric, Witness}
 
@@ -27,7 +27,7 @@ class EnumCConsDecoder[K <: Symbol, H, T <: Coproduct](
       decodeTail.decodeText(recv, text).map(Inr(_))
 
   @inline final def decodeBinary(
-    recv: String, bytes: ChannelBuffer,
+    recv: String, bytes: ByteBuf,
     charset: Charset
   ): Try[FieldType[K, H] :+: T] = decodeText(recv, bytes.toString(charset))
 }
@@ -38,7 +38,7 @@ class EnumCoproductDecoder[T, C <: Coproduct](
   decodeC: ValueDecoder[C]
 ) extends ValueDecoder[T] {
   @inline final def decodeText(recv: String, text: String): Try[T] = decodeC.decodeText(recv, text).map(gen.from)
-  @inline final def decodeBinary(recv: String, bytes: ChannelBuffer, charset: Charset): Try[T] =
+  @inline final def decodeBinary(recv: String, bytes: ByteBuf, charset: Charset): Try[T] =
     decodeC.decodeBinary(recv, bytes, charset).map(gen.from)
 }
 
@@ -58,8 +58,8 @@ class EnumCConsEncoder[K <: Symbol, H, T <: Coproduct](
 
   @inline final def encodeBinary(
     t: FieldType[K, H] :+: T, charset: Charset
-  ): Option[ChannelBuffer] = t match {
-    case Inl(_)    => Some(ChannelBuffers.copiedBuffer(str, charset))
+  ): Option[ByteBuf] = t match {
+    case Inl(_)    => Some(Unpooled.copiedBuffer(str, charset))
     case Inr(tail) => encodeTail.encodeBinary(tail, charset)
   }
 
@@ -83,7 +83,7 @@ trait Enums {
     @inline final def decodeText(recv: String, text: String): Try[CNil] = Throw(InvalidValue(text))
 
     @inline final def decodeBinary(
-      recv: String, bytes: ChannelBuffer,
+      recv: String, bytes: ByteBuf,
       charset: Charset
     ): Try[CNil] = Throw(InvalidValue(bytes.toString(charset)))
   }
