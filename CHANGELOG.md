@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/). Note that Semantic Versioning is not
 necessarily followed during pre-1.0 development.
 
+## <Next release>
+
+* Select results are now exposed as `AsyncStream[DataRow]` and result sets as `AsyncStream[Row]`
+* incompatible change: `PostgresClient.select` now returns `Future[AsyncStream[T]]` instead of `Future[Seq[T]]`
+  * use `PostgresClient.selectToSeq` for the buffering behaviour
+
 ## 0.8.2
 * Fix SSL session verification.
 * Fix #75 - Name resolution failed

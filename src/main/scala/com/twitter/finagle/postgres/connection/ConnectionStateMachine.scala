@@ -1,7 +1,10 @@
 package com.twitter.finagle.postgres.connection
 
+import com.twitter.concurrent.AsyncStream
+import com.twitter.finagle.postgres.codec.Errors
 import com.twitter.finagle.postgres.messages._
 import com.twitter.logging.Logger
+import com.twitter.util.{Promise, Return, Throw}
 
 import scala.collection.mutable.ListBuffer
 
@@ -87,7 +90,8 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
   }
 
   transition {
-    case (EmptyQueryResponse, SimpleQuery) => (None, EmitOnReadyForQuery(SelectResult(Array.empty, List())))
+    case (EmptyQueryResponse, SimpleQuery) =>
+      (None, EmitOnReadyForQuery(SelectResult.Empty))
     case (CommandComplete(CreateExtension | CreateFunction | CreateIndex | CreateTable | CreateTrigger | CreateType), SimpleQuery) =>
       (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
     case (CommandComplete(DropTable), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
@@ -100,8 +104,11 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
     case (CommandComplete(Do), SimpleQuery) => (None, EmitOnReadyForQuery(CommandCompleteResponse(1)))
 
     case (RowDescription(fields), SimpleQuery) =>
-      (None, AggregateRows(fields.map(f => Field(f.name, f.fieldFormat, f.dataType))))
-    case (ErrorResponse(details), SimpleQuery) => (None, EmitOnReadyForQuery(Error(details)))
+      val complete = new Promise[Unit]()
+      val nextRow = StreamRows(complete)
+      (Some(SelectResult(fields.map(f => Field(f.name, f.fieldFormat, f.dataType)), nextRow.asyncStream)(complete)), nextRow)
+    case (ErrorResponse(details), SimpleQuery) =>
+      (None, EmitOnReadyForQuery(Error(details)))
   }
 
   transition {
@@ -110,7 +117,7 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
   }
 
   transition {
-    case (EmptyQueryResponse, ExecutePreparedStatement) => (Some(SelectResult(Array.empty, List())), Connected)
+    case (EmptyQueryResponse, ExecutePreparedStatement) => (Some(SelectResult.Empty), Connected)
     case (CommandComplete(CreateExtension | CreateFunction | CreateIndex | CreateTable | CreateType | CreateTrigger), ExecutePreparedStatement) =>
       (Some(CommandCompleteResponse(1)), Connected)
     case (CommandComplete(DropTable), ExecutePreparedStatement) => (Some(CommandCompleteResponse(1)), Connected)
@@ -141,17 +148,26 @@ class ConnectionStateMachine(state: State = AuthenticationRequired, val id: Int)
   }
 
   transition {
-    case (row: DataRow, state: AggregateRows) =>
-      state.buff += row
-      (None, state)
-    case (CommandComplete(_), AggregateRows(fields, rows)) =>
-      (None, EmitOnReadyForQuery(SelectResult(fields, rows.toList)))
-    case (ErrorResponse(details), AggregateRows(_, _)) => (Some(Error(details)), Connected)
+    case (row: DataRow, StreamRows(complete, thisRow)) =>
+      val nextRow = StreamRows(complete)
+      thisRow.setValue(AsyncStream.mk(row, nextRow.asyncStream))
+      (None, nextRow)
+    case (CommandComplete(_), StreamRows(complete, thisRow)) =>
+      thisRow.setValue(AsyncStream.empty)
+      (None, EmitOnReadyForQuery(StateMachine.Complete(complete, Return.Unit)))
+    case (ErrorResponse(details), StreamRows(complete, thisRow)) =>
+      val exn = Errors.server(Error(details), None)
+      thisRow.setValue(AsyncStream.exception(exn))
+      (None, EmitOnReadyForQuery(StateMachine.Complete(complete, Throw(exn))))
   }
 
-  transition {
+  fullTransition {
     case (ReadyForQuery(_), EmitOnReadyForQuery(response)) => (Some(response), Connected)
-    case (ErrorResponse(details), EmitOnReadyForQuery(response)) => (Some(Error(details)), Connected)
+    case (ErrorResponse(details), EmitOnReadyForQuery(StateMachine.Response(_))) =>
+      (Some(StateMachine.Response(Error(details))), Connected)
+    case (ErrorResponse(details), EmitOnReadyForQuery(StateMachine.Complete(promise, _))) =>
+      val exn = Errors.server(Error(details), None)
+      (Some(StateMachine.Complete(promise, Throw(exn))), Connected)
   }
 
   transition {

@@ -1,9 +1,17 @@
 package com.twitter.finagle.postgres.messages
 
+import com.twitter.concurrent.AsyncStream
+import com.twitter.util.Future
+
 /*
  * Response message types.
  */
 trait PgResponse
+
+trait AsyncPgResponse extends PgResponse {
+  // this is fulfilled when the connection has finished processing the previous request and is ready for new ones.
+  private[finagle] val complete: Future[Unit]
+}
 
 case class SingleMessageResponse(msg: BackendMessage) extends PgResponse
 
@@ -44,7 +52,10 @@ case class Descriptions(params: Array[Int], fields: Array[Field]) extends PgResp
 
 case class ParamsResponse(types: Array[Int]) extends PgResponse
 
-case class SelectResult(fields: Array[Field], rows: List[DataRow]) extends PgResponse
+case class SelectResult(fields: Array[Field], rows: AsyncStream[DataRow])(private[finagle] val complete: Future[Unit]) extends AsyncPgResponse
+object SelectResult {
+  val Empty = SelectResult(Array.empty, AsyncStream.empty)(Future.Done)
+}
 
 case class CommandCompleteResponse(affectedRows: Int) extends PgResponse
 

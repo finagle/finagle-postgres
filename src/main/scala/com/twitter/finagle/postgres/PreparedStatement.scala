@@ -14,9 +14,9 @@ trait PreparedStatement {
     case ResultSet(_) => Future.exception(Errors.client("Update query expected"))
   }
 
-  def select[T](params: Param[_]*)(f: Row => T): Future[Seq[T]] = fire(params: _*) map {
-    case ResultSet(rows) => rows.map(f)
-    case OK(_) => Seq.empty[Row].map(f)
+  def select[T](params: Param[_]*)(f: Row => T): Future[Seq[T]] = fire(params: _*) flatMap {
+    case ResultSet(rows) => rows.map(f).toSeq
+    case OK(_) => Future.Nil
   }
 
   def selectFirst[T](params: Param[_]*)(f: Row => T): Future[Option[T]] =

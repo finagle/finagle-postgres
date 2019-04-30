@@ -1,6 +1,7 @@
 package com.twitter.finagle.postgres
 import java.nio.charset.Charset
 
+import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres.values.Types
@@ -41,8 +42,9 @@ trait PostgresClient {
   /*
    * Run a single SELECT query and wrap the results with the provided function.
    */
-  def select[T](sql: String)
-    (f: Row => T): Future[Seq[T]]
+  def select[T](sql: String)(f: Row => T): Future[AsyncStream[T]]
+  def selectToSeq[T](sql: String)(f: Row => T): Future[Seq[T]] =
+    select(sql)(f).flatMap(_.toSeq)
 
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.

@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres.generic
 
 import java.nio.charset.Charset
 
+import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Status
 import com.twitter.finagle.postgres.messages.SelectResult
 import com.twitter.finagle.postgres._
@@ -38,7 +39,7 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
     def charset: Charset = ???
 
-    def select[T](sql: String)(f: (Row) => T): Future[Seq[T]] = ???
+    def select[T](sql: String)(f: (Row) => T): Future[AsyncStream[T]] = ???
 
     def close(): Future[Unit] = ???
 
