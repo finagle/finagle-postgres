@@ -58,8 +58,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 * [Mairbek Khadikov][mairbek] (project creator)
 * [The Factory][thefactory]
 * [Vladimir Kostyukov][vkostyukov]
-* [Jeremy Smith](https://github.com/jeremyrsmith) (current maintainer)
-* [Leon Maia](https://github.com/leonmaia)
+* [Jeremy Smith](https://github.com/jeremyrsmith)
+* [Leon Maia](https://github.com/leonmaia) (current maintainer)
 
 ## License
 
