@@ -158,7 +158,7 @@ class PostgresClientImpl(
       typeMap().flatMap { _ =>
         for {
           service   <- factory()
-          statement = new PreparedStatementImpl("", sql, service)
+          statement = new PreparedStatementImpl(sql, service)
           result    <- statement.selectToStream(params: _*)(f)
         } yield result
       }
@@ -171,7 +171,7 @@ class PostgresClientImpl(
     typeMap().flatMap { _ =>
       for {
         service   <- factory()
-        statement = new PreparedStatementImpl("", sql, service)
+        statement = new PreparedStatementImpl(sql, service)
         OK(count) <- statement.exec(params: _*)
       } yield count
     }
@@ -215,10 +215,11 @@ class PostgresClientImpl(
 
 
   private[this] class PreparedStatementImpl(
-    name: String,
     sql: String,
     service: Service[PgRequest, PgResponse]
   ) extends PreparedStatement {
+
+    private[this] val name = s"fin-pg-$id-" + counter.incrementAndGet
 
     def closeService = service.close()
 
@@ -306,8 +307,6 @@ class PostgresClientImpl(
       }.ensure(service.close())
     }
   }
-
-  private[this] def genName() = s"fin-pg-$id-" + counter.incrementAndGet
 }
 
 
