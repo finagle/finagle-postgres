@@ -39,15 +39,14 @@ class IntegrationSpec extends Spec {
     useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
     sslHost = sys.env.get("PG_SSL_HOST")
   } yield {
-
-
     val queryTimeout = Duration.fromSeconds(2)
 
-    def getClient: PostgresClientImpl = {
+    def getClient: PostgresClientImpl = getConcurrentClient(maxConcurrency = 1)
+    def getConcurrentClient(maxConcurrency: Int): PostgresClientImpl = {
       val client = Postgres.Client()
         .withCredentials(user, password)
         .database(dbname)
-        .withSessionPool.maxSize(1)
+        .withSessionPool.maxSize(maxConcurrency)
         .conditionally(useSsl, c => sslHost.fold(c.withTransport.tls)(c.withTransport.tls(_)))
         .newRichClient(hostPort)
 
@@ -439,6 +438,29 @@ class IntegrationSpec extends Spec {
           client.isAvailable must equal(false)
           client.status must equal(Status.Closed)
         }
+      }
+
+      "generate unique names per prepared statement" in {
+        val client = getConcurrentClient(maxConcurrency = 10)
+        cleanDb(client)
+
+        val concurrentQueries = (1 to 1000).par.map {
+          case number if number % 2 == 0 =>
+            client.prepareAndExecute(
+              "INSERT INTO %s (str_field, int_field, double_field, bool_field) VALUES ($1, $2, $3, $4)".format(IntegrationSpec.pgTestTable),
+              number.toString, number, number, true
+            )
+          case number =>
+            client.prepareAndExecute(
+              "INSERT INTO %s (str_field) VALUES ($1)".format(IntegrationSpec.pgTestTable),
+              number.toString
+            )
+        }
+
+        val result = Await.result(
+          Future.collect(concurrentQueries.seq)
+        )
+        result.size must equal(1000)
       }
     }
 
