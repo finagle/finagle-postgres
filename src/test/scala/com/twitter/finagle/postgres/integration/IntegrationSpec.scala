@@ -109,7 +109,7 @@ class IntegrationSpec extends Spec {
         cleanDb(client)
         insertSampleData(client)
 
-        val selectQuery = client.selectToSeq(
+        val selectQuery = client.select(
           "SELECT * FROM %s WHERE str_field='hello' ORDER BY timestamp_field".format(IntegrationSpec.pgTestTable)
         )(
           identity)
@@ -139,7 +139,7 @@ class IntegrationSpec extends Spec {
         insertSampleData(client)
 
         val
-        selectQuery = client.selectToSeq(
+        selectQuery = client.select(
           "SELECT * FROM %s WHERE str_field='xxxx' ORDER BY timestamp_field".
             format(
 
@@ -170,7 +170,7 @@ class IntegrationSpec extends Spec {
 
         response must equal(OK(1))
 
-        val selectQuery = client.selectToSeq(
+        val selectQuery = client.select(
 
           "SELECT * FROM %s WHERE str_field='hello_updated'".format(IntegrationSpec.pgTestTable)
         )(
@@ -199,7 +199,7 @@ class IntegrationSpec extends Spec {
 
         response must equal(OK(3))
 
-        val selectQuery = client.selectToSeq(
+        val selectQuery = client.select(
           "SELECT * FROM %s".format(IntegrationSpec.pgTestTable)
         )(identity)
 
@@ -245,7 +245,7 @@ class IntegrationSpec extends Spec {
     
         val numRows = Await.result(preparedQuery)
     
-        val resultRows = Await.result(client.selectToSeq(
+        val resultRows = Await.result(client.select(
           "SELECT * from %s WHERE str_field = 'hello_updated' AND int_field = 4567".format(IntegrationSpec.pgTestTable)
         )(identity))
 
@@ -265,7 +265,7 @@ class IntegrationSpec extends Spec {
 
         val numRows = Await.result(preparedQuery)
 
-        val resultRows = Await.result(client.selectToSeq(
+        val resultRows = Await.result(client.select(
           "SELECT * from %s WHERE str_field = 'hello_updated_some' AND int_field = 4567".format(IntegrationSpec.pgTestTable)
         )(identity))
 
@@ -285,7 +285,7 @@ class IntegrationSpec extends Spec {
 
         val numRows = Await.result(preparedQuery)
 
-        val resultRows = Await.result(client.selectToSeq(
+        val resultRows = Await.result(client.select(
           "SELECT * from %s WHERE str_field IS NULL AND int_field = 4567".format(IntegrationSpec.pgTestTable)
         )(identity))
 
@@ -386,7 +386,7 @@ class IntegrationSpec extends Spec {
           val client = getClient
           cleanDb(client)
 
-          val selectQuery = client.selectToSeq(
+          val selectQuery = client.select(
             "SELECT * FROM %s WHERE unknown_column='hello_updated'".format(IntegrationSpec.pgTestTable)
           )(identity)
 

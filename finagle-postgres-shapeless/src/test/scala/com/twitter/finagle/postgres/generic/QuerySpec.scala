@@ -39,7 +39,7 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
     def charset: Charset = ???
 
-    def select[T](sql: String)(f: (Row) => T): Future[AsyncStream[T]] = ???
+    def selectToStream[T](sql: String)(f: (Row) => T): Future[AsyncStream[T]] = ???
 
     def close(): Future[Unit] = ???
 

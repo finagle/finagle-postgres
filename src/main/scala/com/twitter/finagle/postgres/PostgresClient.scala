@@ -42,9 +42,9 @@ trait PostgresClient {
   /*
    * Run a single SELECT query and wrap the results with the provided function.
    */
-  def select[T](sql: String)(f: Row => T): Future[AsyncStream[T]]
-  def selectToSeq[T](sql: String)(f: Row => T): Future[Seq[T]] =
-    select(sql)(f).flatMap(_.toSeq)
+  def select[T](sql: String)(f: Row => T): Future[Seq[T]] =
+    selectToStream(sql)(f).flatMap(_.toSeq)
+  def selectToStream[T](sql: String)(f: Row => T): Future[AsyncStream[T]]
 
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.

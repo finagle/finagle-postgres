@@ -142,7 +142,7 @@ class PostgresClientImpl(
   /*
    * Run a single SELECT query and wrap the results with the provided function.
    */
-  override def select[T](sql: String)(f: Row => T): Future[AsyncStream[T]] =
+  override def selectToStream[T](sql: String)(f: Row => T): Future[AsyncStream[T]] =
     for {
       types <- typeMap()
       SelectResult(fields, rows) <- fetch(sql)
