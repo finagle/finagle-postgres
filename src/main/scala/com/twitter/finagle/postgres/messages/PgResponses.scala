@@ -42,7 +42,10 @@ case class PasswordRequired(encoding: PasswordEncoding) extends PgResponse
 
 case class AuthenticatedResponse(params: Map[String, String], processId: Int, secretKey: Int) extends PgResponse
 
-case class Rows(rows: List[DataRow], completed: Boolean) extends PgResponse
+case class Rows(rows: AsyncStream[DataRow])(private[finagle] val complete: Future[Unit]) extends AsyncPgResponse
+object Rows {
+  val Empty = Rows(AsyncStream.empty)(Future.Done)
+}
 
 case class Field(name: String, format: Short, dataType: Int)
 

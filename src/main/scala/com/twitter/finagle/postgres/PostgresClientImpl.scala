@@ -151,12 +151,12 @@ class PostgresClientImpl(
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.
    */
-  override def prepareAndQuery[T](sql: String, params: Param[_]*)(f: Row => T): Future[Seq[T]] = {
+  override def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): Future[AsyncStream[T]] = {
     typeMap().flatMap { _ =>
       for {
         service   <- factory()
         statement = new PreparedStatementImpl("", sql, service)
-        result    <- statement.select(params: _*)(f)
+        result    <- statement.selectToStream(params: _*)(f)
       } yield result
     }
   }
@@ -292,9 +292,8 @@ class PostgresClientImpl(
         exec   <- execute()
       } yield exec match {
         case CommandCompleteResponse(rows) => OK(rows)
-        case Rows(rows, true) =>
-          // TODO: actually make this async
-          ResultSet(fields, charset, AsyncStream.fromSeq(rows), types, receiveFunctions)
+        case Rows(rows) =>
+          ResultSet(fields, charset, rows, types, receiveFunctions)
       }
       f.transform {
         result =>

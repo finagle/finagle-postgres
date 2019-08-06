@@ -44,11 +44,9 @@ case object ExecutePreparedStatement extends ExtendedQueryState
 
 case object AwaitParamsDescription extends ExtendedQueryState
 
-case class StreamRows(complete: Promise[Unit], nextRow: Promise[AsyncStream[DataRow]] = new Promise) extends ExtendedQueryState {
+case class StreamRows(complete: Promise[Unit], extended: Boolean, nextRow: Promise[AsyncStream[DataRow]] = new Promise) extends ExtendedQueryState {
   val asyncStream: AsyncStream[DataRow] = AsyncStream.fromFuture(nextRow).flatten
 }
-
-case class AggregateRowsWithoutFields(buff: ListBuffer[DataRow] = ListBuffer()) extends ExtendedQueryState
 
 case class AwaitRowDescription(types: Array[Int]) extends ExtendedQueryState
 

@@ -27,8 +27,9 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
   val client = new PostgresClient {
 
-    def prepareAndQuery[T](sql: String, params: Param[_]*)(f: (Row) => T): Future[Seq[T]] =
+    def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: (Row) => T): Future[AsyncStream[T]] =
       mockClient.prepareAndQuery(sql, params.toList, f)
+        .map(AsyncStream.fromSeq)
 
     def prepareAndExecute(sql: String, params: Param[_]*): Future[Int] =
       mockClient.prepareAndExecute(sql, params.toList)
