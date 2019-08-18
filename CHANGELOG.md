@@ -6,9 +6,7 @@ necessarily followed during pre-1.0 development.
 
 ## <Next release>
 
-* Select results are now exposed as `AsyncStream[DataRow]` and result sets as `AsyncStream[Row]`
-* incompatible change: `PostgresClient.select` now returns `Future[AsyncStream[T]]` instead of `Future[Seq[T]]`
-  * use `PostgresClient.selectToSeq` for the buffering behaviour
+* Select results can now be streamed as `AsyncStream[DataRow]` and result sets as `AsyncStream[Row]`
 
 ## 0.8.2
 * Fix SSL session verification.
