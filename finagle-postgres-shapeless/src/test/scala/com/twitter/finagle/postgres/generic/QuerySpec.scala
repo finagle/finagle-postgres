@@ -19,20 +19,19 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
   val row = mock[Row]
 
   trait MockClient {
-    def prepareAndQuery[T](sql: String, params: List[Param[_]], f: Row => T): Future[Seq[T]]
-    def prepareAndExecute(sql: String, params: List[Param[_]]): Future[Int]
+    def prepareAndQuery[T](sql: String, params: List[Param[_]], f: Row => T): Seq[T]
+    def prepareAndExecute(sql: String, params: List[Param[_]]): Int
   }
 
   val mockClient = mock[MockClient]
 
   val client = new PostgresClient {
 
-    def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: (Row) => T): Future[AsyncStream[T]] =
-      mockClient.prepareAndQuery(sql, params.toList, f)
-        .map(AsyncStream.fromSeq)
+    def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: (Row) => T): AsyncStream[T] =
+      AsyncStream.fromSeq(mockClient.prepareAndQuery(sql, params.toList, f))
 
     def prepareAndExecute(sql: String, params: Param[_]*): Future[Int] =
-      mockClient.prepareAndExecute(sql, params.toList)
+      Future.value(mockClient.prepareAndExecute(sql, params.toList))
 
     def fetch(sql: String): Future[SelectResult] = ???
 
@@ -40,7 +39,7 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
     def charset: Charset = ???
 
-    def selectToStream[T](sql: String)(f: (Row) => T): Future[AsyncStream[T]] = ???
+    def selectToStream[T](sql: String)(f: (Row) => T): AsyncStream[T] = ???
 
     def close(): Future[Unit] = ???
 
@@ -58,7 +57,7 @@ class QuerySpec extends FreeSpec with Matchers with MockFactory {
 
   def expectQuery[U](expectedQuery: String, expectedParams: Param[_]*)(query: Query[U]) = {
     mockClient.prepareAndQuery[U] _ expects (expectedQuery, expectedParams.toList, *) onCall {
-      (q, p, fn) => Future.value(Seq(fn(row)))
+      (q, p, fn) => Seq(fn(row))
     }
     Await.result(query.run(client)).head
   }

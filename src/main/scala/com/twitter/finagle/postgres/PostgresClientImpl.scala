@@ -142,24 +142,27 @@ class PostgresClientImpl(
   /*
    * Run a single SELECT query and wrap the results with the provided function.
    */
-  override def selectToStream[T](sql: String)(f: Row => T): Future[AsyncStream[T]] =
-    for {
-      types <- typeMap()
-      SelectResult(fields, rows) <- fetch(sql)
-    } yield ResultSet(fields, charset, rows, types, receiveFunctions).rows.map(f)
+  override def selectToStream[T](sql: String)(f: Row => T): AsyncStream[T] =
+    AsyncStream.fromFuture {
+      for {
+        types <- typeMap()
+        SelectResult(fields, rows) <- fetch(sql)
+      } yield ResultSet(fields, charset, rows, types, receiveFunctions).rows.map(f)
+    }.flatten
 
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.
    */
-  override def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): Future[AsyncStream[T]] = {
-    typeMap().flatMap { _ =>
-      for {
-        service   <- factory()
-        statement = new PreparedStatementImpl("", sql, service)
-        result    <- statement.selectToStream(params: _*)(f)
-      } yield result
-    }
-  }
+  override def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): AsyncStream[T] =
+    AsyncStream.fromFuture {
+      typeMap().flatMap { _ =>
+        for {
+          service   <- factory()
+          statement = new PreparedStatementImpl("", sql, service)
+          result    <- statement.selectToStream(params: _*)(f)
+        } yield result
+      }
+    }.flatten
 
   /*
    * Issue a single, prepared arbitrary query without an expected result set, and provide the affected row count

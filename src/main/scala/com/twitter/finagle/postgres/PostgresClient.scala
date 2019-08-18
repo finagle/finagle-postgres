@@ -43,15 +43,15 @@ trait PostgresClient {
    * Run a single SELECT query and wrap the results with the provided function.
    */
   def select[T](sql: String)(f: Row => T): Future[Seq[T]] =
-    selectToStream(sql)(f).flatMap(_.toSeq)
-  def selectToStream[T](sql: String)(f: Row => T): Future[AsyncStream[T]]
+    selectToStream(sql)(f).toSeq
+  def selectToStream[T](sql: String)(f: Row => T): AsyncStream[T]
 
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.
    */
   def prepareAndQuery[T](sql: String, params: Param[_]*)(f: Row => T): Future[Seq[T]] =
-    prepareAndQueryToStream(sql, params: _*)(f).flatMap(_.toSeq)
-  def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): Future[AsyncStream[T]]
+    prepareAndQueryToStream(sql, params: _*)(f).toSeq
+  def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): AsyncStream[T]
 
   /*
    * Issue a single, prepared arbitrary query without an expected result set, and provide the affected row count
