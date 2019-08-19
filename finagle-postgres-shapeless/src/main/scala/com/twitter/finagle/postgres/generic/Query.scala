@@ -1,16 +1,22 @@
 package com.twitter.finagle.postgres.generic
 
-import scala.collection.immutable.Queue
+import com.twitter.concurrent.AsyncStream
 
+import scala.collection.immutable.Queue
 import com.twitter.finagle.postgres.{Param, PostgresClient, Row}
 import com.twitter.util.Future
+
 import scala.language.existentials
 
 case class Query[T](parts: Seq[String], queryParams: Seq[QueryParam], cont: Row => T) {
-  def run(client: PostgresClient): Future[Seq[T]] = {
+
+  def stream(client: PostgresClient): AsyncStream[T] = {
     val (queryString, params) = impl
-    client.prepareAndQuery[T](queryString, params: _*)(cont)
+    client.prepareAndQueryToStream[T](queryString, params: _*)(cont)
   }
+
+  def run(client: PostgresClient): Future[Seq[T]] =
+    stream(client).toSeq
 
   def exec(client: PostgresClient): Future[Int] = {
     val (queryString, params) = impl
