@@ -9,10 +9,10 @@ import com.twitter.finagle.postgres.{Generators, PostgresClient, ResultSet, Spec
 import com.twitter.util.Await
 import io.netty.buffer.Unpooled
 import org.scalacheck.Arbitrary
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import Generators._
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class CustomTypesSpec extends Spec with GeneratorDrivenPropertyChecks {
+class CustomTypesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
 
   def test[T : Arbitrary](
     decoder: ValueDecoder[T])(
