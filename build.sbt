@@ -10,8 +10,8 @@ lazy val buildSettings = Seq(
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "19.10.0",
-    "com.twitter" %% "finagle-netty4" % "19.10.0",
+    "com.twitter" %% "finagle-core" % "19.12.0",
+    "com.twitter" %% "finagle-netty4" % "19.12.0",
     "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.2" % "test,it",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % "test,it",
