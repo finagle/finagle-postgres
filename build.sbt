@@ -2,20 +2,24 @@ import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
-  scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12","2.12.8"),
+  scalaVersion := "2.12.10",
+  crossScalaVersions := Seq("2.11.12", "2.12.10", "2.13.1"),
   fork in Test := true
 )
+
+def circeTestingVersion(scalaV: String) = {
+  if (scalaV.startsWith("2.11")) "0.11.2" else "0.12.3"
+}
 
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "19.12.0",
-    "com.twitter" %% "finagle-netty4" % "19.12.0",
+    "com.twitter" %% "finagle-core" % "19.11.0",
+    "com.twitter" %% "finagle-netty4" % "19.11.0",
     "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.2" % "test,it",
-    "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % "test,it",
-    "io.circe" %% "circe-testing" % "0.11.2" % "test,it"
+    "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
+    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
   )
 )
 
@@ -27,14 +31,16 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   releaseIgnoreUntrackedFiles := true,
-  licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  licenses := Seq(
+    "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+  ),
   homepage := Some(url("https://finagle.github.io/finagle-postgres")),
   autoAPIMappings := true,
   scmInfo := Some(
@@ -74,7 +80,8 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
 lazy val shapelessRef = LocalProject("finagle-postgres-shapeless")
 
-lazy val `finagle-postgres` = project.in(file("."))
+lazy val `finagle-postgres` = project
+  .in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
@@ -83,10 +90,12 @@ lazy val `finagle-postgres` = project.in(file("."))
 lazy val `finagle-postgres-shapeless` = project
   .settings(moduleName := "finagle-postgres-shapeless")
   .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.3.3",
-    "io.github.jeremyrsmith" %% "patchless" % "1.0.4"
-  ))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.chuusai" %% "shapeless" % "2.3.3",
+      "io.github.jeremyrsmith" %% "patchless-core" % "1.0.7"
+    )
+  )
   .configs(IntegrationTest)
   .dependsOn(`finagle-postgres`)
 
@@ -99,18 +108,23 @@ lazy val docs = project
   .enablePlugins(GhpagesPlugin, TutPlugin, ScalaUnidocPlugin)
   .settings(
     scaladocVersionPath := ("api/" + version.value),
-    scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot" else "api/latest"),
+    scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot"
+                           else "api/latest"),
     tutPath := "doc",
     includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
     addMappingsToSiteDir(tut in Compile, tutPath),
-    addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), scaladocLatestPath),
-    addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), scaladocVersionPath),
+    addMappingsToSiteDir(
+      mappings in (ScalaUnidoc, packageDoc),
+      scaladocLatestPath
+    ),
+    addMappingsToSiteDir(
+      mappings in (ScalaUnidoc, packageDoc),
+      scaladocVersionPath
+    ),
     ghpagesNoJekyll := false,
     git.remoteRepo := "git@github.com:finagle/finagle-postgres"
-
-  ).dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
-
-
+  )
+  .dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
 
 parallelExecution in Test := false
 
