@@ -18,6 +18,7 @@ import io.netty.buffer.Unpooled
 import org.scalacheck.{Arbitrary, Gen}
 import Arbitrary.arbitrary
 import com.twitter.concurrent.AsyncStream
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import io.circe.testing.instances.arbitraryJson
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 

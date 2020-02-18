@@ -9,6 +9,7 @@ import com.twitter.finagle.postgres.{Generators, PostgresClient, ResultSet, Spec
 import com.twitter.util.Await
 import io.netty.buffer.Unpooled
 import org.scalacheck.Arbitrary
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 

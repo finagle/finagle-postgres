@@ -2,6 +2,7 @@ package com.twitter.finagle.postgres.values
 
 import com.twitter.finagle.postgres.Spec
 import io.netty.buffer.{ByteBuf, Unpooled}
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import com.twitter.finagle.postgres.Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 

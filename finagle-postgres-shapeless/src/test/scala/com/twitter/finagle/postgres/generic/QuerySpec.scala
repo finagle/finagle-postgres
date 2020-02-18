@@ -93,21 +93,21 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
 
       "tuple params for IN operator" in {
         val p1 = ("foo", "bar")
-        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", "foo", "bar") {
+        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", Param("foo"), Param("bar")) {
           sql"SELECT * FROM foo WHERE a IN ($p1)"
         }
       }
 
       "list params for IN operator" in {
         val p1 = List("foo", "bar")
-        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", "foo", "bar") {
+        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", Param("foo"), Param("bar")) {
           sql"SELECT * FROM foo WHERE a IN ($p1)"
         }
       }
 
       "Columns and Values" in {
         case class Foo(foo: String, bar: Int)
-        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2)", "fooValue", 22) {
+        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2)", Param("fooValue"), Param(22)) {
           sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(Foo("fooValue", 22))})"
         }
       }
@@ -115,7 +115,7 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
       "Columns and Values, Columns twice (for RETURNING)" in {
         case class Foo(foo: String, bar: Int)
         val foo = Foo("fooValue", 22)
-        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2) RETURNING foo, bar", "fooValue", 22) {
+        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2) RETURNING foo, bar", Param("fooValue"), Param(22)) {
           sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(foo)}) RETURNING ${Columns[Foo]}"
         }
       }
@@ -123,7 +123,7 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
       "Updates" in {
         val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
         val bar = 2
-        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2", "newFoo", 2) {
+        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2", Param("newFoo"), Param(2)) {
           sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar"
         }
       }
@@ -132,7 +132,7 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         case class Foo(foo: String, bar: Int)
         val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
         val bar = 2
-        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2 RETURNING foo, bar", "newFoo", 2) {
+        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2 RETURNING foo, bar", Param("newFoo"), Param(2)) {
           sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar RETURNING ${Columns[Foo]}"
         }
       }
