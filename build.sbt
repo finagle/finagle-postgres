@@ -16,7 +16,7 @@ val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-core" % "19.12.0",
     "com.twitter" %% "finagle-netty4" % "19.12.0",
-    "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
+    "org.scalatest" %% "scalatest" % "3.1.0" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "test,it",
     "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
     "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
