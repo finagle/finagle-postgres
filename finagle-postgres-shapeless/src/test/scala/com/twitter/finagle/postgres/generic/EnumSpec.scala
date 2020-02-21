@@ -6,11 +6,12 @@ import com.twitter.finagle.postgres.generic.enumeration.InvalidValue
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
 import com.twitter.util.{Return, Throw}
 import io.netty.buffer.Unpooled
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 
 
-class EnumSpec extends FlatSpec with Matchers {
+class EnumSpec extends AnyFlatSpec with Matchers {
 
   sealed trait TestEnum
   case object CaseOne extends TestEnum
