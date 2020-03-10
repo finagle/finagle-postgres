@@ -50,6 +50,23 @@ val f = client.select("select * from users") {row =>
 logger.debug("Responded " + Await.result(f))
 ```
 
+### Integration Tests
+
+`sbt test` won't run integration tests by default. In order to make it easier for development, a database environment is provided via Docker.
+After installing [Docker](https://docs.docker.com/v17.09/engine/installation/) and [docker compose](https://docs.docker.com/compose/install/), run:
+
+```bash
+docker-compose up -d
+```
+
+A few environment variables need to be provided as well:
+
+```bash
+export PG_HOST_PORT=localhost:5432 PG_DBNAME=finagle_postgres_test PG_USER=postgres
+```
+
+With the database and variables in place, all tests will be executed. More details in [IntegrationSpec](https://github.com/finagle/finagle-postgres/blob/master/src/test/scala/com/twitter/finagle/postgres/integration/IntegrationSpec.scala#L19-L32)
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)
