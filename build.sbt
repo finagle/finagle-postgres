@@ -19,7 +19,8 @@ val baseSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "test,it",
     "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
-    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
+    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it",
+    "com.opentable.components" % "otj-pg-embedded" % "0.13.3" % "test",
   )
 )
 
