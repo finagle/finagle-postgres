@@ -1,20 +1,17 @@
-package com.twitter.finagle.postgres.integration
+package com.twitter.finagle.postgres
 
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.twitter.finagle.postgres._
+import com.twitter.finagle.{Postgres, Status}
 import com.twitter.finagle.postgres.codec.ServerError
-import com.twitter.finagle.Postgres
-import com.twitter.finagle.Status
-import com.twitter.util.Await
-import com.twitter.util.Duration
+import com.twitter.util.{Await, Duration}
 
-object IntegrationSpec {
+object BaseIntegrationSpec {
   val pgTestTable = "finagle_test"
 }
 
-class IntegrationSpec extends EmbeddedPgSqlSpec {
+abstract class BaseIntegrationSpec(version: String) extends EmbeddedPgSqlSpec {
 
   val queryTimeout = Duration.fromSeconds(2)
 
@@ -29,7 +26,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
   }
 
   def cleanDb(client: PostgresClient): Unit = {
-    val dropQuery = client.executeUpdate("DROP TABLE IF EXISTS %s".format(IntegrationSpec.pgTestTable))
+    val dropQuery = client.executeUpdate("DROP TABLE IF EXISTS %s".format(BaseIntegrationSpec.pgTestTable))
     val response = Await.result(dropQuery, queryTimeout)
 
     response must equal(OK(1))
@@ -43,7 +40,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       | timestamp_field TIMESTAMP WITH TIME ZONE,
       | bool_field BOOLEAN
       |)
-    """.stripMargin.format(IntegrationSpec.pgTestTable))
+    """.stripMargin.format(BaseIntegrationSpec.pgTestTable))
     val response2 = Await.result(createTableQuery, queryTimeout)
     response2 must equal(OK(1))
   }
@@ -56,21 +53,21 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       | ('hello', 5557, -4.51, '2015-01-08 12:55:12-0800', TRUE),
       | ('hello', 7787, -42.51, '2013-12-24 07:01:00-0800', FALSE),
       | ('goodbye', 4567, 15.8, '2015-01-09 16:55:12+0500', FALSE)
-    """.stripMargin.format(IntegrationSpec.pgTestTable))
+    """.stripMargin.format(BaseIntegrationSpec.pgTestTable))
 
     val response = Await.result(insertDataQuery, queryTimeout)
 
     response must equal(OK(4))
   }
 
-  "A postgres client" should {
+  s"A postgres client against Postgresql v$version" should {
     "insert and select rows" in {
       val client = getClient
       cleanDb(client)
       insertSampleData(client)
 
       val selectQuery = client.select(
-        "SELECT * FROM %s WHERE str_field='hello' ORDER BY timestamp_field".format(IntegrationSpec.pgTestTable)
+        "SELECT * FROM %s WHERE str_field='hello' ORDER BY timestamp_field".format(BaseIntegrationSpec.pgTestTable)
       )(
         identity)
 
@@ -103,7 +100,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
         "SELECT * FROM %s WHERE str_field='xxxx' ORDER BY timestamp_field".
           format(
 
-            IntegrationSpec.pgTestTable)
+            BaseIntegrationSpec.pgTestTable)
       )(identity)
 
       val
@@ -121,7 +118,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
       val updateQuery = client.executeUpdate(
 
-        "UPDATE %s SET str_field='hello_updated' where int_field=4567".format(IntegrationSpec.pgTestTable)
+        "UPDATE %s SET str_field='hello_updated' where int_field=4567".format(BaseIntegrationSpec.pgTestTable)
       )
 
       val response = Await.
@@ -132,7 +129,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
       val selectQuery = client.select(
 
-        "SELECT * FROM %s WHERE str_field='hello_updated'".format(IntegrationSpec.pgTestTable)
+        "SELECT * FROM %s WHERE str_field='hello_updated'".format(BaseIntegrationSpec.pgTestTable)
       )(
 
         identity)
@@ -152,7 +149,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
       val updateQuery = client.executeUpdate(
         "DELETE FROM %s WHERE str_field='hello'"
-          .format(IntegrationSpec.pgTestTable)
+          .format(BaseIntegrationSpec.pgTestTable)
       )
 
       val response = Await.result(updateQuery, queryTimeout)
@@ -160,7 +157,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       response must equal(OK(3))
 
       val selectQuery = client.select(
-        "SELECT * FROM %s".format(IntegrationSpec.pgTestTable)
+        "SELECT * FROM %s".format(BaseIntegrationSpec.pgTestTable)
       )(identity)
 
       val resultRows = Await.result(selectQuery, queryTimeout)
@@ -176,7 +173,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       insertSampleData(client)
 
       val preparedQuery = client.prepareAndQuery(
-        "SELECT * FROM %s WHERE str_field=$1 AND bool_field=$2".format(IntegrationSpec.pgTestTable),
+        "SELECT * FROM %s WHERE str_field=$1 AND bool_field=$2".format(BaseIntegrationSpec.pgTestTable),
         Param("hello"),
         Param(true))(identity)
 
@@ -199,14 +196,14 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       insertSampleData(client)
 
       val preparedQuery = client.prepareAndExecute(
-        "UPDATE %s SET str_field = $1 where int_field = 4567".format(IntegrationSpec.pgTestTable),
+        "UPDATE %s SET str_field = $1 where int_field = 4567".format(BaseIntegrationSpec.pgTestTable),
         Param("hello_updated")
       )
 
       val numRows = Await.result(preparedQuery)
 
       val resultRows = Await.result(client.select(
-        "SELECT * from %s WHERE str_field = 'hello_updated' AND int_field = 4567".format(IntegrationSpec.pgTestTable)
+        "SELECT * from %s WHERE str_field = 'hello_updated' AND int_field = 4567".format(BaseIntegrationSpec.pgTestTable)
       )(identity))
 
       resultRows.size must equal(numRows)
@@ -219,14 +216,14 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
 
       val preparedQuery = client.prepareAndExecute(
-        "UPDATE %s SET str_field = $1 where int_field = 4567".format(IntegrationSpec.pgTestTable),
+        "UPDATE %s SET str_field = $1 where int_field = 4567".format(BaseIntegrationSpec.pgTestTable),
         Some("hello_updated_some")
       )
 
       val numRows = Await.result(preparedQuery)
 
       val resultRows = Await.result(client.select(
-        "SELECT * from %s WHERE str_field = 'hello_updated_some' AND int_field = 4567".format(IntegrationSpec.pgTestTable)
+        "SELECT * from %s WHERE str_field = 'hello_updated_some' AND int_field = 4567".format(BaseIntegrationSpec.pgTestTable)
       )(identity))
 
       resultRows.size must equal(numRows)
@@ -239,14 +236,14 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
 
       val preparedQuery = client.prepareAndExecute(
-        "UPDATE %s SET str_field = $1 where int_field = 4567".format(IntegrationSpec.pgTestTable),
+        "UPDATE %s SET str_field = $1 where int_field = 4567".format(BaseIntegrationSpec.pgTestTable),
         None: Option[String]
       )
 
       val numRows = Await.result(preparedQuery)
 
       val resultRows = Await.result(client.select(
-        "SELECT * from %s WHERE str_field IS NULL AND int_field = 4567".format(IntegrationSpec.pgTestTable)
+        "SELECT * from %s WHERE str_field IS NULL AND int_field = 4567".format(BaseIntegrationSpec.pgTestTable)
       )(identity))
 
       resultRows.size must equal(numRows)
@@ -259,7 +256,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
 
 
       val preparedQuery = client.prepareAndQuery(
-        "UPDATE %s SET str_field = $1 where int_field = 4567 RETURNING *".format(IntegrationSpec.pgTestTable),
+        "UPDATE %s SET str_field = $1 where int_field = 4567 RETURNING *".format(BaseIntegrationSpec.pgTestTable),
         Param("hello_updated")
       )(identity)
 
@@ -275,12 +272,12 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       insertSampleData(client)
 
       Await.result(client.prepareAndExecute(
-        s"""INSERT INTO ${IntegrationSpec.pgTestTable}
+        s"""INSERT INTO ${BaseIntegrationSpec.pgTestTable}
             VALUES ('delete', 9012, 15.8, '2015-01-09 16:55:12+0500', FALSE)"""
       ))
 
       val preparedQuery = client.prepareAndQuery (
-        "DELETE FROM %s where int_field = 9012 RETURNING *".format(IntegrationSpec.pgTestTable)
+        "DELETE FROM %s where int_field = 9012 RETURNING *".format(BaseIntegrationSpec.pgTestTable)
       )(identity)
 
       val resultRows = Await.result(preparedQuery)
@@ -295,7 +292,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       cleanDb(client)
       insertSampleData(client)
       val preparedQuery = client.prepareAndQuery(
-        "UPDATE %s SET str_field = $1 where str_field = $2 RETURNING *".format(IntegrationSpec.pgTestTable),
+        "UPDATE %s SET str_field = $1 where str_field = $2 RETURNING *".format(BaseIntegrationSpec.pgTestTable),
         Param("hello_updated"),
         Param("xxxx")
       )(identity)
@@ -312,7 +309,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
       insertSampleData(client)
 
       val preparedQuery = client.prepareAndQuery(
-        "DELETE FROM %s WHERE str_field=$1".format(IntegrationSpec.pgTestTable),
+        "DELETE FROM %s WHERE str_field=$1".format(BaseIntegrationSpec.pgTestTable),
         Param("xxxx")
       )(identity)
 
@@ -347,7 +344,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
         cleanDb(client)
 
         val selectQuery = client.select(
-          "SELECT * FROM %s WHERE unknown_column='hello_updated'".format(IntegrationSpec.pgTestTable)
+          "SELECT * FROM %s WHERE unknown_column='hello_updated'".format(BaseIntegrationSpec.pgTestTable)
         )(identity)
 
         a[ServerError] must be thrownBy {
@@ -368,7 +365,7 @@ class IntegrationSpec extends EmbeddedPgSqlSpec {
         cleanDb(client)
 
         val preparedQuery = client.prepareAndQuery(
-          "SELECT * FROM %s WHERE str_field=$1 AND bool_field=$2".format(IntegrationSpec.pgTestTable),
+          "SELECT * FROM %s WHERE str_field=$1 AND bool_field=$2".format(BaseIntegrationSpec.pgTestTable),
           Param("hello")
         )(identity)
 

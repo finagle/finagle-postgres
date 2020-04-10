@@ -19,8 +19,7 @@ val baseSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.8" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "test,it",
     "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
-    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it",
-    "com.opentable.components" % "otj-pg-embedded" % "0.13.3" % "test",
+    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
   )
 )
 
@@ -80,13 +79,70 @@ lazy val publishSettings = Seq(
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
 lazy val shapelessRef = LocalProject("finagle-postgres-shapeless")
+lazy val integrationTestRef = LocalProject("finagle-postgres-integration")
 
 lazy val `finagle-postgres` = project
   .in(file("."))
   .settings(moduleName := "finagle-postgres")
   .settings(allSettings)
   .configs(IntegrationTest)
-  .aggregate(shapelessRef)
+  .aggregate(
+    shapelessRef,
+    integrationTestRef
+  )
+
+lazy val `finagle-postgres-integration` = project
+  .settings(moduleName := "finagle-postgres-integration")
+  .settings(allSettings)
+  .configs(IntegrationTest)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.zonky.test" % "embedded-postgres" % "1.2.6" % "test"
+    )
+  )
+  .dependsOn(`finagle-postgres` % "test->test")
+  .aggregate(
+    test9,
+    test10,
+    test11
+  )
+
+lazy val test9 = integrationTests("9.6.17")
+lazy val test10 = integrationTests("10.11.0") // 10.12.0 fails to find libz for some reason
+lazy val test11 = integrationTests("11.6.0")
+
+def integrationTests(v: String) = {
+  val majorVersion = v.split('.') match {
+    case Array(major, _, _) => major
+    case _ => sys.error(s"unexpected version number. Expected major.minor.patch, got $v")
+  }
+  val id = s"finagle-postgres-test-$majorVersion"
+  Project(id = id, base = file(id))
+    .settings(baseSettings ++ buildSettings) // don't publish
+    .settings(
+      libraryDependencies ++= Seq(
+        // TODO
+        "io.zonky.test.postgres" % "embedded-postgres-binaries-darwin-amd64" % v % "test",
+      )
+    )
+    .settings(
+      parallelExecution in Test := false,
+      javaOptions in Test += "-Duser.timezone=UTC" // TODO: investigate and submit a test to demonstrate that timezone handling is broken.
+    )
+    .settings(
+      Test / sourceGenerators += Def.task {
+        val file = (Test / sourceManaged).value / "com" / "twitter" / "finagle" / "postgres" / "IntegrationSpec.scala"
+        IO.write(file,
+          s"""package com.twitter.finagle.postgres
+            |
+            |class IntegrationSpec extends BaseIntegrationSpec("$v")
+            |""".stripMargin)
+        Seq(file)
+      }.taskValue
+    )
+    .configs(IntegrationTest)
+    .dependsOn(integrationTestRef % "compile->compile;test->test")
+}
 
 lazy val `finagle-postgres-shapeless` = project
   .settings(moduleName := "finagle-postgres-shapeless")

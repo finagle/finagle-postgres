@@ -1,11 +1,11 @@
 package com.twitter.finagle.postgres
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.twitter.finagle.Postgres
 import com.twitter.util.Try
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import org.scalatest.BeforeAndAfterAll
 
-class EmbeddedPgSqlSpec extends Spec with BeforeAndAfterAll {
+abstract class EmbeddedPgSqlSpec extends Spec with BeforeAndAfterAll {
 
   var embeddedPgSql: Option[EmbeddedPostgres] = None
 
