@@ -73,7 +73,8 @@ object Postgres {
     param.ResponseClassifier(defaultResponseClassifier) +
     Retries.Policy(defaultRetryPolicy) +
     Monitor(PostgresDefaultMonitor) +
-    Allocator(UnpooledByteBufAllocator.DEFAULT)
+    Allocator(UnpooledByteBufAllocator.DEFAULT) +
+    CustomReceiveFunctions(ValueDecoder.decoders orElse { case "noop" => ValueDecoder.unknown })
 
   private def defaultStack = StackClient.newStack[PgRequest, PgResponse]
     .replace(StackClient.Role.prepConn, PrepConnection)
