@@ -3,9 +3,10 @@ package com.twitter.finagle.postgres.generic
 import com.twitter.finagle.postgres.Row
 import com.twitter.finagle.postgres.values.ValueDecoder
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RowDecoderSpec extends FlatSpec with Matchers with MockFactory {
+class RowDecoderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   val row = mock[Row]
 
