@@ -125,6 +125,19 @@ class ValuesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
               assert(tester(rowText.getTry[T](0).get, t))
             }
         }
+      } catch {
+        case ex: Exception =>
+          println("\n\n\n\nOH NOES!")
+          Option(ex.getCause) match {
+            case Some(com.twitter.finagle.postgres.codec.ServerError(message, Some(com.twitter.finagle.postgres.messages.PgRequest(msg, _)), _, _, detail, hint, position)) =>
+              println(message)
+              println(detail)
+              println(hint)
+              println(position)
+              println(msg)
+            case _ => ex.printStackTrace
+          }
+          throw ex
       } finally {
         TimeZone.setDefault(oldDefault)
       }
