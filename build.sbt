@@ -128,8 +128,6 @@ lazy val docs = project
 
 parallelExecution in Test := false
 
-javaOptions in Test += "-Duser.timezone=UTC"
-
 scalacOptions ++= Seq(
   "-deprecation"
 )

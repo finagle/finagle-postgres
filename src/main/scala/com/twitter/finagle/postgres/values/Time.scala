@@ -3,7 +3,7 @@ package com.twitter.finagle.postgres.values
 import java.text.NumberFormat
 import java.time._
 import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, ResolverStyle}
-import java.time.temporal.ChronoField
+import java.time.temporal.{ChronoField, TemporalAccessor, TemporalQuery}
 
 import io.netty.buffer.{ByteBuf, Unpooled}
 
@@ -24,6 +24,42 @@ private object DateTimeUtils {
     .appendOffset("+HH", "Z")
     .optionalEnd()
     .toFormatter
+
+  /**
+    * https://www.postgresql.org/docs/current/datatype-datetime.html
+    *
+    * ISO 8601 specifies the use of uppercase letter T to separate the date and time.
+    * PostgreSQL accepts that format on input, but on output it uses a space rather than T, as shown above.
+    * This is for readability and for consistency with RFC 3339 as well as some other database systems.
+    */
+  private val PostgresDateTimeFormat = new DateTimeFormatterBuilder()
+    .parseCaseInsensitive()
+    .append(DateTimeFormatter.ISO_LOCAL_DATE)
+    .appendLiteral(' ')
+    .append(DateTimeFormatter.ISO_LOCAL_TIME)
+    .optionalStart()
+    .appendOffsetId()
+    .toFormatter()
+
+  def format(i: Instant) = PostgresDateTimeFormat.withZone(ZoneOffset.UTC).format(i)
+  def format(zdt: ZonedDateTime) = PostgresDateTimeFormat.format(zdt)
+  def format(ldt: LocalDateTime) = PostgresDateTimeFormat.format(ldt)
+
+  private val PostgresDateTimeParser = new DateTimeFormatterBuilder()
+    .parseCaseInsensitive()
+    .append(DateTimeFormatter.ISO_LOCAL_DATE)
+    .appendLiteral(' ')
+    .append(timeTzParser)
+    .toFormatter()
+
+  // NOTE: this is Scala 2.11 interrop. Scala 2.12 automatically does this for us.
+  private def query[T](f: TemporalAccessor => T): TemporalQuery[T] = new TemporalQuery[T] {
+    override def queryFrom(temporal: TemporalAccessor): T = f(temporal)
+  }
+
+  def parseLocalDateTime(s: String) = PostgresDateTimeParser.parse(s, query(LocalDateTime.from))
+  def parseInstant(s: String) = PostgresDateTimeParser.withZone(ZoneOffset.UTC).parse(s, query(Instant.from))
+  def parseZonedDateTime(s: String) = PostgresDateTimeParser.parse(s, query(ZonedDateTime.from))
 
   def readTimestamp(buf: ByteBuf) = {
     val micros = buf.readLong() + POSTGRES_EPOCH_MICROS
