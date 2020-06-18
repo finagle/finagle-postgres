@@ -1,20 +1,23 @@
-dist: trusty
+dist: bionic
 language: scala
-jdk:
-- oraclejdk8
+scala:
+  - 2.11.12
+  - 2.12.11
+  - 2.13.2
 addons:
   postgresql: '9.5'
 services:
-- postgresql
+  - postgresql
 sbt_args: "-J-Xmx4096M"
 env:
   matrix:
-  - PG_HOST_PORT=127.0.0.1:5432 PG_USER=postgres PG_DBNAME=finagle_postgres_test
+    - PG_HOST_PORT=127.0.0.1:5432 PG_USER=postgres PG_DBNAME=finagle_postgres_test
   global:
     secure: BlDBBTkjweJybkNnWvLCv8GHhoJXuTvdOmehPwppCOjHKM8z9WDgy5RabrZew/Iptlcnz7Gn4dPrQDtsWPTSY7e791gRcdGPyMX1qR5Rk9YAVnhU2ndV/Udxlabn05CFaciKtQXMF9L2oX5FbqiW2D5J2w0lKVHHr95nGZXRH1g=
 before_script:
-- createdb -U postgres finagle_postgres_test
-- psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS hstore" finagle_postgres_test
-- psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext" finagle_postgres_test
+  - createdb -U postgres finagle_postgres_test
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS hstore" finagle_postgres_test
+  - psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citext" finagle_postgres_test
 script:
-- "./build/build.sh"
+  - "./build/build.sh"
+
