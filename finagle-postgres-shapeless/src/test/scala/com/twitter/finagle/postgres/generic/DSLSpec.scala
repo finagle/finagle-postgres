@@ -1,11 +1,12 @@
 package com.twitter.finagle.postgres.generic
 
 import com.twitter.finagle.postgres.Param
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import patchless.Patch
 import shapeless.record.Record
 
-class DSLSpec extends FreeSpec with Matchers {
+class DSLSpec extends AnyFreeSpec with Matchers {
 
   "Columns" - {
 
