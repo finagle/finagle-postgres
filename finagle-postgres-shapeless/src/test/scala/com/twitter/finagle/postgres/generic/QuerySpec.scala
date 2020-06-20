@@ -9,11 +9,12 @@ import com.twitter.finagle.postgres._
 import com.twitter.finagle.postgres.values.ValueDecoder
 import com.twitter.util.{Await, Future}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import shapeless.record.Record
 import shapeless.{HList, LabelledGeneric}
 
-class QuerySpec extends FreeSpec with Matchers with MockFactory {
+class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
 
 
   val row = mock[Row]
