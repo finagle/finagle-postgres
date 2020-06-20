@@ -6,29 +6,16 @@ import com.twitter.util.{Await, Future}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class NumericSpec extends Spec with ScalaCheckDrivenPropertyChecks {
-
-
-  for {
-    hostPort <- sys.env.get("PG_HOST_PORT")
-    user <- sys.env.get("PG_USER")
-    password = sys.env.get("PG_PASSWORD")
-    dbname <- sys.env.get("PG_DBNAME")
-    useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
-  } yield {
-
-    val binaryClient = Postgres.Client()
-      .database(dbname)
-      .withCredentials(user, password)
+  IntegrationSpec.clientBuilder().foreach { clientBuilder =>
+    val binaryClient = clientBuilder
       .withBinaryParams(true)
       .withBinaryResults(true)
-      .newRichClient(hostPort)
+      .newRichClient()
 
-    val textClient = Postgres.Client()
-      .database(dbname)
-      .withCredentials(user, password)
+    val textClient = clientBuilder
       .withBinaryParams(false)
       .withBinaryResults(false)
-      .newRichClient(hostPort)
+      .newRichClient()
 
     Await.result((textClient.query(
       """
