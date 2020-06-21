@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+echo -e "\n\nOPENSSL VERSION:"
+openssl version
+
 SBT_CMD="sbt +coverage +test"
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
