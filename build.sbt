@@ -18,7 +18,7 @@ val baseSettings = Seq(
     "com.twitter" %% "finagle-netty4" % "20.5.0",
     "org.scalatest" %% "scalatest" % "3.2.0" % "test,it",
     "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test,it",
-    "org.scalacheck" %% "scalacheck" % "1.14.3" % "test,it",
+    "org.scalacheck" %% "scalacheck" % "1.15.0" % "test,it",
     "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
     "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
   )
