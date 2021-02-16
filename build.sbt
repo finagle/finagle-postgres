@@ -14,8 +14,8 @@ def circeTestingVersion(scalaV: String) = {
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "20.5.0",
-    "com.twitter" %% "finagle-netty4" % "20.5.0",
+    "com.twitter" %% "finagle-core" % "20.10.0",
+    "com.twitter" %% "finagle-netty4" % "20.10.0",
     "org.scalatest" %% "scalatest" % "3.2.0" % "test,it",
     "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "test,it",
