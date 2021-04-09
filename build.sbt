@@ -93,7 +93,7 @@ lazy val `finagle-postgres-shapeless` = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "com.chuusai" %% "shapeless" % "2.3.3",
+      "com.chuusai" %% "shapeless" % "2.3.4",
       "io.github.jeremyrsmith" %% "patchless-core" % "1.0.7"
     )
   )
