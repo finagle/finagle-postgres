@@ -5,10 +5,10 @@ SBT_CMD="sbt +coverage +test"
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
     SBT_CMD+=" +coverageOff +publish"
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/secring.gpg.enc -out local.secring.gpg -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/pubring.gpg.enc -out local.pubring.gpg -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/credentials.sbt.enc -out local.credentials.sbt -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/deploy_key.pem.enc -out local.deploy_key.pem -d
+    openssl aes-256-cbc -md md5 -pass env:ENCRYPTION_PASSWORD -in ./build/secring.gpg.enc -out local.secring.gpg -d
+    openssl aes-256-cbc -md md5 -pass env:ENCRYPTION_PASSWORD -in ./build/pubring.gpg.enc -out local.pubring.gpg -d
+    openssl aes-256-cbc -md md5 -pass env:ENCRYPTION_PASSWORD -in ./build/credentials.sbt.enc -out local.credentials.sbt -d
+    openssl aes-256-cbc -md md5 -pass env:ENCRYPTION_PASSWORD -in ./build/deploy_key.pem.enc -out local.deploy_key.pem -d
 
     if [[ "${TRAVIS_BRANCH}" == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]; then
         eval "$(ssh-agent -s)"
