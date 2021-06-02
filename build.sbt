@@ -106,14 +106,13 @@ val tutPath = settingKey[String]("Path to tutorials")
 
 lazy val docs = project
   .settings(moduleName := "finagle-postgres-docs", buildSettings)
-  .enablePlugins(GhpagesPlugin, TutPlugin, ScalaUnidocPlugin)
+  .enablePlugins(GhpagesPlugin, ScalaUnidocPlugin)
   .settings(
     scaladocVersionPath := ("api/" + version.value),
     scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot"
                            else "api/latest"),
     tutPath := "doc",
     includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
-    addMappingsToSiteDir(tut in Compile, tutPath),
     addMappingsToSiteDir(
       mappings in (ScalaUnidoc, packageDoc),
       scaladocLatestPath
