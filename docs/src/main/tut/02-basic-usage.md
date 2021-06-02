@@ -9,12 +9,12 @@ Finagle-postgres follows the conventions of the rest of the finagle ecosystem. T
 the client builder accessed by `com.twitter.finagle.Postgres.Client()`:
 
 
-```tut:invisible
+```scala mdoc:invisible
 import com.twitter.util.Await
 object dontrun {
 ```
 
-```tut:book
+```scala mdoc
 import com.twitter.finagle.Postgres
 
 val client = Postgres.Client()
@@ -27,7 +27,7 @@ val client = Postgres.Client()
   .newRichClient("localhost:5432")
 ```
 
-```tut:invisible
+```scala mdoc:invisible
 
     Await.result(client.close())
 }

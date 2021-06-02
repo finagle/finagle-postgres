@@ -11,7 +11,7 @@ function: `Future[Seq[T]]`.
 
 This typically results in a pattern like this:
 
-```tut:invisible
+```scala mdoc:invisible
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -30,7 +30,7 @@ Await.result(client.prepareAndExecute("CREATE TABLE demo(id serial PRIMARY KEY, 
 Await.result(client.prepareAndExecute("INSERT INTO demo (foo) VALUES ($1)", "foo"))
 ```
 
-```tut:book
+```scala mdoc
 case class Demo(id: Int, foo: String)
 
 val select = client.prepareAndQuery("SELECT * FROM demo") {
@@ -47,7 +47,7 @@ As you can see, this probably gets verbose and repetitive for rows which have a 
 there must be a better way, and thanks to [shapeless](https://github.com/milessabin/shapeless), there is! Importing
 `com.twitter.finagle.postgres.generic._` enriches `client` with an additional operation, `queryAs`:
 
-```tut:book
+```scala mdoc
 import com.twitter.finagle.postgres.generic._
 
 val result = Await.result {
@@ -61,6 +61,6 @@ to instead do nothing to convert column names.
 
 Next, read about [Query DSL](06-query-dsl.html)
 
-```tut:invisible
+```scala mdoc:invisible
 Await.result(client.close())
 ```

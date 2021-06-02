@@ -8,7 +8,7 @@ layout: default
 Since most database-driven applications will need to use user-supplied data as parameters to their queries,
 finagle-postgres supports parameterized queries through its prepared statement interface:
 
-```tut:invisible
+```scala mdoc:invisible
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -24,7 +24,7 @@ val client = {
 Await.result(client.execute("DROP TABLE IF EXISTS demo"))
 ```
 
-```tut:book
+```scala mdoc
 import com.twitter.util.Await
 
 // execute a query that has no results - i.e. CREATE TABLE, UPDATE, INSERT, DELETE, etc.
@@ -50,6 +50,6 @@ query, which means they won't be a potential vector for SQL injection attacks.
 
 Next, read about [Automatic case class marshalling](05-automatic-case-class-marshalling.html)
 
-```tut:invisible
+```scala mdoc:invisible
 Await.result(client.close())
 ```

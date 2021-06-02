@@ -12,7 +12,7 @@ could be a vector for SQL injection attacks.
 
 Still, it can be useful to try them out.
 
-```tut:invisible
+```scala mdoc:invisible
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -29,7 +29,7 @@ val client = {
 Await.result(client.execute("DROP TABLE IF EXISTS demo"))
 ```
 
-```tut:book
+```scala mdoc
 import com.twitter.util.Await
 
 // execute a query that has no results - i.e. CREATE TABLE, UPDATE, INSERT, DELETE, etc.
@@ -92,6 +92,6 @@ are happy to accept instances for built-in Scala or Java types into finagle-post
 
 Next, read about [Parameterized Queries](04-parameterized-queries.html)
 
-```tut:invisible
+```scala mdoc:invisible
 Await.result(client.close())
 ```
