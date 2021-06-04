@@ -14,6 +14,24 @@ import com.twitter.util.Future
 
 object IntegrationSpec {
   val pgTestTable = "finagle_test"
+
+  def clientBuilder(): Option[Postgres.Client] = (for {
+    hostPort <- sys.env.get("PG_HOST_PORT")
+    user <- sys.env.get("PG_USER")
+    password = sys.env.get("PG_PASSWORD")
+    dbname <- sys.env.get("PG_DBNAME")
+    useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
+    sslHost = sys.env.get("PG_SSL_HOST")
+  } yield {
+      Postgres.Client()
+        .withCredentials(user, password)
+        .database(dbname)
+        .conditionally(useSsl, c => sslHost.fold(c.withTransport.tls)(c.withTransport.tls(_)))
+        .dest(hostPort)
+  }).orElse {
+    println("WARNING: Skipping integration tests due to missing environment variables, see IntegrationSpec.scala for details")
+    None
+  }
 }
 
 /*
@@ -30,26 +48,14 @@ object IntegrationSpec {
  *
  */
 class IntegrationSpec extends Spec {
-
-  for {
-    hostPort <- sys.env.get("PG_HOST_PORT")
-    user <- sys.env.get("PG_USER")
-    password = sys.env.get("PG_PASSWORD")
-    dbname <- sys.env.get("PG_DBNAME")
-    useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
-    sslHost = sys.env.get("PG_SSL_HOST")
-  } yield {
-
+  IntegrationSpec.clientBuilder().foreach { clientBuilder =>
 
     val queryTimeout = Duration.fromSeconds(2)
 
     def getClient: PostgresClientImpl = {
-      val client = Postgres.Client()
-        .withCredentials(user, password)
-        .database(dbname)
+      val client = clientBuilder
         .withSessionPool.maxSize(1)
-        .conditionally(useSsl, c => sslHost.fold(c.withTransport.tls)(c.withTransport.tls(_)))
-        .newRichClient(hostPort)
+        .newRichClient()
 
       Await.result(Future[PostgresClientImpl] {
         while (!client.isAvailable) {}
@@ -57,14 +63,7 @@ class IntegrationSpec extends Spec {
       })
     }
 
-    def getBadClient = {
-      Postgres.Client()
-        .withCredentials(user, password)
-        .database(dbname)
-        .withSessionPool.maxSize(1)
-        .conditionally(useSsl, c => sslHost.fold(c.withTransport.tls)(c.withTransport.tls(_)))
-        .newRichClient("badhost:5432")
-    }
+    def getBadClient = Postgres.Client().newRichClient("badhost:5432")
 
     def cleanDb(client: PostgresClient): Unit = {
       val dropQuery = client.executeUpdate("DROP TABLE IF EXISTS %s".format(IntegrationSpec.pgTestTable))
@@ -362,7 +361,7 @@ class IntegrationSpec extends Spec {
 
       // this test will fail if the test DB user doesn't have permission
       "create an extension using CREATE EXTENSION" in {
-        if(user == "postgres") {
+        if(clientBuilder.params[Postgres.User].user == "postgres") {
           val client = getClient
           val result = client.prepareAndExecute("CREATE EXTENSION IF NOT EXISTS hstore")
           Await.result(result)
@@ -430,8 +429,12 @@ class IntegrationSpec extends Spec {
         }
         "client is bad" in {
           val badClient: PostgresClient = getBadClient
-          badClient.isAvailable must equal(false)
-          Set(Status.Busy, Status.Closed) must contain (badClient.status)
+          try {
+            badClient.isAvailable must equal(false)
+            Set(Status.Busy, Status.Closed) must contain (badClient.status)
+          } finally {
+            badClient.close()
+          }
         }
         "client is closed" in {
           val client: PostgresClient = getClient

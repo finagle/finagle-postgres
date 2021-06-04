@@ -5,19 +5,8 @@ import com.twitter.finagle.postgres.Spec
 import com.twitter.util.{Await, Future}
 
 class TransactionSpec extends Spec {
-  for {
-    hostPort <- sys.env.get("PG_HOST_PORT")
-    user <- sys.env.get("PG_USER")
-    password = sys.env.get("PG_PASSWORD")
-    dbname <- sys.env.get("PG_DBNAME")
-    useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
-  } yield {
-
-    val client = Postgres.Client()
-      .withCredentials(user, password)
-      .database(dbname)
-      .conditionally(useSsl, _.withTransport.tlsWithoutValidation)
-      .newRichClient(hostPort)
+  IntegrationSpec.clientBuilder().foreach { clientBuilder =>
+    val client = clientBuilder.newRichClient()
 
     Await.result(client.query(
       """
