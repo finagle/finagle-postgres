@@ -75,6 +75,8 @@ case class Select(count: Int) extends CommandCompleteStatus
 
 case object Begin extends CommandCompleteStatus
 
+case object Set extends CommandCompleteStatus
+
 case object Savepoint extends CommandCompleteStatus
 
 case object Release extends CommandCompleteStatus

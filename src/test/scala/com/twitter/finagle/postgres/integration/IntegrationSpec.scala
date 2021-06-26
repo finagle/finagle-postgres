@@ -380,6 +380,11 @@ class IntegrationSpec extends Spec {
         Await.result(result)
       }
 
+      "support sending SET commands" in {
+        val client = getClient
+        val result = client.query("SET TIME ZONE DEFAULT;")
+        Await.result(result)
+      }
 
       "throw a ServerError" when {
         "query has error" in {

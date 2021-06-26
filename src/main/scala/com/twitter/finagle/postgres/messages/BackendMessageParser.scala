@@ -238,6 +238,7 @@ class BackendMessageParser {
           case "DELETE" => Delete(parts(1).toInt)
           case "UPDATE" => Update(parts(1).toInt)
           case "BEGIN"  => Begin
+          case "SET"    => Set
           case "SAVEPOINT" => Savepoint
           case "RELEASE" => Release
           case "ROLLBACK"  => RollBack
