@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
 )
 
 def circeTestingVersion(scalaV: String) = {
-  if (scalaV.startsWith("2.11")) "0.11.2" else "0.12.3"
+  if (scalaV.startsWith("2.11")) "0.11.2" else "0.14.1"
 }
 
 val baseSettings = Seq(
