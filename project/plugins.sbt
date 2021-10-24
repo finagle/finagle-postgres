@@ -12,4 +12,4 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
