@@ -2,9 +2,9 @@ import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
-  scalaVersion := "2.13.2",
-  crossScalaVersions := Seq("2.12.11", "2.13.2"),
-  fork in Test := true
+  scalaVersion := "2.13.8",
+  crossScalaVersions := Seq("2.12.15", "2.13.8"),
+  Test / fork := true
 )
 
 def circeTestingVersion(scalaV: String) = {
@@ -34,7 +34,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -112,13 +112,13 @@ lazy val docs = project
     scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot"
                            else "api/latest"),
     tutPath := "doc",
-    includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
+    makeSite / includeFilter := (makeSite / includeFilter).value || "*.md" || "*.yml",
     addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
+      ScalaUnidoc / packageDoc / mappings,
       scaladocLatestPath
     ),
     addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
+      ScalaUnidoc / packageDoc / mappings,
       scaladocVersionPath
     ),
     ghpagesNoJekyll := false,
@@ -126,7 +126,7 @@ lazy val docs = project
   )
   .dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
 
-parallelExecution in Test := false
+Test / parallelExecution := false
 
 scalacOptions ++= Seq(
   "-deprecation"
