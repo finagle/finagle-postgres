@@ -2,9 +2,9 @@ import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
   organization := "io.github.finagle",
-  scalaVersion := "2.13.2",
-  crossScalaVersions := Seq("2.12.11", "2.13.2"),
-  fork in Test := true
+  scalaVersion := "2.13.8",
+  crossScalaVersions := Seq("2.12.15", "2.13.8"),
+  Test / fork := true
 )
 
 def circeTestingVersion(scalaV: String) = {
@@ -14,8 +14,8 @@ def circeTestingVersion(scalaV: String) = {
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "21.4.0",
-    "com.twitter" %% "finagle-netty4" % "21.4.0",
+    "com.twitter" %% "finagle-core" % "22.4.0",
+    "com.twitter" %% "finagle-netty4" % "22.4.0",
     "org.scalatest" %% "scalatest" % "3.2.8" % "test,it",
     "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test,it",
     "org.scalacheck" %% "scalacheck" % "1.15.3" % "test,it",
@@ -34,7 +34,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -112,13 +112,13 @@ lazy val docs = project
     scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot"
                            else "api/latest"),
     tutPath := "doc",
-    includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
+    makeSite / includeFilter := (makeSite / includeFilter).value || "*.md" || "*.yml",
     addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
+      ScalaUnidoc / packageDoc / mappings,
       scaladocLatestPath
     ),
     addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
+      ScalaUnidoc / packageDoc / mappings,
       scaladocVersionPath
     ),
     ghpagesNoJekyll := false,
@@ -126,7 +126,7 @@ lazy val docs = project
   )
   .dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
 
-parallelExecution in Test := false
+Test / parallelExecution := false
 
 scalacOptions ++= Seq(
   "-deprecation"
