@@ -1,26 +1,36 @@
 import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
-  organization := "io.github.finagle",
-  scalaVersion := "2.13.2",
-  crossScalaVersions := Seq("2.12.11", "2.13.2"),
+  organization := "io.github.deal-engine",
+  scalaVersion := "2.13.8",
+  crossScalaVersions := Seq("2.13.8"),
   fork in Test := true
 )
 
-def circeTestingVersion(scalaV: String) = {
-  if (scalaV.startsWith("2.11")) "0.11.2" else "0.12.3"
+
+
+val Versions = {
+  class Versions {
+    val twitter = "22.12.0"
+    val circeTesting = "0.14.5"
+    val scalaTest = "3.2.16"
+    val scalaTestCheck = "3.2.16.0"
+    val scalacheck = "1.17.0"
+    val scalamock = "5.2.0"
+  }
+  new Versions
 }
 
 val baseSettings = Seq(
   resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "21.4.0",
-    "com.twitter" %% "finagle-netty4" % "21.4.0",
-    "org.scalatest" %% "scalatest" % "3.2.8" % "test,it",
-    "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test,it",
-    "org.scalacheck" %% "scalacheck" % "1.15.3" % "test,it",
-    "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
-    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
+    "com.twitter" %% "finagle-core" % Versions.twitter,
+    "com.twitter" %% "finagle-netty4" % Versions.twitter,
+    "org.scalatest" %% "scalatest" % Versions.scalaTest % "test,it",
+    "org.scalatestplus" %% "scalacheck-1-17" % Versions.scalaTestCheck % "test,it",
+    "org.scalacheck" %% "scalacheck" % Versions.scalacheck % "test,it",
+    "org.scalamock" %% "scalamock" % Versions.scalamock % "test,it",
+    "io.circe" %% "circe-testing" % Versions.circeTesting % "test,it"
   )
 )
 

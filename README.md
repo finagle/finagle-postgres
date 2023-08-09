@@ -72,11 +72,14 @@ With the database and variables in place, all tests will be executed. More detai
 See [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributors
+* [Iván Molina Rebolledo](https://github.com/ivanmoreau) (current maintainer)
+
+### Past
 * [Mairbek Khadikov][mairbek] (project creator)
 * [The Factory][thefactory]
 * [Vladimir Kostyukov][vkostyukov]
 * [Jeremy Smith](https://github.com/jeremyrsmith)
-* [Leon Maia](https://github.com/leonmaia) (current maintainer)
+* [Leon Maia](https://github.com/leonmaia)
 
 ## License
 
