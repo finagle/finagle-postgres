@@ -5,7 +5,12 @@ import java.time.temporal.ChronoField
 
 import com.twitter.finagle.Postgres
 import com.twitter.finagle.postgres.values.{ValueDecoder, ValueEncoder}
-import com.twitter.finagle.postgres.{Generators, PostgresClient, ResultSet, Spec}
+import com.twitter.finagle.postgres.{
+  Generators,
+  PostgresClient,
+  ResultSet,
+  Spec
+}
 import com.twitter.util.Await
 import io.netty.buffer.Unpooled
 import org.scalacheck.Arbitrary
@@ -14,31 +19,30 @@ import Generators._
 
 class CustomTypesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
 
-  def test[T : Arbitrary](
-    decoder: ValueDecoder[T])(
-    typ: String,
-    tester: (T, T) => Boolean = (a: T, b: T) => a == b)(
-    implicit client: PostgresClient,
-    manifest: Manifest[T],
-    binaryParams: Boolean,
-    valueEncoder: ValueEncoder[T]
+  def test[T: Arbitrary](
+      decoder: ValueDecoder[T]
+  )(typ: String, tester: (T, T) => Boolean = (a: T, b: T) => a == b)(implicit
+      client: PostgresClient,
+      manifest: Manifest[T],
+      binaryParams: Boolean,
+      valueEncoder: ValueEncoder[T]
   ) = {
     implicit val dec = decoder
-    forAll {
-      (t: T) =>
-        val m = manifest
-        val encoder = valueEncoder
-        val query = if(binaryParams)
-          client.prepareAndQuery(s"SELECT $$1::$typ AS out", t) {
-            row => row.get[T](0)
+    forAll { (t: T) =>
+      val m = manifest
+      val encoder = valueEncoder
+      val query =
+        if (binaryParams)
+          client.prepareAndQuery(s"SELECT $$1::$typ AS out", t) { row =>
+            row.get[T](0)
           }
         else
-          client.prepareAndQuery(s"SELECT $$1::$typ AS out", t) {
-            row => row.get[T](0)
+          client.prepareAndQuery(s"SELECT $$1::$typ AS out", t) { row =>
+            row.get[T](0)
           }
-        val result = Await.result(query).head
-        if(!tester(t, result))
-          fail(s"$t does not match $result")
+      val result = Await.result(query).head
+      if (!tester(t, result))
+        fail(s"$t does not match $result")
     }
   }
 
@@ -52,21 +56,23 @@ class CustomTypesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
     useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
   } yield {
 
-    implicit val client = Postgres.Client()
+    implicit val client = Postgres
+      .Client()
       .database(dbname)
       .withCredentials(user, password)
       .withBinaryParams(binaryParams)
       .withBinaryResults(binaryResults)
       .conditionally(useSsl, _.withTransport.tlsWithoutValidation)
-      .withSessionPool.maxSize(1)
+      .withSessionPool
+      .maxSize(1)
       .newRichClient(hostPort)
 
-
-    val mode = if(binaryResults) "binary mode" else "text mode"
-    val paramsMode = if(binaryParams)
-      "binary"
-    else
-      "text"
+    val mode = if (binaryResults) "binary mode" else "text mode"
+    val paramsMode =
+      if (binaryParams)
+        "binary"
+      else
+        "text"
 
     implicit val useBinaryParams = binaryParams
 
@@ -85,13 +91,16 @@ class CustomTypesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
       "parse shorts" in test(ValueDecoder.int2)("int2")
       "parse ints" in test(ValueDecoder.int4)("int4")
       "parse longs" in test(ValueDecoder.int8)("int8")
-      //precision seems to be an issue when postgres parses text floats
+      // precision seems to be an issue when postgres parses text floats
       "parse floats" in test(ValueDecoder.float4)("numeric::float4")
       "parse doubles" in test(ValueDecoder.float8)("numeric::float8")
       "parse numerics" in test(ValueDecoder.bigDecimal)("numeric")
       "parse timestamps" in test(ValueDecoder.localDateTime)(
         "timestamp",
-        (a, b) => a.getLong(ChronoField.MICRO_OF_DAY) == b.getLong(ChronoField.MICRO_OF_DAY)
+        (a, b) =>
+          a.getLong(ChronoField.MICRO_OF_DAY) == b.getLong(
+            ChronoField.MICRO_OF_DAY
+          )
       )
       "parse timestamps with time zone" in test(ValueDecoder.zonedDateTime)(
         "timestamptz",

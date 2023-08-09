@@ -14,9 +14,10 @@ class Connection(startState: State = AuthenticationRequired) {
   private[this] val logger = Logger(s"${getClass.getName}.connection-$id")
   private[this] val stateMachine = new ConnectionStateMachine(startState, id)
 
-
   def send(msg: FrontendMessage) = {
-    logger.ifDebug("Sent frontend message of type: %s".format(msg.getClass.getName))
+    logger.ifDebug(
+      "Sent frontend message of type: %s".format(msg.getClass.getName)
+    )
 
     msg match {
       case q: Query =>
@@ -28,11 +29,13 @@ class Connection(startState: State = AuthenticationRequired) {
   }
 
   def receive(msg: BackendMessage): Option[PgResponse] = {
-    logger.ifDebug("Received backend message of type: %s".format(msg.getClass.getName))
+    logger.ifDebug(
+      "Received backend message of type: %s".format(msg.getClass.getName)
+    )
 
     val result = stateMachine.onEvent(msg)
-    result foreach {
-      r => logger.ifDebug(s"Emitting result ${r.getClass.getName}")
+    result foreach { r =>
+      logger.ifDebug(s"Emitting result ${r.getClass.getName}")
     }
     result
   }

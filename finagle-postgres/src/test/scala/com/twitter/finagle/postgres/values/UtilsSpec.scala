@@ -40,7 +40,8 @@ class UtilsSpec extends Spec with ScalaCheckDrivenPropertyChecks {
     }
 
     "throw an appropriate exception if string passed is not C style" in {
-      val bufferWithWrongString = Unpooled.copiedBuffer("not a C style string", Charsets.Utf8)
+      val bufferWithWrongString =
+        Unpooled.copiedBuffer("not a C style string", Charsets.Utf8)
 
       an[IndexOutOfBoundsException] must be thrownBy {
         Buffers.readCString(bufferWithWrongString)
@@ -54,15 +55,36 @@ class UtilsSpec extends Spec with ScalaCheckDrivenPropertyChecks {
     "encrypt everything correctly" in {
       val samples =
         List(
-          (ba("john"), ba("john25"), Array[Byte](1, 2, 3, 4), "md5305d62541687fa0c5871edfdb1140133"),
-          (ba("john"), ba("john25"), Array[Byte](4, 3, 1, 2), "md5156cf720128cad07c39e018eca91ff8d"),
-          (ba("john"), ba("john22"), Array[Byte](1, 2, 3, 4), "md57042902d6531e1840b3019a880f66edc"),
-          (ba("lomack"), ba("lowmuck245$3"), Array[Byte](15, 19, 33, 1), "md56aa29016af76de6b793f3e7e009a26c2")
+          (
+            ba("john"),
+            ba("john25"),
+            Array[Byte](1, 2, 3, 4),
+            "md5305d62541687fa0c5871edfdb1140133"
+          ),
+          (
+            ba("john"),
+            ba("john25"),
+            Array[Byte](4, 3, 1, 2),
+            "md5156cf720128cad07c39e018eca91ff8d"
+          ),
+          (
+            ba("john"),
+            ba("john22"),
+            Array[Byte](1, 2, 3, 4),
+            "md57042902d6531e1840b3019a880f66edc"
+          ),
+          (
+            ba("lomack"),
+            ba("lowmuck245$3"),
+            Array[Byte](15, 19, 33, 1),
+            "md56aa29016af76de6b793f3e7e009a26c2"
+          )
         )
 
-      samples.foreach {
-        case (user, password, salt, result) =>
-          new String(Md5Encryptor.encrypt(user, password, salt)) must equal(result)
+      samples.foreach { case (user, password, salt, result) =>
+        new String(Md5Encryptor.encrypt(user, password, salt)) must equal(
+          result
+        )
       }
     }
 
@@ -99,10 +121,9 @@ class UtilsSpec extends Spec with ScalaCheckDrivenPropertyChecks {
   }
 
   "Numeric utils" should {
-    "write a numeric value" in forAll {
-      bd: BigDecimal =>
-        val read = Numerics.readNumeric(Numerics.writeNumeric(bd))
-        read must equal (bd)
+    "write a numeric value" in forAll { bd: BigDecimal =>
+      val read = Numerics.readNumeric(Numerics.writeNumeric(bd))
+      read must equal(bd)
     }
   }
 }

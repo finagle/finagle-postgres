@@ -1,7 +1,12 @@
 package com.twitter.finagle.postgres.connection
 
 import com.twitter.finagle.postgres.Spec
-import com.twitter.finagle.postgres.messages.{Query, ParameterStatus, NotificationResponse, NoticeResponse}
+import com.twitter.finagle.postgres.messages.{
+  Query,
+  ParameterStatus,
+  NotificationResponse,
+  NoticeResponse
+}
 
 class ConnectionAsyncSpec extends Spec {
   "A postgres connection" should {

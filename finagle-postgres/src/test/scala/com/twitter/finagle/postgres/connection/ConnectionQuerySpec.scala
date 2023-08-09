@@ -9,13 +9,15 @@ import io.netty.buffer.Unpooled
 
 class ConnectionQuerySpec extends Spec {
   "A postgres connection" should {
-    def toList[T](rows: AsyncStream[T]): List[T] = Await.result(rows.toSeq).toList
+    def toList[T](rows: AsyncStream[T]): List[T] =
+      Await.result(rows.toSeq).toList
     "handle an empty query response" in {
       val connection = new Connection(Connected)
 
       connection.send(Query(""))
       connection.receive(EmptyQueryResponse)
-      val r@SelectResult(fields, rows) = connection.receive(ReadyForQuery('I')).get
+      val r @ SelectResult(fields, rows) =
+        connection.receive(ReadyForQuery('I')).get
 
       fields.length mustEqual 0
       r.complete.isDefined mustBe true
@@ -68,23 +70,43 @@ class ConnectionQuerySpec extends Spec {
       val connection = new Connection(Connected)
 
       connection.send(Query("select * from emails"))
-      val r@SelectResult(fields, rows) = connection.receive(RowDescription(Array(FieldDescription("email",16728,2,1043,-1,-1,0)))).get
+      val r @ SelectResult(fields, rows) = connection
+        .receive(
+          RowDescription(
+            Array(FieldDescription("email", 16728, 2, 1043, -1, -1, 0))
+          )
+        )
+        .get
       connection.receive(CommandComplete(Select(0)))
       connection.receive(ReadyForQuery('I'))
 
       assert(fields sameElements Array(Field("email", 0, 1043)))
       r.complete.isDefined mustBe true
-      toList(rows) must equal (List())
+      toList(rows) must equal(List())
     }
 
     "handle a select query" in {
       val connection = new Connection(Connected)
 
-      val row1 = DataRow(Array(Some(Unpooled.copiedBuffer("donald@duck.com".getBytes(Charsets.Utf8)))))
-      val row2 = DataRow(Array(Some(Unpooled.copiedBuffer("daisy@duck.com".getBytes(Charsets.Utf8)))))
+      val row1 = DataRow(
+        Array(
+          Some(Unpooled.copiedBuffer("donald@duck.com".getBytes(Charsets.Utf8)))
+        )
+      )
+      val row2 = DataRow(
+        Array(
+          Some(Unpooled.copiedBuffer("daisy@duck.com".getBytes(Charsets.Utf8)))
+        )
+      )
 
       connection.send(Query("select * from emails"))
-      val r@SelectResult(fields, rows) = connection.receive(RowDescription(Array(FieldDescription("email",16728,2,1043,-1,-1,0)))).get
+      val r @ SelectResult(fields, rows) = connection
+        .receive(
+          RowDescription(
+            Array(FieldDescription("email", 16728, 2, 1043, -1, -1, 0))
+          )
+        )
+        .get
 
       connection.receive(row1)
       connection.receive(row2)
@@ -93,7 +115,7 @@ class ConnectionQuerySpec extends Spec {
 
       fields must contain theSameElementsAs Array(Field("email", 0, 1043))
       r.complete.isDefined mustBe true
-      toList(rows) must equal (List(row1, row2))
+      toList(rows) must equal(List(row1, row2))
     }
   }
 }

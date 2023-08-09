@@ -16,6 +16,7 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
+ThisBuild / tlCiHeaderCheck := false
 
 val Scala213 = "2.13.8"
 ThisBuild / crossScalaVersions := Seq(Scala213)

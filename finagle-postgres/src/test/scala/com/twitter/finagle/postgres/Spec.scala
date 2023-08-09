@@ -7,8 +7,4 @@ import org.scalatest.wordspec.AnyWordSpec
 /*
  * Base class for finagle postgres tests.
  */
-class Spec
-  extends AnyWordSpec
-  with Matchers
-  with BeforeAndAfter {
-}
+class Spec extends AnyWordSpec with Matchers with BeforeAndAfter {}

@@ -15,11 +15,25 @@ trait AsyncPgResponse extends PgResponse {
 
 case class SingleMessageResponse(msg: BackendMessage) extends PgResponse
 
-case class Error(msg: Option[String], severity: Option[String] = None, sqlState: Option[String] = None, detail: Option[String] = None, hint: Option[String] = None, position: Option[String] = None) extends PgResponse
+case class Error(
+    msg: Option[String],
+    severity: Option[String] = None,
+    sqlState: Option[String] = None,
+    detail: Option[String] = None,
+    hint: Option[String] = None,
+    position: Option[String] = None
+) extends PgResponse
 
 object Error {
-  def apply(params: Map[Char,String]): Error =
-    Error(params.get('M'), params.get('S'), params.get('C'), params.get('D'), params.get('H'), params.get('P'))
+  def apply(params: Map[Char, String]): Error =
+    Error(
+      params.get('M'),
+      params.get('S'),
+      params.get('C'),
+      params.get('D'),
+      params.get('H'),
+      params.get('P')
+    )
 }
 
 case object SslSupportedResponse extends PgResponse
@@ -40,9 +54,15 @@ case class Md5(salt: Array[Byte]) extends PasswordEncoding
 
 case class PasswordRequired(encoding: PasswordEncoding) extends PgResponse
 
-case class AuthenticatedResponse(params: Map[String, String], processId: Int, secretKey: Int) extends PgResponse
+case class AuthenticatedResponse(
+    params: Map[String, String],
+    processId: Int,
+    secretKey: Int
+) extends PgResponse
 
-case class Rows(rows: AsyncStream[DataRow])(private[finagle] val complete: Future[Unit]) extends AsyncPgResponse
+case class Rows(rows: AsyncStream[DataRow])(
+    private[finagle] val complete: Future[Unit]
+) extends AsyncPgResponse
 object Rows {
   val Empty = Rows(AsyncStream.empty)(Future.Done)
 }
@@ -51,11 +71,14 @@ case class Field(name: String, format: Short, dataType: Int)
 
 case class RowDescriptions(fields: Array[Field]) extends PgResponse
 
-case class Descriptions(params: Array[Int], fields: Array[Field]) extends PgResponse
+case class Descriptions(params: Array[Int], fields: Array[Field])
+    extends PgResponse
 
 case class ParamsResponse(types: Array[Int]) extends PgResponse
 
-case class SelectResult(fields: Array[Field], rows: AsyncStream[DataRow])(private[finagle] val complete: Future[Unit]) extends AsyncPgResponse
+case class SelectResult(fields: Array[Field], rows: AsyncStream[DataRow])(
+    private[finagle] val complete: Future[Unit]
+) extends AsyncPgResponse
 object SelectResult {
   val Empty = SelectResult(Array.empty, AsyncStream.empty)(Future.Done)
 }

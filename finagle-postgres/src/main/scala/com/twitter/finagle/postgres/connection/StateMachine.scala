@@ -10,7 +10,9 @@ object Undefined extends PartialFunction[Any, Nothing] {
 }
 
 case class WrongStateForEvent[E, S](event: E, state: S)
-  extends IllegalStateException("Unknown event " + event + " for state " + state)
+    extends IllegalStateException(
+      "Unknown event " + event + " for state " + state
+    )
 
 /*
  * Generic definition of a state machine. Used to define connection state machine
@@ -28,14 +30,14 @@ trait StateMachine[E, R, S] {
 
   @volatile private[this] var currentState: S = _
 
-  def startState(s : S): Unit = {
+  def startState(s: S): Unit = {
     currentState = s
   }
 
   def transition(t: SimpleTransition): Unit = {
     fullTransition(
-      t.andThen {
-        case (r, s) => (r.map(Response(_)), s)
+      t.andThen { case (r, s) =>
+        (r.map(Response(_)), s)
       }
     )
   }
@@ -44,16 +46,26 @@ trait StateMachine[E, R, S] {
     transitionFunction = transitionFunction orElse t
   }
 
-  private[this] def handleMisc: PartialFunction[(E, S), (Option[TransitionResult[R]], S)] = {
+  private[this] def handleMisc
+      : PartialFunction[(E, S), (Option[TransitionResult[R]], S)] = {
     case (e, s) => throw WrongStateForEvent(e, s)
   }
 
   def onEvent(e: E): Option[R] = {
     val f = transitionFunction.orElse(handleMisc)
-    logger.ifDebug("Received event %s in state %s".format(e.getClass.getName, currentState.getClass.getName))
+    logger.ifDebug(
+      "Received event %s in state %s".format(
+        e.getClass.getName,
+        currentState.getClass.getName
+      )
+    )
 
     val (result, newState) = f((e, currentState))
-    logger.ifDebug("Transitioning to state %s and emiting result".format(newState.getClass.getName))
+    logger.ifDebug(
+      "Transitioning to state %s and emiting result".format(
+        newState.getClass.getName
+      )
+    )
 
     currentState = newState
 
@@ -72,5 +84,6 @@ object StateMachine {
   //   In both cases, state machine's current state is updated before this result is returned / applied.
   sealed trait TransitionResult[+R]
   case class Response[R](value: R) extends TransitionResult[R]
-  case class Complete(signal: Promise[Unit], value: Try[Unit]) extends TransitionResult[Nothing]
+  case class Complete(signal: Promise[Unit], value: Try[Unit])
+      extends TransitionResult[Nothing]
 }

@@ -105,15 +105,18 @@ class BackendMessageParser {
   def parseE(packet: Packet): Option[BackendMessage] = {
     val Packet(_, _, content, _) = packet
 
-    def fieldStream(buf: ByteBuf):Stream[(Char,String)] =
-      if(buf.isReadable)
+    def fieldStream(buf: ByteBuf): Stream[(Char, String)] =
+      if (buf.isReadable)
         Buffers.readCString(buf) match {
           case "" => Stream.empty
-          case nonempty => (nonempty.splitAt(1) match { case (fieldId, value) => (fieldId.charAt(0), value) }) #:: fieldStream(buf)
+          case nonempty =>
+            (nonempty.splitAt(1) match {
+              case (fieldId, value) => (fieldId.charAt(0), value)
+            }) #:: fieldStream(buf)
         }
-      else Stream.empty[(Char,String)]
+      else Stream.empty[(Char, String)]
 
-    val fields = fieldStream(content).foldLeft(Map.empty[Char,String])(_ + _)
+    val fields = fieldStream(content).foldLeft(Map.empty[Char, String])(_ + _)
 
     Some(ErrorResponse(fields))
   }
@@ -192,19 +195,18 @@ class BackendMessageParser {
     val fieldNumber = content.readShort
 
     val fields = new Array[FieldDescription](fieldNumber)
-    0.until(fieldNumber).foreach {
-      index =>
+    0.until(fieldNumber).foreach { index =>
+      val field = FieldDescription(
+        Buffers.readCString(content),
+        content.readInt,
+        content.readShort,
+        content.readInt,
+        content.readShort,
+        content.readInt,
+        content.readShort
+      )
 
-        val field = FieldDescription(
-          Buffers.readCString(content),
-          content.readInt,
-          content.readShort,
-          content.readInt,
-          content.readShort,
-          content.readInt,
-          content.readShort)
-
-        fields(index) = field
+      fields(index) = field
     }
 
     Some(RowDescription(fields))
@@ -218,32 +220,35 @@ class BackendMessageParser {
     Some(CommandComplete(parseTag(tag)))
   }
 
-  def parseTag(tag: String) : CommandCompleteStatus = {
+  def parseTag(tag: String): CommandCompleteStatus = {
     tag match {
-      case "CREATE TABLE" => CreateTable
-      case "CREATE EXTENSION"=> CreateExtension
-      case "CREATE TYPE" => CreateType
-      case "CREATE FUNCTION" => CreateFunction
-      case "CREATE INDEX" => CreateIndex
-      case "CREATE TRIGGER" => CreateTrigger
-      case "DO" => Do
-      case "DISCARD ALL" => DiscardAll
-      case "DROP TABLE" => DropTable
+      case "CREATE TABLE"     => CreateTable
+      case "CREATE EXTENSION" => CreateExtension
+      case "CREATE TYPE"      => CreateType
+      case "CREATE FUNCTION"  => CreateFunction
+      case "CREATE INDEX"     => CreateIndex
+      case "CREATE TRIGGER"   => CreateTrigger
+      case "DO"               => Do
+      case "DISCARD ALL"      => DiscardAll
+      case "DROP TABLE"       => DropTable
       case _ =>
         val parts = tag.split(" ")
 
         parts(0) match {
-          case "SELECT" => Select(parts(1).toInt)
-          case "INSERT" => Insert(parts(2).toInt)
-          case "DELETE" => Delete(parts(1).toInt)
-          case "UPDATE" => Update(parts(1).toInt)
-          case "BEGIN"  => Begin
-          case "SET"    => Set
+          case "SELECT"    => Select(parts(1).toInt)
+          case "INSERT"    => Insert(parts(2).toInt)
+          case "DELETE"    => Delete(parts(1).toInt)
+          case "UPDATE"    => Update(parts(1).toInt)
+          case "BEGIN"     => Begin
+          case "SET"       => Set
           case "SAVEPOINT" => Savepoint
-          case "RELEASE" => Release
+          case "RELEASE"   => Release
           case "ROLLBACK"  => RollBack
-          case "COMMIT" => Commit
-          case _ => throw new IllegalStateException("Unknown command complete response tag " + tag)
+          case "COMMIT"    => Commit
+          case _ =>
+            throw new IllegalStateException(
+              "Unknown command complete response tag " + tag
+            )
         }
     }
   }
@@ -254,7 +259,10 @@ class BackendMessageParser {
     if (inSslNegotation) {
       Some(SwitchToSsl)
     } else {
-      val parameterStatus = ParameterStatus(Buffers.readCString(content), Buffers.readCString(content))
+      val parameterStatus = ParameterStatus(
+        Buffers.readCString(content),
+        Buffers.readCString(content)
+      )
       Some(parameterStatus)
     }
   }
@@ -273,10 +281,9 @@ class BackendMessageParser {
     val paramNumber = content.readShort
 
     val params = new Array[Int](paramNumber)
-    0.until(paramNumber).foreach {
-      index =>
-        val param = content.readInt
-        params(index) = param
+    0.until(paramNumber).foreach { index =>
+      val param = content.readInt
+      params(index) = param
     }
 
     Some(ParameterDescription(params))

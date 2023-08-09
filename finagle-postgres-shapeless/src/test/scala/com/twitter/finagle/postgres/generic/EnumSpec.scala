@@ -20,8 +20,7 @@ class EnumSpec extends AnyFlatSpec with Matchers {
 
   val UTF8 = StandardCharsets.UTF_8
 
-
-  "Enum decoding" should "decode enumeration ADTs from strings" in  {
+  "Enum decoding" should "decode enumeration ADTs from strings" in {
 
     val decoder = ValueDecoder[TestEnum]
 
@@ -52,7 +51,9 @@ class EnumSpec extends AnyFlatSpec with Matchers {
   it should "fail for an invalid value" in {
     val decoder = ValueDecoder[TestEnum]
 
-    decoder.decodeText("enum_recv", "CasePurple") shouldEqual Throw(InvalidValue("CasePurple"))
+    decoder.decodeText("enum_recv", "CasePurple") shouldEqual Throw(
+      InvalidValue("CasePurple")
+    )
     decoder.decodeBinary(
       "enum_recv",
       Unpooled.copiedBuffer("CasePurple", UTF8),
@@ -68,7 +69,10 @@ class EnumSpec extends AnyFlatSpec with Matchers {
     encoder.encodeText(CaseThree) shouldEqual Some("CaseThree")
     encoder.encodeBinary(CaseOne, UTF8).get.toString(UTF8) shouldEqual "CaseOne"
     encoder.encodeBinary(CaseTwo, UTF8).get.toString(UTF8) shouldEqual "CaseTwo"
-    encoder.encodeBinary(CaseThree, UTF8).get.toString(UTF8) shouldEqual "CaseThree"
+    encoder
+      .encodeBinary(CaseThree, UTF8)
+      .get
+      .toString(UTF8) shouldEqual "CaseThree"
   }
 
 }

@@ -13,7 +13,12 @@ object Packet {
  *
  * Converts content into byte format expected by Postgres.
  */
-case class Packet(code: Option[Char], length: Int, content: ByteBuf, inSslNegotation: Boolean = false) {
+case class Packet(
+    code: Option[Char],
+    length: Int,
+    content: ByteBuf,
+    inSslNegotation: Boolean = false
+) {
   def encode(): ByteBuf = {
     val result = Unpooled.buffer()
     code.map { c =>
@@ -39,13 +44,13 @@ class PacketBuilder(val code: Option[Char]) {
   }
 
   def writeBytes(bytes: Array[Byte]) = {
-	  underlying.writeBytes(bytes)
-	  this
+    underlying.writeBytes(bytes)
+    this
   }
 
   def writeBuf(bytes: ByteBuf) = {
-	  underlying.writeBytes(bytes)
-	  this
+    underlying.writeBytes(bytes)
+    this
   }
 
   def writeChar(char: Char) = {

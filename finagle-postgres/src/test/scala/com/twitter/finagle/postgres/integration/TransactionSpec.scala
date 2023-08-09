@@ -13,14 +13,14 @@ class TransactionSpec extends Spec {
     useSsl = sys.env.getOrElse("USE_PG_SSL", "0") == "1"
   } yield {
 
-    val client = Postgres.Client()
+    val client = Postgres
+      .Client()
       .withCredentials(user, password)
       .database(dbname)
       .conditionally(useSsl, _.withTransport.tlsWithoutValidation)
       .newRichClient(hostPort)
 
-    Await.result(client.query(
-      """
+    Await.result(client.query("""
         |DROP TABLE IF EXISTS transaction_test;
         |CREATE TABLE transaction_test(id integer primary key);
       """.stripMargin))
@@ -29,23 +29,29 @@ class TransactionSpec extends Spec {
 
       "commit if the transaction future is successful" in {
         Await.result {
-          client.inTransaction {
-            c => for {
+          client.inTransaction { c =>
+            for {
               _ <- c.prepareAndExecute("DELETE FROM transaction_test")
               _ <- c.prepareAndExecute("INSERT INTO transaction_test VALUES(1)")
               _ <- c.prepareAndExecute("INSERT INTO transaction_test VALUES(2)")
             } yield ()
           }
         }
-        val count = Await.result(client.prepareAndQuery("SELECT COUNT(*)::int4 AS count FROM transaction_test WHERE id IN (1,2)") {
-          row => row.get[Int]("count")
-        }.map(_.head))
+        val count = Await.result(
+          client
+            .prepareAndQuery(
+              "SELECT COUNT(*)::int4 AS count FROM transaction_test WHERE id IN (1,2)"
+            ) { row =>
+              row.get[Int]("count")
+            }
+            .map(_.head)
+        )
         assert(count == 2)
       }
 
       "rollback the transaction if the transaction future fails" in {
-        val failed = client.inTransaction {
-          c => for {
+        val failed = client.inTransaction { c =>
+          for {
             _ <- c.prepareAndExecute("DELETE FROM transaction_test")
             _ <- c.prepareAndExecute("INSERT INTO transaction_test VALUES(3)")
             _ <- c.prepareAndExecute("INSERT INTO transaction_test VALUES(4)")
@@ -56,9 +62,12 @@ class TransactionSpec extends Spec {
 
         val failedResult = Await.result(failed)
 
-        val inTable = Await.result(client.prepareAndQuery("SELECT * FROM transaction_test") {
-          row => row.get[Int]("id")
-        }).toList.sorted
+        val inTable = Await
+          .result(client.prepareAndQuery("SELECT * FROM transaction_test") {
+            row => row.get[Int]("id")
+          })
+          .toList
+          .sorted
         assert(inTable == List(1, 2))
       }
 

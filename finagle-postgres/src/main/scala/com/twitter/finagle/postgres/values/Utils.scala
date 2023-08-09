@@ -20,7 +20,9 @@ object Buffers {
     @tailrec
     def countChars(buf: ByteBuf, count: Int): Int = {
       if (!buffer.isReadable) {
-        throw new IndexOutOfBoundsException("buffer ended, but '\\0' was not found")
+        throw new IndexOutOfBoundsException(
+          "buffer ended, but '\\0' was not found"
+        )
       } else if (buffer.readByte() == 0) {
         count
       } else {
@@ -57,10 +59,17 @@ object Md5Encryptor {
    * Encrypt a user/password combination using the MD5 algorithm.
    */
   @throws(classOf[IllegalArgumentException])
-  def encrypt(user: Array[Byte], password: Array[Byte], salt: Array[Byte]): Array[Byte] = {
+  def encrypt(
+      user: Array[Byte],
+      password: Array[Byte],
+      salt: Array[Byte]
+  ): Array[Byte] = {
 
     require(user != null && user.length > 0, "user should not be empty")
-    require(password != null && password.length > 0, "password should not be empty")
+    require(
+      password != null && password.length > 0,
+      "password should not be empty"
+    )
     require(salt != null && salt.length > 0, "salt should not be empty")
 
     val inner = MessageDigest.getInstance("MD5")
@@ -76,11 +85,12 @@ object Md5Encryptor {
 }
 
 object Hex {
-  def valueOf(buf: Array[Byte]): String = buf.map("%02X" format _).mkString.toLowerCase
+  def valueOf(buf: Array[Byte]): String =
+    buf.map("%02X" format _).mkString.toLowerCase
 }
 
 object Convert {
-  def asShort(i : Int) = i.asInstanceOf[Short]
+  def asShort(i: Int) = i.asInstanceOf[Short]
 }
 
 object Strings {

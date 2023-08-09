@@ -20,21 +20,21 @@ trait PostgresClient {
    * Issue an arbitrary SQL query and get the response.
    */
   def query(
-    sql: String
+      sql: String
   ): Future[QueryResponse]
 
   /*
    * Issue a single SELECT query and get the response.
    */
   def fetch(
-    sql: String
+      sql: String
   ): Future[SelectResult]
 
   /*
    * Execute an update command (e.g., INSERT, DELETE) and get the response.
    */
   def executeUpdate(
-    sql: String
+      sql: String
   ): Future[OK]
 
   def execute(sql: String): Future[OK]
@@ -49,40 +49,45 @@ trait PostgresClient {
   /*
    * Issue a single, prepared SELECT query and wrap the response rows with the provided function.
    */
-  def prepareAndQuery[T](sql: String, params: Param[_]*)(f: Row => T): Future[Seq[T]] =
+  def prepareAndQuery[T](sql: String, params: Param[_]*)(
+      f: Row => T
+  ): Future[Seq[T]] =
     prepareAndQueryToStream(sql, params: _*)(f).toSeq
-  def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: Row => T): AsyncStream[T]
+  def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(
+      f: Row => T
+  ): AsyncStream[T]
 
   /*
    * Issue a single, prepared arbitrary query without an expected result set, and provide the affected row count
    */
   def prepareAndExecute(
-    sql: String, params: Param[_]*
+      sql: String,
+      params: Param[_]*
   ): Future[Int]
 
-  /**
-    * Close the underlying connection pool and make this Client eternally down
+  /** Close the underlying connection pool and make this Client eternally down
     *
     * @return
     */
   def close(): Future[Unit]
 
-  /**
-   * The current availability [[Status]] of this client.
-   */
+  /** The current availability [[Status]] of this client.
+    */
   def status: Status
 
-  /**
-   * Determines whether this client is available (can accept requests
-   * with a reasonable likelihood of success).
-   */
+  /** Determines whether this client is available (can accept requests with a
+    * reasonable likelihood of success).
+    */
   def isAvailable: Boolean
 }
 
-
 object PostgresClient {
 
-  case class TypeSpecifier(receiveFunction: String, typeName: String, elemOid: Long = 0)
+  case class TypeSpecifier(
+      receiveFunction: String,
+      typeName: String,
+      elemOid: Long = 0
+  )
 
   val defaultTypes = Map(
     Types.BOOL -> TypeSpecifier("boolrecv", "bool"),
