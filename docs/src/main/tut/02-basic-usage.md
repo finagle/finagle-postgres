@@ -11,7 +11,7 @@ the client builder accessed by `com.twitter.finagle.Postgres.Client()`:
 
 ```scala mdoc:invisible
 import com.twitter.util.Await
-object dontrun {
+//object dontrun {
 ```
 
 ```scala mdoc
@@ -30,7 +30,7 @@ val client = Postgres.Client()
 ```scala mdoc:invisible
 
     Await.result(client.close())
-}
+//}
 ```
 
 ## Configuration
