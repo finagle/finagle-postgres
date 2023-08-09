@@ -16,7 +16,15 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
+
+ThisBuild / tlFatalWarnings := false
 ThisBuild / tlCiHeaderCheck := false
+ThisBuild / githubWorkflowBuildPreamble ++= Seq(
+  WorkflowStep.Run(
+    commands = List("docker-compose up -d"),
+    name = Some("Start up Postgres")
+  )
+)
 
 val Scala213 = "2.13.8"
 ThisBuild / crossScalaVersions := Seq(Scala213)
