@@ -1,8 +1,3 @@
----
-title: Simple Queries
-layout: default
----
-
 # Simple queries
 
 Finagle-postgres can use PostgreSQL's simple query interface to perform queries. These queries are limited, because they
@@ -12,7 +7,7 @@ could be a vector for SQL injection attacks.
 
 Still, it can be useful to try them out.
 
-```scala mdoc:invisible
+```scala mdoc:compile-only
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -26,12 +21,6 @@ val client = {
     .newRichClient(sys.env("PG_HOST_PORT"))
 }
   
-Await.result(client.execute("DROP TABLE IF EXISTS demo"))
-```
-
-```scala mdoc
-import com.twitter.util.Await
-
 // execute a query that has no results - i.e. CREATE TABLE, UPDATE, INSERT, DELETE, etc.
 val create = Await.result {
   client.execute("CREATE TABLE demo(id serial PRIMARY KEY, foo text)")
@@ -90,8 +79,4 @@ decode the column. Currently, instances are supplied for the following Scala typ
 New `ValueDecoder` instances can be specified for other types; take a look at the existing instances for guidance. We
 are happy to accept instances for built-in Scala or Java types into finagle-postgres!
 
-Next, read about [Parameterized Queries](04-parameterized-queries.html)
-
-```scala mdoc:invisible
-Await.result(client.close())
-```
+Next, read about [Parameterized Queries](04-parameterized-queries.md)

@@ -1,8 +1,3 @@
----
-layout: default
-title: finagle-postgres
----
-
 # finagle-postgres
 
 Finagle-postgres is an asynchronous [PostgreSQL](https://postgresql.org) client library for [Finagle](https://twitter.github.io/finagle).
@@ -20,12 +15,7 @@ It provides the following features:
 
 
 ## Documentation
-To get started with finagle-postgres, check out the [Guide](doc/).
-
-Detailed API documentation is available:
-
-* For the [latest release build](api/latest)
-* For the [latest snapshot build](api/latest-snapshot)
+To get started with finagle-postgres, check out the [Guide](index.md).
 
 ## License
 

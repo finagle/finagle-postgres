@@ -491,7 +491,7 @@ class IntegrationSpec extends Spec {
               number.toString,
               number,
               number,
-              convert(true)
+              true: Boolean
             )
           case number =>
             client.prepareAndExecute(

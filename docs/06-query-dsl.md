@@ -1,8 +1,3 @@
----
-title: Query DSL
-layout: default
----
-
 # Query DSL
 
 Currently, finagle-postgres offers a rudimentary DSL which provides a slightly nicer syntax for defining and running
@@ -11,7 +6,7 @@ queries. The DSL lives in the `com.twitter.finagle.postgres.generic._` import.
 The abstraction provided is the `Query[T]` data type, which captures a query and its parameters. It's used in conjunction
 with the `QueryContext` implicit enrichment, which provides a `sql` String interpolator:
 
-```scala mdoc:invisible
+```scala mdoc:compile-only
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -26,11 +21,9 @@ val client = {
 }  
 Await.result(client.execute("DROP TABLE IF EXISTS demo"))
 Await.result(client.prepareAndExecute("CREATE TABLE demo(id serial PRIMARY KEY, foo text)"))
-Await.result(client.prepareAndExecute("INSERT INTO demo(foo) VALUES ($1)", "foo"))
+Await.result(client.prepareAndExecute("INSERT INTO demo(foo) VALUES ($1)", "foo": String))
 case class Demo(id: Int, foo: String)
-```
 
-```scala mdoc
 import com.twitter.finagle.postgres.generic._
 
 def insert(foo: String) = sql"INSERT INTO demo (foo) VALUES ($foo)"
@@ -57,7 +50,7 @@ For other types of values (like single-column results, for example) there is als
 from the current type of a query (i.e. `Row` for a freshly created `Query[Row]`) to some other type `T`, and appends the
 function to the continuation that will map the rows. For example:
 
-```scala mdoc
+```scala 
 def count(input: String) = sql"SELECT count(*) FROM demo WHERE foo = $input".map {
   row => row.get[Long]("count")
 }
@@ -71,6 +64,3 @@ class` with a `count` column); since there is only one row expected, we also `ma
 just the first row using `_.head`.
 
 A more in-depth query DSL is planned, but this is the extent of what's currently offered.
-```scala mdoc:invisible
-Await.result(client.close())
-```

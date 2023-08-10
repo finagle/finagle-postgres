@@ -1,13 +1,8 @@
-## finagle-postgres
+# Finagle-postgres guide
 
-### Usage
-
-This library is currently available for Scala binary versions 2.13 and 3.1.
-
-To use the latest version, include the following in your `build.sbt`:
-
-```scala
-libraryDependencies ++= Seq(
-  "io.github.deal-engine" %% "finagle-postgres" % "@VERSION@"
-)
-```
+1. [Installation](01-installation.md)
+2. [Basic Usage](02-basic-usage.md)
+3. [Simple Queries](03-simple-queries.md)
+4. [Parameterized Queries](04-parameterized-queries.md)
+5. [Automatic Case Class Marshalling](05-automatic-case-class-marshalling.md)
+6. [Query DSL](06-query-dsl.md)

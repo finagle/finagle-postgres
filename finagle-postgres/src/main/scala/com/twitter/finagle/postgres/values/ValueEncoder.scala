@@ -1,15 +1,16 @@
 package com.twitter.finagle.postgres.values
 
+import com.twitter.finagle.postgres.Param
+
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.time._
 import java.time.temporal.JulianFields
 import java.util.UUID
-
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 
-import scala.language.existentials
+import scala.language.{existentials, implicitConversions}
 
 /** Typeclass responsible for encoding a parameter of type T for sending to
   * postgres
@@ -39,6 +40,9 @@ trait ValueEncoder[T] {
 }
 
 object ValueEncoder extends LowPriorityEncoder {
+
+  implicit def convert[T](t: T)(implicit encoder: ValueEncoder[T]): Param[T] =
+    Param(t)
 
   def apply[T](implicit encoder: ValueEncoder[T]) = encoder
 

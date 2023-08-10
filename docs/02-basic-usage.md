@@ -63,5 +63,5 @@ Since you'll typically will want to interact with Postgres at the level of queri
 requests and responses, use `.newRichClient(destination: String)` to create a `com.twitter.finagle.postgres.Client`,
 which provides the main API for using the PostgreSQL database.
 
-Next, read about [Simple Queries](03-simple-queries.html)
+Next, read about [Simple Queries](03-simple-queries.md)
 

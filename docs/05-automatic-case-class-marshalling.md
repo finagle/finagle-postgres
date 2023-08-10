@@ -1,8 +1,3 @@
----
-title: Automatic Case Class Marshalling
-layout: default
----
-
 # Automatic `case class` marshalling
 
 As we've seen earlier, `SELECT` queries using the finagle-postgres API must specify a function which operates on a `Row`
@@ -11,7 +6,7 @@ function: `Future[Seq[T]]`.
 
 This typically results in a pattern like this:
 
-```scala mdoc:invisible
+```scala mdoc:compile-only
 import com.twitter.finagle.Postgres
 import com.twitter.util.Await
 // create the client based on environment variables
@@ -27,10 +22,8 @@ val client = {
 
 Await.result(client.execute("DROP TABLE IF EXISTS demo"))
 Await.result(client.prepareAndExecute("CREATE TABLE demo(id serial PRIMARY KEY, foo text)"))
-Await.result(client.prepareAndExecute("INSERT INTO demo (foo) VALUES ($1)", "foo"))
-```
+Await.result(client.prepareAndExecute("INSERT INTO demo (foo) VALUES ($1)", "foo": String))
 
-```scala mdoc
 case class Demo(id: Int, foo: String)
 
 val select = client.prepareAndQuery("SELECT * FROM demo") {
@@ -47,7 +40,7 @@ As you can see, this probably gets verbose and repetitive for rows which have a 
 there must be a better way, and thanks to [shapeless](https://github.com/milessabin/shapeless), there is! Importing
 `com.twitter.finagle.postgres.generic._` enriches `client` with an additional operation, `queryAs`:
 
-```scala mdoc
+```scala
 import com.twitter.finagle.postgres.generic._
 
 val result = Await.result {
@@ -59,8 +52,4 @@ This method automatically decodes the rows into the specified case class. By def
 for accessing the fields in the table; this can be overridden by importing `com.twitter.finagle.postgres.generic.ColumnNamer.identity._`
 to instead do nothing to convert column names.
 
-Next, read about [Query DSL](06-query-dsl.html)
-
-```scala mdoc:invisible
-Await.result(client.close())
-```
+Next, read about [Query DSL](06-query-dsl.md)

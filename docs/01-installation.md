@@ -1,8 +1,3 @@
----
-title: Installation
-layout: default
----
-
 # Installation
 
 Add the following to build.sbt
@@ -17,4 +12,4 @@ libraryDependencies ++= Seq(
 
 This brings in the latest snapshot version, which is `0.4.0-SNAPSHOT`.
 
-Next, read about [Basic Usage](02-basic-usage.html)
+Next, read about [Basic Usage](02-basic-usage.md)

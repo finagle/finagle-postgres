@@ -15,7 +15,7 @@ ThisBuild / developers := List(
 ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
-ThisBuild / tlSitePublishBranch := Some("main")
+ThisBuild / tlSitePublishBranch := Some("master")
 
 ThisBuild / tlFatalWarnings := false
 ThisBuild / tlCiHeaderCheck := false
@@ -50,6 +50,9 @@ lazy val `finagle-postgres` = crossProject(JVMPlatform)
   .in(file("finagle-postgres"))
   .settings(
     name := "finagle-postgres",
+    scalacOptions ++= Seq(
+      "-language:implicitConversions"
+    ),
     libraryDependencies ++= Seq(
       "com.twitter" %% "finagle-core" % Versions.twitter,
       "com.twitter" %% "finagle-netty4" % Versions.twitter,
@@ -83,4 +86,13 @@ lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
 lazy val docs = project
   .in(file("site"))
   .enablePlugins(TypelevelSitePlugin)
-  .dependsOn(`finagle-postgres`.jvm)
+  .settings(
+    tlSiteIsTypelevelProject := None,
+    tlSiteHelium ~= {
+      import laika.helium.config._
+      _.site.topNavigationBar(homeLink =
+        IconLink.internal(laika.ast.Path.Root / "main.md", HeliumIcon.home)
+      )
+    }
+  )
+  .dependsOn(`finagle-postgres`.jvm, `finagle-postgres-shapeless`.jvm)
