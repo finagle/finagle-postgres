@@ -38,12 +38,17 @@ val Versions = {
     val scalaTestCheck = "3.2.16.0"
     val scalacheck = "1.17.0"
     val scalamock = "5.2.0"
+    val quill = "4.6.1"
   }
   new Versions
 }
 
 lazy val root =
-  tlCrossRootProject.aggregate(`finagle-postgres`, `finagle-postgres-shapeless`)
+  tlCrossRootProject.aggregate(
+    `finagle-postgres`,
+    `finagle-postgres-shapeless`,
+    `finagle-postgres-quill`
+  )
 
 lazy val `finagle-postgres` = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -63,6 +68,21 @@ lazy val `finagle-postgres` = crossProject(JVMPlatform)
       "io.circe" %% "circe-testing" % Versions.circeTesting % Test
     )
   )
+
+lazy val `finagle-postgres-quill` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("quill-finagle-postgres"))
+  .settings(
+    name := "finagle-postgres-quill",
+    tlVersionIntroduced := Map("2.13" -> "0.14.1"),
+    libraryDependencies ++= Seq(
+      "io.getquill" %% "quill-sql" % Versions.quill,
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
+      "org.scalatestplus" %% "scalacheck-1-17" % Versions.scalaTestCheck % Test,
+      "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test
+    )
+  )
+  .dependsOn(`finagle-postgres`)
 
 lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
