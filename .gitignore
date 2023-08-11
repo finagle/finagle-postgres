@@ -1,12 +1,31 @@
-target
-*.class
-*.iml
-*.iws
-*.ipr
-.idea
-.classpath
-.project
-.cache
-logging.properties
+# sbt
+target/
+project/plugins/project/
+boot/
+lib_managed/
+src_managed/
+
+# vim
+*.sw?
+
+# intellij
+.idea/
+
+# ignore [ce]tags files
+tags
+
+# metals
+.metals/
+.bsp/
+.bloop/
+metals.sbt
+.vscode
+
+# npm
+node_modules/
+
+#direnv
+.direnv/
+
+#macOS
 .DS_Store
-local.*

@@ -16,11 +16,14 @@ import shapeless.{HList, LabelledGeneric}
 
 class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
 
-
   val row = mock[Row]
 
   trait MockClient {
-    def prepareAndQuery[T](sql: String, params: List[Param[_]], f: Row => T): Seq[T]
+    def prepareAndQuery[T](
+        sql: String,
+        params: List[Param[_]],
+        f: Row => T
+    ): Seq[T]
     def prepareAndExecute(sql: String, params: List[Param[_]]): Int
   }
 
@@ -28,7 +31,9 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
 
   val client = new PostgresClient {
 
-    def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(f: (Row) => T): AsyncStream[T] =
+    def prepareAndQueryToStream[T](sql: String, params: Param[_]*)(
+        f: (Row) => T
+    ): AsyncStream[T] =
       AsyncStream.fromSeq(mockClient.prepareAndQuery(sql, params.toList, f))
 
     def prepareAndExecute(sql: String, params: Param[_]*): Future[Int] =
@@ -56,9 +61,13 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
 
   }
 
-  def expectQuery[U](expectedQuery: String, expectedParams: Param[_]*)(query: Query[U]) = {
-    mockClient.prepareAndQuery[U] _ expects (expectedQuery, expectedParams.toList, *) onCall {
-      (q, p, fn) => Seq(fn(row))
+  def expectQuery[U](expectedQuery: String, expectedParams: Param[_]*)(
+      query: Query[U]
+  ) = {
+    mockClient.prepareAndQuery[
+      U
+    ] _ expects (expectedQuery, expectedParams.toList, *) onCall { (q, p, fn) =>
+      Seq(fn(row))
     }
     Await.result(query.run(client)).head
   }
@@ -86,28 +95,44 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p1 = "foo"
         val p2 = 22
 
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1"
         } shouldEqual row
       }
 
       "tuple params for IN operator" in {
         val p1 = ("foo", "bar")
-        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", Param("foo"), Param("bar")) {
+        expectQuery(
+          "SELECT * FROM foo WHERE a IN ($1, $2)",
+          Param("foo"),
+          Param("bar")
+        ) {
           sql"SELECT * FROM foo WHERE a IN ($p1)"
         }
       }
 
       "list params for IN operator" in {
         val p1 = List("foo", "bar")
-        expectQuery("SELECT * FROM foo WHERE a IN ($1, $2)", Param("foo"), Param("bar")) {
+        expectQuery(
+          "SELECT * FROM foo WHERE a IN ($1, $2)",
+          Param("foo"),
+          Param("bar")
+        ) {
           sql"SELECT * FROM foo WHERE a IN ($p1)"
         }
       }
 
       "Columns and Values" in {
         case class Foo(foo: String, bar: Int)
-        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2)", Param("fooValue"), Param(22)) {
+        expectQuery(
+          "INSERT INTO foo (foo, bar) VALUES ($1, $2)",
+          Param("fooValue"),
+          Param(22)
+        ) {
           sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(Foo("fooValue", 22))})"
         }
       }
@@ -115,24 +140,38 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
       "Columns and Values, Columns twice (for RETURNING)" in {
         case class Foo(foo: String, bar: Int)
         val foo = Foo("fooValue", 22)
-        expectQuery("INSERT INTO foo (foo, bar) VALUES ($1, $2) RETURNING foo, bar", Param("fooValue"), Param(22)) {
+        expectQuery(
+          "INSERT INTO foo (foo, bar) VALUES ($1, $2) RETURNING foo, bar",
+          Param("fooValue"),
+          Param(22)
+        ) {
           sql"INSERT INTO foo (${Columns[Foo]}) VALUES (${Values(foo)}) RETURNING ${Columns[Foo]}"
         }
       }
 
       "Updates" in {
-        val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
+        val update =
+          Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
         val bar = 2
-        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2", Param("newFoo"), Param(2)) {
+        expectQuery(
+          "UPDATE foo SET foo = $1 WHERE bar = $2",
+          Param("newFoo"),
+          Param(2)
+        ) {
           sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar"
         }
       }
 
       "Updates with Columns (for RETURNING)" in {
         case class Foo(foo: String, bar: Int)
-        val update = Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
+        val update =
+          Record(foo = Some("newFoo"): Option[String], bar = None: Option[Int])
         val bar = 2
-        expectQuery("UPDATE foo SET foo = $1 WHERE bar = $2 RETURNING foo, bar", Param("newFoo"), Param(2)) {
+        expectQuery(
+          "UPDATE foo SET foo = $1 WHERE bar = $2 RETURNING foo, bar",
+          Param("newFoo"),
+          Param(2)
+        ) {
           sql"UPDATE foo SET ${Updates(update)} WHERE bar = $bar RETURNING ${Columns[Foo]}"
         }
       }
@@ -142,9 +181,15 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
       val p1 = "foo"
       val p2 = 22
 
-      (row.getOption[Int](_:String)(_: ValueDecoder[Int])) expects ("bar", *) returning Some(2)
+      (row.getOption[Int](_: String)(
+        _: ValueDecoder[Int]
+      )) expects ("bar", *) returning Some(2)
 
-      expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+      expectQuery(
+        "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+        p1,
+        p2
+      ) {
         sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1".map {
           row => row.getOption[Int]("bar")
         }
@@ -159,10 +204,18 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p1 = "foo"
         val p2 = 22
 
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
 
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1".as[Foo]
         } shouldEqual Foo(2, "two")
       }
@@ -172,17 +225,33 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p1 = "foo"
         val p2 = 22
 
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.getOption[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning Some("two")
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.getOption[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning Some("two")
 
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1".as[Foo]
         } shouldEqual Foo(2, Some("two"))
 
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.getOption[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning None
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.getOption[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning None
 
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           sql"SELECT * FROM foo WHERE p1 = $p1 AND p2 = $p2 ORDER BY p1".as[Foo]
         } shouldEqual Foo(2, None)
       }
@@ -195,8 +264,12 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p2 = 22
         val first = sql"SELECT * FROM foo WHERE p1 = $p1"
         val second = sql" AND p2 = $p2"
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
         expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2", p1, p2) {
           (first ++ second).as[Foo]
         } shouldEqual Foo(2, "two")
@@ -207,8 +280,12 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p1 = "foo"
         val first = sql"SELECT * FROM foo WHERE p1 = $p1"
         val second = " ORDER BY p1"
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
         expectQuery("SELECT * FROM foo WHERE p1 = $1 ORDER BY p1", p1) {
           (first ++ second).as[Foo]
         } shouldEqual Foo(2, "two")
@@ -220,9 +297,17 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p2 = 22
         val first = sql"SELECT * FROM foo WHERE p1 = $p1"
         val second = sql" AND p2 = $p2"
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           (first ++ second ++ " ORDER BY p1").as[Foo]
         } shouldEqual Foo(2, "two")
       }
@@ -233,9 +318,17 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p2 = 22
         val first = sql"SELECT * FROM foo WHERE p1 = $p1"
         val second = sql"p2 = $p2"
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1", p1, p2) {
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = $2 ORDER BY p1",
+          p1,
+          p2
+        ) {
           (first ++ " AND " ++ second ++ " ORDER BY p1").as[Foo]
         } shouldEqual Foo(2, "two")
       }
@@ -246,9 +339,16 @@ class QuerySpec extends AnyFreeSpec with Matchers with MockFactory {
         val p2 = 22
         val first = sql"SELECT * FROM foo WHERE p1 = $p1"
         val second = sql"p2 = 'foo'"
-        (row.get[Int](_: String)(_: ValueDecoder[Int])) expects("i", *) returning 2
-        (row.get[String](_: String)(_: ValueDecoder[String])) expects("s", *) returning "two"
-        expectQuery("SELECT * FROM foo WHERE p1 = $1 AND p2 = 'foo' ORDER BY p1", p1) {
+        (row.get[Int](_: String)(
+          _: ValueDecoder[Int]
+        )) expects ("i", *) returning 2
+        (row.get[String](_: String)(
+          _: ValueDecoder[String]
+        )) expects ("s", *) returning "two"
+        expectQuery(
+          "SELECT * FROM foo WHERE p1 = $1 AND p2 = 'foo' ORDER BY p1",
+          p1
+        ) {
           (first ++ " AND " ++ second ++ " ORDER BY p1").as[Foo]
         } shouldEqual Foo(2, "two")
       }

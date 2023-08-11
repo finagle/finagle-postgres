@@ -1,133 +1,118 @@
-import ReleaseTransformations._
+// https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
+ThisBuild / tlBaseVersion := "0.14" // your current series x.y
 
-lazy val buildSettings = Seq(
-  organization := "io.github.finagle",
-  scalaVersion := "2.13.2",
-  crossScalaVersions := Seq("2.12.11", "2.13.2"),
-  fork in Test := true
+ThisBuild / organization := "io.github.deal-engine"
+ThisBuild / organizationName := "Deal Engine"
+ThisBuild / startYear := Some(2023)
+ThisBuild / licenses := Seq(License.Apache2)
+ThisBuild / developers := List(
+  // your GitHub handle and name
+  tlGitHubDev("ivanmoreau", "Iván Molina Rebolledo"),
+  tlGitHubDev("IvanAtDealEngine", "Iván Molina Rebolledo")
 )
 
-def circeTestingVersion(scalaV: String) = {
-  if (scalaV.startsWith("2.11")) "0.11.2" else "0.12.3"
+// publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
+ThisBuild / tlSonatypeUseLegacyHost := false
+
+// publish website from this branch
+ThisBuild / tlSitePublishBranch := Some("master")
+
+ThisBuild / tlFatalWarnings := false
+ThisBuild / tlCiHeaderCheck := false
+ThisBuild / githubWorkflowBuildPreamble ++= Seq(
+  WorkflowStep.Run(
+    commands = List("docker-compose up -d"),
+    name = Some("Start up Postgres")
+  )
+)
+
+val Scala213 = "2.13.8"
+ThisBuild / crossScalaVersions := Seq(Scala213)
+ThisBuild / scalaVersion := Scala213 // the default Scala
+
+val Versions = {
+  class Versions {
+    val twitter = "22.12.0"
+    val circeTesting = "0.14.5"
+    val scalaTest = "3.2.16"
+    val scalaTestCheck = "3.2.16.0"
+    val scalacheck = "1.17.0"
+    val scalamock = "5.2.0"
+    val quill = "4.6.1"
+  }
+  new Versions
 }
 
-val baseSettings = Seq(
-  resolvers += Resolver.bintrayRepo("jeremyrsmith", "maven"),
-  libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-core" % "21.4.0",
-    "com.twitter" %% "finagle-netty4" % "21.4.0",
-    "org.scalatest" %% "scalatest" % "3.2.8" % "test,it",
-    "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % "test,it",
-    "org.scalacheck" %% "scalacheck" % "1.15.3" % "test,it",
-    "org.scalamock" %% "scalamock" % "4.4.0" % "test,it",
-    "io.circe" %% "circe-testing" % circeTestingVersion(scalaVersion.value) % "test,it"
+lazy val root =
+  tlCrossRootProject.aggregate(
+    `finagle-postgres`,
+    `finagle-postgres-shapeless`,
+    `finagle-postgres-quill`
   )
-)
 
-lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishArtifact := true,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
-  },
-  publishArtifact in Test := false,
-  pgpSecretRing := file("local.secring.gpg"),
-  pgpPublicRing := file("local.pubring.gpg"),
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  releaseIgnoreUntrackedFiles := true,
-  licenses := Seq(
-    "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
-  ),
-  homepage := Some(url("https://finagle.github.io/finagle-postgres")),
-  autoAPIMappings := true,
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/finagle/finagle-postgres"),
-      "scm:git:git@github.com:finagle/finagle-postgres.git"
-    )
-  ),
-  releaseVersionBump := sbtrelease.Version.Bump.Minor,
-  releaseProcess := {
-    Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      releaseStepCommandAndRemaining("+clean"),
-      releaseStepCommandAndRemaining("+test"),
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
-      pushChanges
-    )
-  },
-  pomExtra :=
-    <developers>
-      <developer>
-        <id>finagle</id>
-        <name>Finagle OSS</name>
-        <url>https://twitter.com/finagle</url>
-      </developer>
-    </developers>
-)
-
-lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
-
-lazy val shapelessRef = LocalProject("finagle-postgres-shapeless")
-
-lazy val `finagle-postgres` = project
-  .in(file("."))
-  .settings(moduleName := "finagle-postgres")
-  .settings(allSettings)
-  .configs(IntegrationTest)
-  .aggregate(shapelessRef)
-
-lazy val `finagle-postgres-shapeless` = project
-  .settings(moduleName := "finagle-postgres-shapeless")
-  .settings(allSettings)
+lazy val `finagle-postgres` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("finagle-postgres"))
   .settings(
+    name := "finagle-postgres",
+    scalacOptions ++= Seq(
+      "-language:implicitConversions"
+    ),
     libraryDependencies ++= Seq(
-      "com.chuusai" %% "shapeless" % "2.3.10",
-      "io.github.jeremyrsmith" %% "patchless-core" % "1.0.7"
+      "com.twitter" %% "finagle-core" % Versions.twitter,
+      "com.twitter" %% "finagle-netty4" % Versions.twitter,
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
+      "org.scalatestplus" %% "scalacheck-1-17" % Versions.scalaTestCheck % Test,
+      "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test,
+      "org.scalamock" %% "scalamock" % Versions.scalamock % Test,
+      "io.circe" %% "circe-testing" % Versions.circeTesting % Test
     )
   )
-  .configs(IntegrationTest)
+
+lazy val `finagle-postgres-quill` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("quill-finagle-postgres"))
+  .settings(
+    name := "finagle-postgres-quill",
+    tlVersionIntroduced := Map("2.13" -> "0.14.1"),
+    libraryDependencies ++= Seq(
+      "io.getquill" %% "quill-sql" % Versions.quill,
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
+      "org.scalatestplus" %% "scalacheck-1-17" % Versions.scalaTestCheck % Test,
+      "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test
+    )
+  )
   .dependsOn(`finagle-postgres`)
 
-val scaladocVersionPath = settingKey[String]("Path to this version's ScalaDoc")
-val scaladocLatestPath = settingKey[String]("Path to latest ScalaDoc")
-val tutPath = settingKey[String]("Path to tutorials")
+lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("finagle-postgres-shapeless"))
+  .settings(
+    name := "finagle-postgres-shapeless",
+    libraryDependencies ++= Seq(
+      "com.chuusai" %% "shapeless" % "2.3.10",
+      "io.github.jeremyrsmith" %% "patchless-core" % "1.0.7",
+      "com.twitter" %% "finagle-core" % Versions.twitter,
+      "com.twitter" %% "finagle-netty4" % Versions.twitter,
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
+      "org.scalatestplus" %% "scalacheck-1-17" % Versions.scalaTestCheck % Test,
+      "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test,
+      "org.scalamock" %% "scalamock" % Versions.scalamock % Test,
+      "io.circe" %% "circe-testing" % Versions.circeTesting % Test
+    )
+  )
+  .dependsOn(`finagle-postgres`)
 
 lazy val docs = project
-  .settings(moduleName := "finagle-postgres-docs", buildSettings)
-  .enablePlugins(GhpagesPlugin, ScalaUnidocPlugin)
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
   .settings(
-    scaladocVersionPath := ("api/" + version.value),
-    scaladocLatestPath := (if (isSnapshot.value) "api/latest-snapshot"
-                           else "api/latest"),
-    tutPath := "doc",
-    includeFilter in makeSite := (includeFilter in makeSite).value || "*.md" || "*.yml",
-    addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
-      scaladocLatestPath
-    ),
-    addMappingsToSiteDir(
-      mappings in (ScalaUnidoc, packageDoc),
-      scaladocVersionPath
-    ),
-    ghpagesNoJekyll := false,
-    git.remoteRepo := "git@github.com:finagle/finagle-postgres"
+    tlSiteIsTypelevelProject := None,
+    tlSiteHelium ~= {
+      import laika.helium.config._
+      _.site.topNavigationBar(homeLink =
+        IconLink.internal(laika.ast.Path.Root / "main.md", HeliumIcon.home)
+      )
+    }
   )
-  .dependsOn(`finagle-postgres`, `finagle-postgres-shapeless`)
-
-parallelExecution in Test := false
-
-scalacOptions ++= Seq(
-  "-deprecation"
-)
+  .dependsOn(`finagle-postgres`.jvm, `finagle-postgres-shapeless`.jvm)

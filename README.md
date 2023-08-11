@@ -1,7 +1,6 @@
 # Finagle Postgres
-[![Build status](https://img.shields.io/travis/finagle/finagle-postgres/master.svg)](http://travis-ci.org/finagle/finagle-postgres)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.finagle/finagle-postgres_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.finagle/finagle-postgres_2.12)
-[![Join the chat at https://gitter.im/finagle/finagle-postgres](https://badges.gitter.im/finagle/finagle-postgres.svg)](https://gitter.im/finagle/finagle-postgres?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Continuous Integration](https://github.com/deal-engine/finagle-postgres/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/deal-engine/finagle-postgres/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.deal-engine/finagle-postgres_2.13.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.deal-engine/finagle-postgres_2.13)
 
 This library provides [PostgreSQL][postgres] database support for
 [Finagle][finagle].
@@ -13,7 +12,7 @@ This library provides [PostgreSQL][postgres] database support for
 [vkostyukov]: https://github.com/vkostyukov/finagle-postgres
 
 ## Documentation
-See [the GitHub Pages](https://finagle.github.io/finagle-postgres)
+See [the GitHub Pages](https://deal-engine.github.io/finagle-postgres)
 
 ## Using the Postgres client
 
@@ -24,7 +23,7 @@ dependency.
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.github.finagle" %% "finagle-postgres" % "0.12.0"
+  "io.github.deal-engine" %% "finagle-postgres" % "<release>"
 )
 ```
 
@@ -72,11 +71,14 @@ With the database and variables in place, all tests will be executed. More detai
 See [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributors
+* [Iván Molina Rebolledo](https://github.com/ivanmoreau) (current maintainer)
+
+### Past
 * [Mairbek Khadikov][mairbek] (project creator)
 * [The Factory][thefactory]
 * [Vladimir Kostyukov][vkostyukov]
 * [Jeremy Smith](https://github.com/jeremyrsmith)
-* [Leon Maia](https://github.com/leonmaia) (current maintainer)
+* [Leon Maia](https://github.com/leonmaia)
 
 ## License
 
