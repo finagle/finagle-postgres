@@ -39,6 +39,7 @@ val Versions = {
     val scalacheck = "1.17.0"
     val scalamock = "5.2.0"
     val quill = "4.6.1"
+    val weaver = "0.8.3"
   }
   new Versions
 }
@@ -82,7 +83,7 @@ lazy val `finagle-postgres-quill` = crossProject(JVMPlatform)
       "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test
     )
   )
-  .dependsOn(`finagle-postgres`)
+  .dependsOn(`finagle-postgres`, `weaver-twitter-future` % "compile->test;")
 
 lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -102,6 +103,34 @@ lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
     )
   )
   .dependsOn(`finagle-postgres`)
+
+lazy val `weaver-twitter-future-core` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("weaver-twitter-future-core"))
+  .settings(
+    name := "weaver-twitter-future-core",
+    libraryDependencies ++= Seq(
+      "com.twitter" %% "util-core" % Versions.twitter,
+      "com.disneystreaming" %% "weaver-core" % Versions.weaver,
+      "com.disneystreaming" %% "weaver-cats" % Versions.weaver,
+      "org.typelevel" %% "catbird-util" % Versions.twitter
+    )
+  )
+
+lazy val `weaver-twitter-future` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("weaver-twitter-future"))
+  .settings(
+    name := "weaver-twitter-future",
+    testFrameworks := Seq(new TestFramework("weaver.framework.TwitterFuture")),
+    Test / fork := true,
+    libraryDependencies ++= Seq(
+      "com.disneystreaming" %% "weaver-framework" % Versions.weaver,
+      "com.twitter" %% "util-core" % Versions.twitter,
+      "org.typelevel" %% "catbird-util" % Versions.twitter
+    )
+  )
+  .dependsOn(`weaver-twitter-future-core`)
 
 lazy val docs = project
   .in(file("site"))
