@@ -26,7 +26,7 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
   )
 )
 
-val Scala213 = "2.13.8"
+val Scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq(Scala213)
 ThisBuild / scalaVersion := Scala213 // the default Scala
 
