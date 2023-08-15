@@ -15,6 +15,10 @@ on:
     tags: [v*]
 
 env:
+  PG_PASSWORD: test
+  PG_HOST_PORT: 'localhost:5432'
+  PG_USER: postgres
+  PG_DBNAME: finagle_postgres_test
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
@@ -55,6 +59,9 @@ jobs:
       - name: Start up Postgres
         run: docker-compose up -d
 
+      - name: Wait for Postgres to be ready
+        run: ./.github/wait-for-postgres.sh
+
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 
@@ -75,11 +82,11 @@ jobs:
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: mkdir -p quill-finagle-postgres/.jvm/target finagle-postgres/.jvm/target finagle-postgres-shapeless/.jvm/target project/target
+        run: mkdir -p weaver-twitter-future-core/.jvm/target weaver-twitter-future/.jvm/target quill-finagle-postgres/.jvm/target finagle-postgres/.jvm/target finagle-postgres-shapeless/.jvm/target project/target
 
       - name: Compress target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: tar cf targets.tar quill-finagle-postgres/.jvm/target finagle-postgres/.jvm/target finagle-postgres-shapeless/.jvm/target project/target
+        run: tar cf targets.tar weaver-twitter-future-core/.jvm/target weaver-twitter-future/.jvm/target quill-finagle-postgres/.jvm/target finagle-postgres/.jvm/target finagle-postgres-shapeless/.jvm/target project/target
 
       - name: Upload target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')

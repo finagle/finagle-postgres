@@ -23,7 +23,17 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
   WorkflowStep.Run(
     commands = List("docker-compose up -d"),
     name = Some("Start up Postgres")
+  ),
+  WorkflowStep.Run(
+    commands = List("./.github/wait-for-postgres.sh"),
+    name = Some("Wait for Postgres to be ready")
   )
+)
+ThisBuild / githubWorkflowEnv ++= Map(
+  "PG_HOST_PORT" -> "localhost:5432",
+  "PG_USER" -> "postgres",
+  "PG_DBNAME" -> "finagle_postgres_test",
+  "PG_PASSWORD" -> "test"
 )
 
 val Scala213 = "2.13.10"
