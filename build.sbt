@@ -1,5 +1,5 @@
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.14" // your current series x.y
+ThisBuild / tlBaseVersion := "0.15" // your current series x.y
 
 ThisBuild / organization := "io.github.deal-engine"
 ThisBuild / organizationName := "Deal Engine"
@@ -26,7 +26,7 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
   )
 )
 
-val Scala213 = "2.13.8"
+val Scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq(Scala213)
 ThisBuild / scalaVersion := Scala213 // the default Scala
 
