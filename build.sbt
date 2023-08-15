@@ -1,5 +1,5 @@
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.14" // your current series x.y
+ThisBuild / tlBaseVersion := "0.15" // your current series x.y
 
 ThisBuild / organization := "io.github.deal-engine"
 ThisBuild / organizationName := "Deal Engine"
