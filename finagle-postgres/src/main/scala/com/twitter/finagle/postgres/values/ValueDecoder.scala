@@ -200,7 +200,7 @@ object ValueDecoder {
       }
   )
 
-  implicit val hstoreMap: ValueDecoder[Map[String, Option[String]]] = instance(
+  /*TODO: implicit val hstoreMap: ValueDecoder[Map[String, Option[String]]] = instance(
     s =>
       Try {
         HStores
@@ -210,7 +210,7 @@ object ValueDecoder {
           )
       },
     (buf, charset) => Try(HStores.decodeHStoreBinary(buf, charset))
-  )
+  )*/
 
   val unknown: ValueDecoder[Either[String, Array[Byte]]] = instance(
     s => Return(Left(s)),
@@ -254,7 +254,7 @@ object ValueDecoder {
     case "numeric_recv" => bigDecimal
     case "uuid_recv"    => uuid
     case "jsonb_recv"   => jsonb
-    case "hstore_recv"  => hstoreMap
+    // TODO: case "hstore_recv"  => hstoreMap
   }
 
 }
