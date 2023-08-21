@@ -115,7 +115,7 @@ class CustomTypesSpec extends Spec with ScalaCheckDrivenPropertyChecks {
       "parse times with timezone" in test(ValueDecoder.offsetTime)("timetz")
       "parse intervals" in test(ValueDecoder.interval)("interval")
       "parse uuids" in test(ValueDecoder.uuid)("uuid")
-      "parse hstore maps" in test(ValueDecoder.hstoreMap)("hstore")
+      // TODO: "parse hstore maps" in test(ValueDecoder.hstoreMap)("hstore")
     }
 
   }

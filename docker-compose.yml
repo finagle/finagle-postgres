@@ -2,11 +2,10 @@ version: '3.1'
 
 services:
   postgres:
-    image: postgres:9.6
+    image: postgres:12
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: finagle_postgres_test
+      POSTGRES_PASSWORD: test
     ports:
       - 5432:5432
-    volumes:
-      - ./finagle-postgres/src/test/resources/extensions.sql:/docker-entrypoint-initdb.d/init.sql
