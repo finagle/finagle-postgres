@@ -58,7 +58,9 @@ lazy val root =
   tlCrossRootProject.aggregate(
     `finagle-postgres`,
     `finagle-postgres-shapeless`,
-    `finagle-postgres-quill`
+    `finagle-postgres-quill`,
+    `weaver-twitter-future`,
+    `weaver-twitter-future-core`
   )
 
 lazy val `finagle-postgres` = crossProject(JVMPlatform)
