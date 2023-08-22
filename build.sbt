@@ -1,5 +1,5 @@
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.15" // your current series x.y
+ThisBuild / tlBaseVersion := "0.16" // your current series x.y
 
 ThisBuild / organization := "io.github.deal-engine"
 ThisBuild / organizationName := "Deal Engine"
@@ -58,7 +58,9 @@ lazy val root =
   tlCrossRootProject.aggregate(
     `finagle-postgres`,
     `finagle-postgres-shapeless`,
-    `finagle-postgres-quill`
+    `finagle-postgres-quill`,
+    `weaver-twitter-future`,
+    `weaver-twitter-future-core`
   )
 
 lazy val `finagle-postgres` = crossProject(JVMPlatform)
@@ -119,6 +121,7 @@ lazy val `weaver-twitter-future-core` = crossProject(JVMPlatform)
   .in(file("weaver-twitter-future-core"))
   .settings(
     name := "weaver-twitter-future-core",
+    tlVersionIntroduced := Map("2.13" -> "0.16.0"),
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-core" % Versions.twitter,
       "com.disneystreaming" %% "weaver-core" % Versions.weaver,
@@ -132,6 +135,7 @@ lazy val `weaver-twitter-future` = crossProject(JVMPlatform)
   .in(file("weaver-twitter-future"))
   .settings(
     name := "weaver-twitter-future",
+    tlVersionIntroduced := Map("2.13" -> "0.16.0"),
     testFrameworks := Seq(new TestFramework("weaver.framework.TwitterFuture")),
     Test / fork := true,
     libraryDependencies ++= Seq(
