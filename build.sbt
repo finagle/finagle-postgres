@@ -95,7 +95,7 @@ lazy val `finagle-postgres-quill` = crossProject(JVMPlatform)
       "org.scalacheck" %% "scalacheck" % Versions.scalacheck % Test
     )
   )
-  .dependsOn(`finagle-postgres`, `weaver-twitter-future` % "compile->test;")
+  .dependsOn(`finagle-postgres`, `weaver-twitter-future` % Test)
 
 lazy val `finagle-postgres-shapeless` = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
