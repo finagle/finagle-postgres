@@ -82,6 +82,17 @@ lazy val `finagle-postgres` = crossProject(JVMPlatform)
     )
   )
 
+lazy val `finagle-postgres-skunk` = crossProject(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("finagle-postgres-skunk"))
+  .settings(
+    name := "finagle-postgres-skunk",
+    libraryDependencies ++= Seq(
+      "org.tpolecat" %% "skunk-core" % "0.6.0"
+    )
+  )
+  .dependsOn(`finagle-postgres`)
+
 lazy val `finagle-postgres-quill` = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("quill-finagle-postgres"))
