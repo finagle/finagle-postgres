@@ -1,22 +1,11 @@
 package io.getquill
 
 import cats.effect.{IO, Resource}
-
-import com.twitter.finagle.{Postgres, Status}
-import com.twitter.finagle.postgres.{
-  OK,
-  Param,
-  PostgresClient,
-  PostgresClientImpl,
-  QueryResponse,
-  Row
-}
-import com.twitter.util.Future
-
+import com.twitter.finagle.Postgres
+import com.twitter.finagle.postgres.PostgresClientImpl
+import com.twitter.util.Await
 import com.typesafe.config.Config
 import weaver.*
-
-case class TableTest(id: Int, name: String)
 
 class PgClient(override val config: Config)
     extends FinaglePostgresContextConfig(config)
@@ -55,20 +44,24 @@ object Utils {
 }
 
 object Test extends MutableTwitterFutureSuite {
+  case class TableTest(id: Int, name: Option[String])
 
   override type Res = FinaglePostgresContext[SnakeCase.type]
   override def sharedResource: Resource[IO, Res] =
     Resource.make {
       Utils.getClient.map { client =>
         val ctx = new FinaglePostgresContext[SnakeCase.type](SnakeCase, client)
-        val _ = {
+        val a = {
           import ctx.*
-          ctx.run(sql"DROP TABLE IF EXISTS table_test".as[Insert[Unit]])
-          ctx.run(
-            sql"CREATE TABLE table_test (id integer, name text)"
-              .as[Insert[Unit]]
-          )
+          for {
+            _ <- ctx.run(sql"DROP TABLE IF EXISTS table_test".as[Insert[Unit]])
+            _ <- ctx.run(
+              sql"CREATE TABLE table_test (id integer, name text)"
+                .as[Insert[Unit]]
+            )
+          } yield ()
         }
+        Await.result(a)
         ctx
       }
     } { client =>
@@ -79,10 +72,10 @@ object Test extends MutableTwitterFutureSuite {
     import ctx.*
     val results = ctx.transaction {
       for {
-        _ <- ctx.run(query[TableTest].insertValue(TableTest(0, "hola")))
+        _ <- ctx.run(query[TableTest].insertValue(TableTest(0, Some("hola"))))
         result <- ctx.run(query[TableTest].filter(_.id == 0))
       } yield result
     }
-    results.map(res => expect(res.head == TableTest(0, "hola")))
+    results.map(res => expect(res.head == TableTest(0, Some("hola"))))
   }
 }

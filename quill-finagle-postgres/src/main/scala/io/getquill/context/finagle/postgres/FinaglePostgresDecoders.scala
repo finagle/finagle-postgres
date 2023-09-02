@@ -21,12 +21,17 @@ trait FinaglePostgresDecoders {
 
   case class FinaglePostgresDecoder[T](
       vd: ValueDecoder[T],
-      default: Throwable => T = (e: Throwable) => fail(e.getMessage)
+      withRescue: Throwable => T = (e: Throwable) =>
+        e match {
+          case (e: IllegalStateException) if e.getMessage == "Value is NULL" =>
+            null.asInstanceOf[T]
+          case _ => fail(e.getMessage)
+        }
   ) extends BaseDecoder[T] {
     override def apply(index: Index, row: ResultRow, session: Session): T =
       row.getTry[T](index)(vd) match {
         case Return(r) => r
-        case Throw(e)  => default(e)
+        case Throw(e)  => withRescue(e)
       }
 
     def orElse[U](
@@ -59,17 +64,26 @@ trait FinaglePostgresDecoders {
   def decoderMapped[U, T](f: U => T)(implicit vd: ValueDecoder[U]): Decoder[T] =
     FinaglePostgresDecoder(vd.map[T](f))
 
-  implicit def optionDecoder[T](implicit d: Decoder[T]): Decoder[Option[T]] =
+  implicit def optionDecoder[T](implicit vd: Decoder[T]): Decoder[Option[T]] =
     FinaglePostgresDecoder[Option[T]](
       new ValueDecoder[Option[T]] {
-        def decodeText(recv: String, text: String): Try[Option[T]] =
-          Return(d.vd.decodeText(recv, text).toOption)
+        def decodeText(recv: String, text: String): Try[Option[T]] = {
+          vd.vd.decodeText(recv, text).map(Option(_)).handle {
+            case (e: IllegalStateException)
+                if e.getMessage == "Value is NULL" =>
+              None
+          }
+        }
         def decodeBinary(
             recv: String,
             bytes: ByteBuf,
             charset: Charset
         ): Try[Option[T]] =
-          Return(d.vd.decodeBinary(recv, bytes, charset).toOption)
+          vd.vd.decodeBinary(recv, bytes, charset).map(Option(_)).handle {
+            case (e: IllegalStateException)
+                if e.getMessage == "Value is NULL" =>
+              None
+          }
       },
       _ => None
     )
