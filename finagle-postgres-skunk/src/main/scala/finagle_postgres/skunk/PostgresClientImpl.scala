@@ -155,7 +155,7 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
   override def executeUpdate(sql: String): Future[OK] = execute(sql)
 
   override def execute(sql: String): Future[OK] = sessionFuture.flatMap {
-    session =>
+    session => ??? /*
       val command: Command[Void] =
         Command(sql = sql, origin = Origin.unknown, encoder = skunk.Void.codec)
       Util.runIO(session.execute(command).map {
@@ -166,6 +166,7 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
         case Completion.Copy(count)   => OK(count)
         case _                        => OK(0)
       })
+      */
   }
 
   override def selectToStream[T](sql: String)(f: Row => T): AsyncStream[T] = {
@@ -225,13 +226,13 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
       isDynamic = true
     )
 
-    AsyncStream.fromFuture {
-      sessionFuture.flatMap { session =>
-        Util.runIO(session.prepare(query).flatMap { pc =>
-          fs2IO2Async(pc.stream(params, 6).map(f))
-        })
-      }
-    }.flatten
+    AsyncStream {
+      for {
+        session <- Util.toIO(sessionFuture)
+        pq <- session.prepare(query)
+        r <- fs2IO2Async(pq.stream(params, 6))
+      } yield r.map(f)
+    }
   }
 
   override def prepareAndExecute(sql: String, params: Param[_]*): Future[Int] =
@@ -242,16 +243,16 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
         encoder = encoder
       )
 
-      Util.runIO(session.prepare(query).flatMap { pc =>
-        pc.execute(params).map {
-          case Completion.Insert(count) => count
-          case Completion.Delete(count) => count
-          case Completion.Select(count) => count
-          case Completion.Update(count) => count
-          case Completion.Copy(count)   => count
-          case _                        => 0
+      Util.runIO(for {
+        pc <- session.prepare(query)
+        r <- pc.execute(params)
+        rr <- r match {
+          case Completion.Insert(count) => IO.pure(count)
+          case Completion.Delete(count) => IO.pure(count)
+          case Completion.Update(count) => IO.pure(count)
+          case _ => IO.raiseError(new IllegalArgumentException("shouldn't query in command code"))
         }
-      })
+      } yield rr)
     }
 
   /** Close the underlying connection pool and make this Client eternally down
