@@ -36,12 +36,13 @@ object Util {
   // From cats
   private val scheduler: Scheduler = new Scheduler {
     override def sleep(delay: FiniteDuration, task: Runnable): Runnable =
-      () => Future.Unit.flatMap { _ =>
-        implicit val timer: JavaTimer = new JavaTimer()
-        Future.sleep(Duration.fromMilliseconds(delay.toMillis)).flatMap { _ =>
-          Future { task.run() }
+      () =>
+        Future.Unit.flatMap { _ =>
+          implicit val timer: JavaTimer = new JavaTimer()
+          Future.sleep(Duration.fromMilliseconds(delay.toMillis)).flatMap { _ =>
+            Future { task.run() }
+          }
         }
-      }
 
     override def nowMillis(): Long = System.currentTimeMillis()
 
