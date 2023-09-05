@@ -27,8 +27,9 @@ import skunk.util.Origin
  */
 
 class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
-    extends PostgresClient {
+    extends PostgresClient { self =>
   protected val isActive: AtomicBoolean = new AtomicBoolean(true)
+  protected val isTransaction: Boolean = false
 
   private val alloc: Future[(Session[IO], IO[Unit])] =
     Util.runIO(sessionR.allocated)
@@ -47,19 +48,24 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
 
   override def charset: Charset = StandardCharsets.UTF_8
 
-  override def inTransaction[T](fn: PostgresClient => Future[T]): Future[T] =
-    sessionFuture.flatMap { session =>
-      Util
-        .runIO(session.transaction.use { _ =>
-          IO {
-            val tIsActive = isActive
-            fn(new PostgresClientImpl(resourceUnreleased) {
-              override val isActive: AtomicBoolean = tIsActive
-            })
-          }
-        })
-        .flatten
-    }
+  override def inTransaction[T](fn: PostgresClient => Future[T]): Future[T] = {
+    if (!isTransaction) {
+      sessionFuture.flatMap { session =>
+        Util
+          .runIO(session.transaction.use { _ =>
+            IO {
+              fn(new PostgresClientImpl(resourceUnreleased) {
+                override val isActive: AtomicBoolean = self.isActive
+                override val isTransaction: Boolean = true
+              })
+            }
+          })
+          .flatten
+      }
+      // Allow nested transactions, probably a bad idea c:
+      // Deal engine be like https://www.youtube.com/watch?v=5fbZTnZDvPA
+    } else { fn(self) }
+  }
 
   val decoder: Decoder[Row] = new Decoder[Row] {
     override def types: List[Type] = List.empty
