@@ -18,50 +18,51 @@ import scala.concurrent.duration.FiniteDuration
 
 object Util {
 
-  /** Runs a Cats IO task in a Twitter Future context. */
-  def runIO[A](io: IO[A]): Future[A] = {
-    val computeEC: ExecutionContext =
-      new ExecutionContext {
-        def execute(runnable: Runnable): Unit = Future(runnable.run())
+  private val computeEC: ExecutionContext =
+    new ExecutionContext {
+      def execute(runnable: Runnable): Unit = Future(runnable.run())
 
-        def reportFailure(cause: Throwable): Unit = Monitor.handle(cause)
-      }
-
-    val blockingEC: ExecutionContext =
-      new ExecutionContext {
-        def execute(runnable: Runnable): Unit =
-          FuturePool.unboundedPool(runnable.run())
-
-        def reportFailure(cause: Throwable): Unit = Monitor.handle(cause)
-      }
-
-    val scheduler: Scheduler = new Scheduler {
-      override def sleep(delay: FiniteDuration, task: Runnable): Runnable =
-        new Runnable {
-          override def run(): Unit = Future.Unit.flatMap { _ =>
-            implicit val timer: JavaTimer = new JavaTimer()
-            Future.sleep(Duration.fromMilliseconds(delay.toMillis))
-          }
-        }
-
-      override def nowMillis(): Long = System.currentTimeMillis()
-
-      override def monotonicNanos(): Long = {
-        val now = Instant.now()
-        now.getEpochSecond * 1000000 + now.getLong(ChronoField.MICRO_OF_SECOND)
-      }
+      def reportFailure(cause: Throwable): Unit = Monitor.handle(cause)
     }
 
-    val config: IORuntimeConfig = IORuntimeConfig()
-    val runtime: IORuntime =
-      IORuntime.apply(
-        compute = computeEC,
-        blocking = blockingEC,
-        scheduler = scheduler,
-        shutdown = () => (),
-        config = config
-      )
+  private val blockingEC: ExecutionContext =
+    new ExecutionContext {
+      def execute(runnable: Runnable): Unit =
+        FuturePool.unboundedPool(runnable.run())
 
+      def reportFailure(cause: Throwable): Unit = Monitor.handle(cause)
+    }
+
+  // From cats
+  private val scheduler: Scheduler = new Scheduler {
+    override def sleep(delay: FiniteDuration, task: Runnable): Runnable =
+      () => Future.Unit.flatMap { _ =>
+        implicit val timer: JavaTimer = new JavaTimer()
+        Future.sleep(Duration.fromMilliseconds(delay.toMillis)).flatMap { _ =>
+          Future { task.run() }
+        }
+      }
+
+    override def nowMillis(): Long = System.currentTimeMillis()
+
+    override def monotonicNanos(): Long = {
+      val now = Instant.now()
+      now.getEpochSecond * 1000000 + now.getLong(ChronoField.MICRO_OF_SECOND)
+    }
+  }
+
+  private val config: IORuntimeConfig = IORuntimeConfig()
+  private val runtime: IORuntime =
+    IORuntime.apply(
+      compute = computeEC,
+      blocking = blockingEC,
+      scheduler = scheduler,
+      shutdown = () => (),
+      config = config
+    )
+
+  /** Runs a Cats IO task in a Twitter Future context. */
+  def runIO[A](io: IO[A]): Future[A] = {
     val promise: Promise[A] = Promise[A]()
 
     io.unsafeRunAsync {

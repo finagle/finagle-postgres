@@ -252,7 +252,10 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
     *
     * @return
     */
-  override def close(): Future[Unit] = finalizer()
+  override def close(): Future[Unit] = {
+    isActive.set(false)
+    finalizer()
+  }
 
   /** The current availability [[Status]] of this client.
     */
