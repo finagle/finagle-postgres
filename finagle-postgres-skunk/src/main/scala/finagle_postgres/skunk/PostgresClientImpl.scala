@@ -155,7 +155,7 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
   override def executeUpdate(sql: String): Future[OK] = execute(sql)
 
   override def execute(sql: String): Future[OK] = sessionFuture.flatMap {
-    session => ??? /*
+    session =>
       val command: Command[Void] =
         Command(sql = sql, origin = Origin.unknown, encoder = skunk.Void.codec)
       Util.runIO(session.execute(command).map {
@@ -166,7 +166,6 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
         case Completion.Copy(count)   => OK(count)
         case _                        => OK(0)
       })
-      */
   }
 
   override def selectToStream[T](sql: String)(f: Row => T): AsyncStream[T] = {
@@ -177,6 +176,7 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
       decoder = decoder,
       isDynamic = true
     )
+    println("Im hereeee")
     AsyncStream.fromFuture {
       sessionFuture.flatMap { session =>
         Util.runIO(
@@ -226,13 +226,13 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
       isDynamic = true
     )
 
-    AsyncStream {
-      for {
+    AsyncStream.fromFuture {
+      Util.runIO(for {
         session <- Util.toIO(sessionFuture)
         pq <- session.prepare(query)
         r <- fs2IO2Async(pq.stream(params, 6))
-      } yield r.map(f)
-    }
+      } yield r.map(f))
+    }.flatten
   }
 
   override def prepareAndExecute(sql: String, params: Param[_]*): Future[Int] =
@@ -250,7 +250,10 @@ class PostgresClientImpl(sessionR: Resource[IO, Session[IO]])
           case Completion.Insert(count) => IO.pure(count)
           case Completion.Delete(count) => IO.pure(count)
           case Completion.Update(count) => IO.pure(count)
-          case _ => IO.raiseError(new IllegalArgumentException("shouldn't query in command code"))
+          case tt =>
+            IO.raiseError(
+              new IllegalArgumentException(s"[$tt] shouldn't query in command code: $sql")
+            )
         }
       } yield rr)
     }

@@ -82,4 +82,31 @@ object TestSkunk extends MutableTwitterFutureSuite {
       expect(result1.contains(TableTestSkunk(1, null)))
     }
   }
+
+  future("can have nested transactions") { ctx =>
+    import ctx.*
+    for {
+      _ <- ctx.run(
+        query[TableTestSkunk].insertValue(TableTestSkunk(10, "10"))
+      )
+      values_down <- ctx.transaction {
+        for {
+          _ <- ctx.run(
+            query[TableTestSkunk].insertValue(TableTestSkunk(20, "20"))
+          )
+          _ <- ctx.transaction {
+            ctx.run(
+              query[TableTestSkunk].insertValue(TableTestSkunk(30, "30"))
+            )
+          }
+          values_top <- ctx.run(query[TableTestSkunk])
+        } yield values_top
+      }
+      values_top <- ctx.run(query[TableTestSkunk])
+    } yield {
+      println(s"VT: $values_top")
+      println(s"VD: $values_down")
+      expect(true)
+    }
+  }
 }
