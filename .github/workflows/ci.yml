@@ -17,6 +17,8 @@ on:
 env:
   PG_PASSWORD: test
   PG_HOST_PORT: 'localhost:5432'
+  PG_HOST: localhost
+  PG_PORT: 5432
   PG_USER: postgres
   PG_DBNAME: finagle_postgres_test
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

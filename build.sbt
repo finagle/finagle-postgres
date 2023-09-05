@@ -32,6 +32,8 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
 )
 ThisBuild / githubWorkflowEnv ++= Map(
   "PG_HOST_PORT" -> "localhost:5432",
+  "PG_HOST" -> "localhost",
+  "PG_PORT" -> "5432",
   "PG_USER" -> "postgres",
   "PG_DBNAME" -> "finagle_postgres_test",
   "PG_PASSWORD" -> "test"
